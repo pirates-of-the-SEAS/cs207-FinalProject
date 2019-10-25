@@ -9,4 +9,4 @@ Group 16:
 + Cameron Hickert
 + Dianne Lee
 + Michael Downs
-+ Victor Song
++ Victor(Wisoo) Song
