@@ -4,7 +4,7 @@
 import numpy as np
 from auto_diff import AutoDiff
 
-def exp(x):
+def sin(x):
 
     try:
         named_variables = x.get_named_variables()
@@ -13,15 +13,17 @@ def exp(x):
         updated_trace = {}
 
         updated_trace.update(trace)
-        updated_trace['val'] = np.exp(updated_trace['val'])
+        updated_trace['val'] = np.sin(updated_trace['val'])
 
         for var in named_variables:
-            updated_trace[f'd_{var}'] = updated_trace['val'] * updated_trace[f'd_{var}']
+            print(updated_trace[f'd_{var}'])
+            print(trace['val'])
+            updated_trace[f'd_{var}'] = np.cos(trace['val']) * updated_trace[f'd_{var}']
 
             return AutoDiff(name=named_variables,
                             trace=updated_trace)
     except:
-        return np.exp(x)
+        return np.log(x)
 
 
 if __name__ == '__main__':

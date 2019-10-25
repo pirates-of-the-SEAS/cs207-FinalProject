@@ -1,8 +1,12 @@
 """
+This is a rough implementation of forward mode automatic differentiation for
+elementary functions. 
+
 Documentation goes here
 
 https://docs.python.org/2/reference/datamodel.html#emulating-numeric-types
 """
+import functions as adfuncs
 
 class AutoDiff:
     def __init__(self, **kwargs):
@@ -23,7 +27,7 @@ class AutoDiff:
  
         # case 1: construct object assuming trace has been pre-computed
         if 'trace' in kwargs:
-            self.trace = trace
+            self.trace = kwargs['trace']
 
             if 'name' in kwargs:
                 self.named_variables = kwargs['name']
@@ -33,12 +37,12 @@ class AutoDiff:
         # case 2: handle initial construction of an auto diff toy object 
         elif 'val' in kwargs:
             self.trace = {
-                'val': kwargs['val'],
-                f'd_{name}': 1
+                'val': kwargs['val']
             }
 
             if 'name' in kwargs:
                 self.named_variables = set((kwargs['name'],))
+                self.trace['d_{}'.format(kwargs['name'])] = 1
             else:
                 raise ValueError("variable name not specified")
 
@@ -73,7 +77,7 @@ class AutoDiff:
                     d1 = 0
 
                 try:
-                    d2 = trace[f'd_{var}']
+                    d2 = other_trace[f'd_{var}']
                 except KeyError:
                     d2 = 0 
 
@@ -139,7 +143,7 @@ class AutoDiff:
                     d1 = 0
 
                 try:
-                    d2 = trace[f'd_{var}']
+                    d2 = other_trace[f'd_{var}']
                 except KeyError:
                     d2 = 0 
 
@@ -182,15 +186,28 @@ class AutoDiff:
         """
         obj**other
         """
-        raise NotImplementedError
+        return adfuncs.exp(other * adfuncs.log(self))
+          
+        # except AttributeError:
+        #     named_variables = self.get_named_variables()
+        #     trace = self.get_trace()
+        #     updated_trace = {}
+        #     updated_trace.update(trace)
+
+        #     updated_trace['val'] = trace['val']**other
+        #     for var in named_variables:
+        #         updated_trace[f'd_{var}'] = other * (trace['val'])**(other-1) * updated_trace[f'd_{var}']
+            
+        #     return AutoDiff(name=named_variables,
+        #                     trace=updated_trace)
 
     def __rpow__(self, other):
         """
         other**obj
         """
-        raise NotImplementedError
+        return adfuncs.exp(self * adfuncs.log(other))
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         """
         obj/other
 
@@ -221,11 +238,11 @@ class AutoDiff:
                     d1 = 0
 
                 try:
-                    d2 = trace[f'd_{var}']
+                    d2 = other_trace[f'd_{var}']
                 except KeyError:
                     d2 = 0 
 
-                combined_trace[f'd_{var}'] = d1*val2 + val1*d2
+                combined_trace[f'd_{var}'] = (d1*val2 - val1*d2)/val2**2
 
             return AutoDiff(name=combined_named_variables,
                             trace=combined_trace)
@@ -242,134 +259,155 @@ class AutoDiff:
             return AutoDiff(name=named_variables,
                             trace=updated_trace)
 
-    def __rdiv__(self, other):
-        raise NotImplementedError
+    def __rtruediv__(self, other):
+        """
+        other / obj
+
+        f(x) = g(x)/h(x)
+
+        f'(x) = (g'(x)h(x) - g(x)h'(x)) / h(x)**2
+        """
+        try:
+            other_named_variables = other.get_named_variables()
+            named_variables = self.get_named_variables()
+
+            other_trace = other.get_trace()
+            trace = self.get_trace()
+
+            combined_named_variables = named_variables | other_named_variables
+
+            val1 = trace['val']
+            val2 = other_trace['val']
+
+            combined_trace = {
+                'val': val1/val2
+            }
+
+            for var in combined_named_variables:
+                try:
+                    d1 = trace[f'd_{var}']
+                except KeyError:
+                    d1 = 0
+
+                try:
+                    d2 = other_trace[f'd_{var}']
+                except KeyError:
+                    d2 = 0 
+
+                combined_trace[f'd_{var}'] = (d2*val1 - val2*d1)/val1**2
+
+            return AutoDiff(name=combined_named_variables,
+                            trace=combined_trace)
+        except AttributeError:
+            named_variables = self.get_named_variables()
+            trace = self.get_trace()
+            updated_trace = {}
+            updated_trace.update(trace)
+
+            updated_trace['val'] = other/trace['val']
+            for var in named_variables:
+                updated_trace[f'd_{var}'] = -1 * other * updated_trace[f'd_{var}'] / trace['val']**2
+            
+            return AutoDiff(name=named_variables,
+                            trace=updated_trace)
 
     def __neg__(self):
         return -1 * self
 
 
     def __str__(self):
-        return "val: {} | deriv: {}".format(self.val, self.der)
+        return str(self.trace)
 
 
 
 def main():
-    a = 2.0
-    x1 = AutoDiff(a)
+    x = AutoDiff(name='x', val=2)
+    y = AutoDiff(name='y', val=-5)
 
-    print("Asserting x1 is 2 and deriv is 1")
-    assert(x1.val == 2)
-    assert(x1.der == 1)
-    print("Assertions passed")
+    # addition
+    print("Addition")
+    print(1 + x)
+    print(x + 1)
 
-    print(x1)
+    print(x + x)
 
-    alpha = 2.0
-    beta = 3.0
+    print(x + y)
+    print(y + x)
 
-    print("left Multiplying by 2 and right adding 3:")
-    f = alpha * x1 + beta
-    assert(f.val == 7.0)
-    assert(f.der == 2.)
-    print("Assertions passed")
-    print(f)
+    # multiplication
+    print("Multiplication")
+    print(3 * x)
+    print(x * 3)
+
+    print(x * x)
+
+    print(x * y)
+    print(y * x)
+
+    # subtraction
+    print("Subtraction")
+    print(1 - x)
+    print(x - 1)
+
+    print(x - x)
+
+    print(x - y)
+    print(y - x)
+
+    # division
+    print("Division")
+    print(3 / x)
+    print(x / 3)
+
+    print(x / x)
+
+    print(x / y)
+    print(y / x)
+
+    # exp
+    print("Exp")
+    print(adfuncs.exp(x))
+
+    # log
+    print("log")
+    print(x)
+    print(adfuncs.log(x))
+
+    # sin
+    print("sin")
+    print(adfuncs.sin(x))
+
+    # cos
+    print("cos")
+    print(adfuncs.cos(x))
+
+    # tan
+    print("tan")
+    print(adfuncs.tan(x))
+
+    # exponentiation
+    print("exponentiation")
+    print(3 ** x)
+    print(x ** 3)
+    print((-3) ** x)
+    print(x ** (-3))
+
+    print(x ** x)
+
+    # these need to be fixed
+    # pow needs to be improved for numerical stability
+    print(x ** y)
+    print(y ** x)
+
+    z = AutoDiff(name='z', val=8)
+    z1 = z**2
+    print(z1)
+    z2 = adfuncs.sin(z1)
+    print(z2)
+    z3 = adfuncs.exp(z2)
+    print(z3)
 
 
-    print("right Multiplying original value by 2 and right adding 3:")
-    f = x1 * alpha + beta
-    assert(f.val == 7.)
-    assert(f.der == 2.)
-    print("Assertions passed")
-    print(f)
-
-    print("left Multiplying original value by 2 and left adding 3:")
-    f = beta + alpha * x1
-    assert(f.val == 7.)
-    assert(f.der == 2.)
-    print("Assertions passed")
-    print(f)
-
-    print("right Multiplying original value by 2 and left adding 3:")
-    f = beta + x1 * alpha
-    assert(f.val == 7.)
-    assert(f.der == 2.)
-    print("Assertions passed")
-    print(f)
-
-
-    print("Testing operations on  other autodifftoy objects")
-
-    a = 3
-    x2 = AutoDiff(a)
-
-    addition_test =  x1 + x2
-
-    assert(addition_test.val == 5)
-    assert(addition_test.der == 2)
-    print("Assertions passed")
-    print(addition_test)
-
-    mult_test = x1 * x2
-
-    assert(mult_test.val == 6)
-    assert(mult_test.der == 5)
-    print("Assertions passed")
-    print(mult_test)
-
-    print("Multiplying product of two autodifftoys by real number and adding real number")
-
-    x3 = 5 * mult_test + 20
-
-    assert(x3.val == 50)
-    assert(x3.der == 25)
-    print("Assertions passed")
-    print(x3)
-
-    print("Left multiplying by autodifftoy and right adding autodifftoy")
-
-    f = x1*x3 + x2
-
-    assert(f.val == 103)
-    assert(f.der == 101)
-    print("Assertions passed")
-    print(f)
-
-    print("Right multiplying by autodifftoy and right adding autodifftoy")
-
-    f = x3*x1 + x2
-
-    assert(f.val == 103)
-    assert(f.der == 101)
-    print("Assertions passed")
-    print(f)
-
-    print("Left multiplying by autodifftoy and left adding autodifftoy")
-
-    f = x2 + x3*x1 
-
-    assert(f.val == 103)
-    assert(f.der == 101)
-    print("Assertions passed")
-    print(f)
-
-    print("Right multiplying by autodifftoy and left adding autodifftoy")
-
-    f = x2 + x1*x3
-
-    assert(f.val == 103)
-    assert(f.der == 101)
-    print("Assertions passed")
-    print(f)
-
-    print("Adding invalid object")
-    try:
-        "test" + x1
-    except Exception as e:
-        print("Caught expected exception")
-        print(e)
-
-    
 
 if __name__ == '__main__':
     main()
