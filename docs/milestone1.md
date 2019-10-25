@@ -1,6 +1,6 @@
 # Introduction
 
-Our software package is an automatic differentiation suite that solves the problem of numerically computing the derivative for an arbitrary function as long as that function can be expressed as the composition of elementary functions. Precise computation of the gradient is of fundamental importance in the sciences and applied mathematics. Many optimization algorithms rely on gradient information. Indeed, the backpropagation algorithm, which is used to train neural networks, is simply gradient descent on the network's weights. Derivatives are also used in root finding methods such as Newton's methods, which are used to, among other things, numerically solve ordinary differential equations via implicit methods. Reliable solutions to ODEs are important many of the applied sciences. Automatic differentiation offers an improvement over finite difference methods in that automatic differentiation is exact and does not suffer nearly as much from numerical stability issues. 
+Our software package is an automatic differentiation suite that solves the problem of numerically computing the derivative for an arbitrary function as long as that function can be expressed as the composition of elementary functions. Precise computation of the gradient is of fundamental importance in the sciences and applied mathematics. Many optimization algorithms rely on gradient information. Indeed, the backpropagation algorithm, which is used to train neural networks, is simply gradient descent on the network's weights. Derivatives are also used in root finding methods such as Newton's methods, which are used to, among other things, numerically solve ordinary differential equations when using implicit methods. Reliable solutions to ODEs are important many of the applied sciences. Automatic differentiation offers an improvement over finite difference methods in that automatic differentiation is exact and does not suffer nearly as much from numerical stability issues. 
 
 Reliable Jacobian computations underpin many numerical algorithms, and automatic differentiation offers a way to achieve that .
 
@@ -17,11 +17,11 @@ Automatic Differentiation of a function can be conceptualized as
     6. Logarithms
     7. Trigonometric functions
     
-2. iterated application of the chain rule from the source of the computational graph through the end.
+2. iteratively applying the chain rule at each step of the computational graph from beginning to end in order to propagate the exact numeric values of the partial derivatives all the way until the final step of the computational graph, which represents the output of the function. The partial derivatives at the final step are with respect to the function's variables and so represent the numeric value of the gradient for a chosen value of the function's variables.
 
 The chain rule is 
 
-$$\frac{d}{dx} f(g(x)) = \frac{df}{dg} \frac{dg}{dx}$$.
+![chain rule](./chain_rule.png)
 
 TODO: explain how this generalizes to arbitrary multivariate, vector-valued functions
 
