@@ -1,86 +1,105 @@
-# Organization 
-Based off of recommendation by Kenneth Reitz (well known Python developer, author of the requests library)
+# Introduction
 
-setup.py
-requirements.txt
-ARRRtomatic_diff/__init__.py
-ARRRtomatic_diff/auto_diff.py
-ARRRtomatic_diff/functions/sin.py
-ARRRtomatic_diff/functions/...
-docs/conf.py
-docs/index.rst
-tests/test_basic.py
-tests/test_advanced.py
+Our software package is an automatic differentiation suite that solves the problem of numerically computing the derivative for an arbitrary function as long as that function can be expressed as the composition of elementary functions. Precise computation of the gradient is of fundamental importance in the sciences and applied mathematics. Many optimization algorithms rely on gradient information. Indeed, the backpropagation algorithm, which is used to train neural networks, is simply gradient descent on the network's weights. Derivatives are also used in root finding methods such as Newton's methods, which are used to, among other things, numerically solve ordinary differential equations via implicit methods. Reliable solutions to ODEs are important many of the applied sciences. Automatic differentiation offers an improvement over finite difference methods in that automatic differentiation is exact and does not suffer nearly as much from numerical stability issues. 
 
+Reliable Jacobian computations underpin many numerical algorithms, and automatic differentiation offers a way to that.
+
+# Background
+
+Automatic Differentiation of a function can be conceptualized as 
+
+1. dividing that function into a composition of elementary operations through a computationl graph. An elementary operation includes
+    1. Addition
+    2. Multiplication
+    3. Subtraction
+    4. Division
+    5. Exponentiation
+    6. Logarithms
+    7. Trigonometric functions
+    
+2. iterated application of the chain rule from the source of the computational graph through the end.
+
+The chain rule is 
+
+$$\frac{d}{dx} f(g(x)) = \frac{df}{dg} \frac{dg}{dx}$$.
+
+explain how this generalizes to arbitrary multivariate, vector-valued functions
+
+example here
+
+# How to use ARRRtomatic_diff
+
+We envision that a user will interact with our package by instantiating our core auto diff variable object and then composing complicated functions through the primitives exposed by our API. They would import the AutoDiffVariable object as well as the elementary functions we provide.
+
+We provide an example below:
+
+`
+from arrrtodiff import AutoDiffVariable
+import arrrtodiff.functions as adfuncs
+
+beta_0 = AutoDiff(name='b0', val=-3)
+beta_1 = AutoDiff(name='b1', val=4)
+
+for i in len(y):
+    f += (y[i] - (beta_0 + beta_1 * x[i]))**2
+
+f = f/len(y)
+
+grad = f.get_gradient()
+
+{
+    'b0': ...,
+    'b1': ...
+}
+`
+
+# Software Organization
+
+We expect the directory structure to look similar to the following
 .
-+-- _config.yml
-+-- _drafts
-|   +-- begin-with-the-crazy-ideas.textile
-|   +-- on-simplicity-in-technology.markdown
-+-- _includes
-|   +-- footer.html
-|   +-- header.html
-+-- _layouts
-|   +-- default.html
-|   +-- post.html
-+-- _posts
-|   +-- 2007-10-29-why-every-programmer-should-play-nethack.textile
-|   +-- 2009-04-26-barcamp-boston-4-roundup.textile
-+-- _data
-|   +-- members.yml
-+-- _site
-+-- index.html
+├── ARRRtomatic_diff
+│   ├── __init__.py
+│   ├── auto_diff.py
+│   └── functions
+│       ├── __init__.py
+│       ├── cos.py
+│       ├── exp.py
+│       ├── log.py
+│       ├── sin.py
+│       └── tan.py
+├── LICENSE
+├── README.md
+├── docs
+│   └── milestone1.md
+└── tests
 
-Milestone1 Document
+We will distribute our package through PyPI.    
 
-You must clearly outline your software design for the project. This is the main deliverable for this milestone. We are checking to make sure you have a realizable software design, that you understand the scope of the project, and that you understand the details of the project. Here are some sections your group should include in your document along with some prompts that you will want to address.
-Introduction
+We will include the auto_diff module which defines the AutoDiffVariable object in our computational graph. This variable will overload elementary operations such as __add__ to not only maintain the current value in the computational graph / trace table but also all of the partial derivatives for all named variables. We will also have modules for each elementary function e.g. exp, log, sin, etc. These functions will use duck typing to attempt to update values and partial derivatives if passed an AutoDiffVariable object, otherwise they will assume the input is a numeric primitive.
 
-Describe the problem the software solves and why it's important to solve that problem.
-Background
+We plan to maintain a test suite in another directory (specified in the hierarchy above) and will use both TravisCI and CodeCov. We will distribute our package via PyPI. We also plan to follow PEP 257 https://www.python.org/dev/peps/pep-0257/ for our documentation.
 
-Describe (briefly) the mathematical background and concepts as you see fit. You do not need to give a treatise on automatic differentation or dual numbers. Just give the essential ideas (e.g. the chain rule, the graph structure of calculations, elementary functions, etc). Do not copy and paste any of the lecture notes. We will easily be able to tell if you did this as it does not show that you truly understand the problem at hand.
-How to Use PackageName
+We will use setuptools (https://packaging.python.org/tutorials/packaging-projects/ ) to package out software. This seems to be standard approach within the Python community, and we believe that it is important to adhere to standards.
 
-How do you envision that a user will interact with your package? What should they import? How can they instantiate AD objects?
-
-Note: This section should be a mix of pseudo code and text. It should not include any actual operations yet. Remember, you have not yet written any code at this point.
-Software Organization
-
-Discuss how you plan on organizing your software package.
-
-    What will the directory structure look like?
-    What modules do you plan on including? What is their basic functionality?
-    Where will your test suite live? Will you use TravisCI? CodeCov?
-    How will you distribute your package (e.g. PyPI)?
-    How will you package your software? Will you use a framework? If so, which one and why? If not, why not?
     Other considerations?
 
-Implementation
 
-Discuss how you plan on implementing the forward mode of automatic differentiation.
 
-    What are the core data structures?
-    What classes will you implement?
-    What method and name attributes will your classes have?
-    What external dependencies will you rely on?
-    How will you deal with elementary functions like sin, sqrt, log, and exp (and all the others)?
+# Implementation
 
-Be sure to consider a variety of use cases. For example, don't limit your design to scalar functions of scalar values. Make sure you can handle the situations of vector functions of vectors and scalar functions of vectors. Don't forget that people will want to use your library in algorithms like Newton's method (among others).
-Document Length
+We plan on implementing the forward mode of automatic differentiation through operator overlaoding. 
 
-Try to keep your report to a reasonable length. It will form the core of your documentation, so you want it to be a length that someone will actually want to read. Since some of you will use Markdown while others will use Jupyter notebooks and still other group use Latex, we cannot standardize a page length. Use your best judgement. You will only lose points if your document is overly terse (e.g. you do not discuss aspects outlined above) or unbearably long (e.g. you provide so much information that it obscures the message).
-Additional Comments
+Our core data structure will be a representation of a particular row in the trace table / step in the computational graph. Users will instantiate named variables that represent root nodes in the computational graph or equivalently the first few rows of the trace table. They will then create more complicated functions by composing these variables with elementary operations. 
 
-There is no need to have an implementation started for Milestone 1. You are currently in the planning phase of your project. This means that you should feel free to have a project_planning repo in your project organization for scratch work and code.
-The actual implementation of your package will start after Milestone 1.
-Final Deliverables
+This will be implemented via the AutoDiffVariable class, which will handle all of the operator overloading. AutoDiffVariable objects can be combined through elementary operations to yield a new AutoDiffVariable object that have the appropriate value and partial derivatives. 
 
-There are three primary requirements for this first milestone.
+The AutoDiffVariable class will expose a few methods, namely get_named_variables, get_value, and get_gradient. The user will access get_gradient when they have finished writing their computational graph. As for attributes, the AutoDiffVariable class will simply maintain the names of its variables as well as a dictionary which contains the value of the function and its partial derivatives.
 
-    Create a project organization and invite the teaching staff.
-        Within the project organization, create a project repo (make sure teaching staff has access).
-        Protect your master branch.
-    Create a README.md inside the project repo. At this point, the README should include your the group number, a list of the members on your the team, and badges for Travis CI and CodeCov.
-    Fill out this Google form for your group.
-    The docs/ directory should include a document called milestone1 (the extension is up to you, but .md or .ipynb are recommended. Details on how to create milestone1 are provided in the Milestone 1 Document section above.
+We will use numpy for elementary computations. 
+
+We will create additional modules for each elementary function. Each module will contain a function that will update a AutoDiffVariable object accordingly. For example, "adfuncs.exp" would exponentiate the value and then multiplty each partial derivative by the new exponentiated value.
+
+We expect this approach to be robust enough to handle vector valued functions with vector inputs. We envision creating convenience methods if a user wishes to work in a multivariate setting i.e. we'll create convenience classes to allow broadcasting operations on iterables of AutoDiffVariable objects.
+
+
+

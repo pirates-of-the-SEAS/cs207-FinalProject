@@ -53,6 +53,9 @@ class AutoDiff:
     def get_named_variables(self):
         return self.named_variables
 
+    def get_value(self):
+        return self.trace['val']
+
     def get_gradient(self):
         return {f'd_{var}':self.trace[f'd_{var}'] for var in self.named_variables}
 
@@ -406,6 +409,8 @@ def main():
     print(z2)
     z3 = adfuncs.exp(z2)
     print(z3)
+
+    print(adfuncs.exp(x + adfuncs.sin(y) + z))
 
 
 

@@ -18,7 +18,7 @@ def cos(x):
         for var in named_variables:
             updated_trace[f'd_{var}'] = -1*np.sin(trace['val']) * updated_trace[f'd_{var}']
 
-            return AutoDiff(name=named_variables,
+        return AutoDiff(name=named_variables,
                             trace=updated_trace)
     except:
         return np.log(x)

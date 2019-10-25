@@ -20,7 +20,7 @@ def sin(x):
             print(trace['val'])
             updated_trace[f'd_{var}'] = np.cos(trace['val']) * updated_trace[f'd_{var}']
 
-            return AutoDiff(name=named_variables,
+        return AutoDiff(name=named_variables,
                             trace=updated_trace)
     except:
         return np.log(x)
