@@ -56,23 +56,26 @@ grad = f.get_gradient()
 # Software Organization
 
 We expect the directory structure to look similar to the following
-.
-├── ARRRtomatic_diff
-│   ├── __init__.py
-│   ├── auto_diff.py
-│   ├── multivariate.py
-│   └── functions
-│       ├── __init__.py
-│       ├── cos.py
-│       ├── exp.py
-│       ├── log.py
-│       ├── sin.py
-│       └── tan.py
-├── LICENSE
-├── README.md
-├── docs
-│   └── milestone1.md
-└── tests
+
+![directory structure](./directory_struct.png)
+
+<!-- . -->
+<!-- ├── ARRRtomatic_diff -->
+<!-- │   ├── __init__.py -->
+<!-- │   ├── auto_diff.py -->
+<!-- │   ├── multivariate.py -->
+<!-- │   └── functions -->
+<!-- │       ├── __init__.py -->
+<!-- │       ├── cos.py -->
+<!-- │       ├── exp.py -->
+<!-- │       ├── log.py -->
+<!-- │       ├── sin.py -->
+<!-- │       └── tan.py -->
+<!-- ├── LICENSE -->
+<!-- ├── README.md -->
+<!-- ├── docs -->
+<!-- │   └── milestone1.md -->
+<!-- └── tests -->
 
 We will distribute our package through PyPI. 
 
