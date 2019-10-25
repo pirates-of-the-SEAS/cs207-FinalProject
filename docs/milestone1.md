@@ -33,7 +33,7 @@ We envision that a user will interact with our package by instantiating our core
 
 We provide an example below:
 
-`
+```python
 from arrrtodiff import AutoDiffVariable
 import arrrtodiff.functions as adfuncs
 
@@ -51,7 +51,7 @@ grad = f.get_gradient()
     'b0': ...,
     'b1': ...
 }
-`
+```
 
 # Software Organization
 
