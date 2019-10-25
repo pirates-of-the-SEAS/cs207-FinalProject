@@ -2,7 +2,7 @@
 
 Our software package is an automatic differentiation suite that solves the problem of numerically computing the derivative for an arbitrary function as long as that function can be expressed as the composition of elementary functions. Precise computation of the gradient is of fundamental importance in the sciences and applied mathematics. Many optimization algorithms rely on gradient information. Indeed, the backpropagation algorithm, which is used to train neural networks, is simply gradient descent on the network's weights. Derivatives are also used in root finding methods such as Newton's methods, which are used to, among other things, numerically solve ordinary differential equations via implicit methods. Reliable solutions to ODEs are important many of the applied sciences. Automatic differentiation offers an improvement over finite difference methods in that automatic differentiation is exact and does not suffer nearly as much from numerical stability issues. 
 
-Reliable Jacobian computations underpin many numerical algorithms, and automatic differentiation offers a way to that.
+Reliable Jacobian computations underpin many numerical algorithms, and automatic differentiation offers a way to achieve that .
 
 # Background
 
@@ -23,9 +23,9 @@ The chain rule is
 
 $$\frac{d}{dx} f(g(x)) = \frac{df}{dg} \frac{dg}{dx}$$.
 
-explain how this generalizes to arbitrary multivariate, vector-valued functions
+TODO: explain how this generalizes to arbitrary multivariate, vector-valued functions
 
-example here
+TODO: example here
 
 # How to use ARRRtomatic_diff
 
@@ -60,6 +60,7 @@ We expect the directory structure to look similar to the following
 ├── ARRRtomatic_diff
 │   ├── __init__.py
 │   ├── auto_diff.py
+│   ├── multivariate.py
 │   └── functions
 │       ├── __init__.py
 │       ├── cos.py
@@ -73,7 +74,7 @@ We expect the directory structure to look similar to the following
 │   └── milestone1.md
 └── tests
 
-We will distribute our package through PyPI.    
+We will distribute our package through PyPI. 
 
 We will include the auto_diff module which defines the AutoDiffVariable object in our computational graph. This variable will overload elementary operations such as __add__ to not only maintain the current value in the computational graph / trace table but also all of the partial derivatives for all named variables. We will also have modules for each elementary function e.g. exp, log, sin, etc. These functions will use duck typing to attempt to update values and partial derivatives if passed an AutoDiffVariable object, otherwise they will assume the input is a numeric primitive.
 
@@ -81,7 +82,7 @@ We plan to maintain a test suite in another directory (specified in the hierarch
 
 We will use setuptools (https://packaging.python.org/tutorials/packaging-projects/ ) to package out software. This seems to be standard approach within the Python community, and we believe that it is important to adhere to standards.
 
-    Other considerations?
+TODO: Other considerations?
 
 
 
@@ -91,15 +92,15 @@ We plan on implementing the forward mode of automatic differentiation through op
 
 Our core data structure will be a representation of a particular row in the trace table / step in the computational graph. Users will instantiate named variables that represent root nodes in the computational graph or equivalently the first few rows of the trace table. They will then create more complicated functions by composing these variables with elementary operations. 
 
-This will be implemented via the AutoDiffVariable class, which will handle all of the operator overloading. AutoDiffVariable objects can be combined through elementary operations to yield a new AutoDiffVariable object that have the appropriate value and partial derivatives. 
+This will be implemented via the AutoDiffVariable class, which will handle all of the operator overloading. AutoDiffVariable objects can be combined through elementary operations to yield a new AutoDiffVariable object that hasg the appropriate value and partial derivatives. 
 
 The AutoDiffVariable class will expose a few methods, namely get_named_variables, get_value, and get_gradient. The user will access get_gradient when they have finished writing their computational graph. As for attributes, the AutoDiffVariable class will simply maintain the names of its variables as well as a dictionary which contains the value of the function and its partial derivatives.
 
 We will use numpy for elementary computations. 
 
-We will create additional modules for each elementary function. Each module will contain a function that will update a AutoDiffVariable object accordingly. For example, "adfuncs.exp" would exponentiate the value and then multiplty each partial derivative by the new exponentiated value.
+We will create additional modules for each elementary function. Each module will contain a function that will update a AutoDiffVariable object accordingly. For example, "adfuncs.exp(x)" would exponentiate the value and then multiplty each partial derivative by the new exponentiated value.
 
-We expect this approach to be robust enough to handle vector valued functions with vector inputs. We envision creating convenience methods if a user wishes to work in a multivariate setting i.e. we'll create convenience classes to allow broadcasting operations on iterables of AutoDiffVariable objects.
+We expect this approach to be robust enough to handle vector valued functions with vector inputs. We envision creating convenience methods if a user wishes to work in a multivariate setting i.e. we'll create convenience classes to create vectors of AutoDiffVariables and allow for broadcasting operations on iterables of AutoDiffVariable objects.
 
 
 
