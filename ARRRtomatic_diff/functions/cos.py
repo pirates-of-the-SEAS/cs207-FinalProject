@@ -21,7 +21,7 @@ def cos(x):
         return AutoDiff(name=named_variables,
                             trace=updated_trace)
     except:
-        return np.log(x)
+        return np.cos(x)
 
 
 if __name__ == '__main__':

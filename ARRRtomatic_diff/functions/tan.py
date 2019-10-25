@@ -18,4 +18,4 @@ def tan(x):
         return AutoDiff(name=named_variables,
                             trace=updated_trace)
     except:
-        return np.log(x)
+        return np.tan(x)

@@ -23,7 +23,7 @@ def sin(x):
         return AutoDiff(name=named_variables,
                             trace=updated_trace)
     except:
-        return np.log(x)
+        return np.sin(x)
 
 
 if __name__ == '__main__':
