@@ -1,5 +1,5 @@
 import numpy as np
-from auto_diff import AutoDiff
+from ARRRtomatic_diff import AutoDiff
 
 def tan(x):
 
