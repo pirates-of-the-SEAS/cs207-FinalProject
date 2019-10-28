@@ -6,7 +6,8 @@ Documentation goes here
 
 https://docs.python.org/2/reference/datamodel.html#emulating-numeric-types
 """
-import ARRRtomatic_diff.functions as adfuncs
+# import ARRRtomatic_diff.functions.funcs as adfuncs
+from ARRRtomatic_diff.functions import funcs as adfuncs
 
 class AutoDiff:
     def __init__(self, **kwargs):
