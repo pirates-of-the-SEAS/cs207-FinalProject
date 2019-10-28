@@ -1,14 +1,12 @@
 # Introduction
 
-Our software package is an automatic differentiation suite that solves the problem of numerically computing the derivative for an arbitrary function as long as that function can be expressed as the composition of elementary functions. Precise computation of the gradient is of fundamental importance in the sciences and applied mathematics. Many optimization algorithms rely on gradient information. Indeed, the backpropagation algorithm, which is used to train neural networks, is simply gradient descent on the network's weights. Derivatives are also used in root finding methods such as Newton's methods, which are used to, among other things, numerically solve ordinary differential equations when using implicit methods. Reliable solutions to ODEs are important many of the applied sciences. Automatic differentiation offers an improvement over finite difference methods in that automatic differentiation is exact and does not suffer nearly as much from numerical stability issues. 
-
-Reliable Jacobian computations underpin many numerical algorithms, and automatic differentiation offers a way to achieve that .
+Our software package is an automatic differentiation suite that solves the problem of numerically computing the derivative for an arbitrary function as long as that function can be expressed as the composition of elementary functions. Precise computation of the gradient is of fundamental importance in the sciences and applied mathematics. Many optimization algorithms rely on gradient information. Indeed, the backpropagation algorithm, which is used to train neural networks, is simply gradient descent on the network's weights. Derivatives are also used in root finding methods such as Newton's method, which are used to numerically solve ordinary differential equations when using implicit methods, among other things. Reliable solutions to ODEs are integral to many of the applied sciences. Automatic differentiation offers an improvement over finite difference methods in that automatic differentiation is exact to machine precision and does not suffer nearly as much from numerical stability issues. AD is also better than symbolic differentiation in that it is less computationally expensive.
 
 # Background
 
 Automatic Differentiation of a function can be conceptualized as 
 
-1. dividing that function into a composition of elementary operations through a computationl graph. An elementary operation includes
+1. Dividing that function into a composition of elementary operations through a computationl graph. Basic elementary operations include:
     1. Addition
     2. Multiplication
     3. Subtraction
@@ -17,15 +15,19 @@ Automatic Differentiation of a function can be conceptualized as
     6. Logarithms
     7. Trigonometric functions
     
-2. iteratively applying the chain rule at each step of the computational graph from beginning to end in order to propagate the exact numeric values of the partial derivatives all the way until the final step of the computational graph, which represents the output of the function. The partial derivatives at the final step are with respect to the function's variables and so represent the numeric value of the gradient for a chosen value of the function's variables.
+2. Iteratively applying the chain rule at each step of the computational graph from beginning to end in order to propagate the exact numeric values of the partial derivatives all the way until the final step of the computational graph, which represents the output of the function. The partial derivatives at the final step are with respect to the function's variables and so represent the numeric value of the gradient for a chosen value of the function's variables.
 
-The chain rule is 
+The chain rule describes the differentiation of a composite function, where the derivative must be taken at each step as described by the following diagram: 
 
 ![chain rule](./chain_rule.png)
 
-TODO: explain how this generalizes to arbitrary multivariate, vector-valued functions
+Using the chain rule, we can generalize forward mode automatic differentiation into arbitrary multivariate, vector-valued functions that take in multiple inputs and produce vectored outputs of the function value and derivative. 
 
-TODO: example here
+This also leads to a graph structure of computations. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function sin(2x) can be seen below, where x_n represents the nth step of the function. 
+
+![graph struct](./graph_structure.png)
+
+It is also useful to give some background on dual numbers. Dual numbers are numbers of the form a+bε. In the case of automatic differentiation, the ε value can be used to represent the derivative of the function at a particular value x. For example, an element x would be represented as the vector (x,x'). A simple application of a function f might look like f((x,x')) = (f(x),f(x)x'), making use of the chain rule as described above. 
 
 # How to use ARRRtomatic_diff
 
