@@ -2,7 +2,7 @@
 """
 
 import numpy as np
-from ARRRtomatic_diff import AutoDiff
+from auto_diff import AutoDiff
 
 def cos(x):
 
