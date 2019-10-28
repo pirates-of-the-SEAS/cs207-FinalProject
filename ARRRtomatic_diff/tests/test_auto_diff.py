@@ -11,7 +11,7 @@
 #     assert (1+x)['val'] ==3
 #     assert (1+x)['d_x'] ==1
 
-from .auto_diff import AutoDiff
+from ARRRtomatic_diff.auto_diff import AutoDiff
 
 def test_add():
     x = AutoDiff(name='x', val=2)
