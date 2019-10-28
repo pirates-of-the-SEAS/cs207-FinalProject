@@ -5,4 +5,4 @@ before_install:
     - pip install pytest pytest-cov
     - pip install codecov
 script:
-#    - pytest --cov=./
+    - pytest --cov=./
