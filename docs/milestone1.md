@@ -19,7 +19,7 @@ Automatic Differentiation of a function can be conceptualized as
     
 2. Iteratively applying the chain rule at each step of the computational graph from beginning to end in order to propagate the exact numeric values of the partial derivatives all the way until the final step of the computational graph, which represents the output of the function. The partial derivatives at the final step are with respect to the function's variables and so represent the numeric value of the gradient for a chosen value of the function's variables.
 
-The chain rule describes the differentiation of a composite function, where the derivative must be taken at each step as described by the following diagram: 
+The chain rule describes the differentiation of a composite function, where the derivatives are taken at each step as described by the following diagram: 
 
 ![chain rule](./chain_rule.png)
 
