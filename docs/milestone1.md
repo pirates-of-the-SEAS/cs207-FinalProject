@@ -6,7 +6,7 @@ Our software package is an automatic differentiation suite that solves the probl
 
 Automatic Differentiation of a function can be conceptualized as 
 
-1. Dividing that function into a composition of elementary operations through a computationl graph. Basic elementary operations include:
+1. Dividing that function into a composition of elementary operations through a computational graph. Basic elementary operations include:
     1. Addition
     2. Multiplication
     3. Subtraction
