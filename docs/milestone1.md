@@ -25,17 +25,17 @@ The chain rule describes the differentiation of a composite function, where the 
 
 The procedure described above allows for numerical gradient computations of particular classes of multivariate, scalar-valued functions, and can easily be extended to vector-valued functions as well -- simply apply the procedure component-wise to each function.
 
-We illustrate both the graph structure of computations as well as the propagation of the derivative via the chain rule with an example. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function *sin(2x)* can be seen below, where *x<sub>n</sub>* represents the *n*th step of the function. 
+We illustrate both the graph structure of computations as well as the propagation of the derivative via the chain rule with an example. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example of forward-mode automatic differentiation of the function *sin(2x)* can be seen below, where *x<sub>n</sub>* represents the *n*th step of the function. 
 
 ![graph struct](./graph_structure.PNG)
 
 | trace | func        | value   | deriv                 |   dx1 |
 |-------|-------------|---------|-----------------------|-------|
-| x_1 | x_1       | 5     | dx_1           |     1 |
-| x_2 | 2x_1      | 10    | 2dx_1          |     2 |
-| x_3 | sin(x_{2}) | -.544 | cos(x_2)dx_2 | -1.68 |
+| *x<sub>1</sub>* | *x<sub>1</sub>*       | 5     | d*x<sub>1</sub>*           |     1 |
+| *x<sub>2</sub>* | 2*x<sub>1</sub>*      | 10    | 2*x<sub>1</sub>*          |     2 |
+| *x<sub>3</sub>* | sin(*x<sub>2</sub>*) | -.544 | cos(*x<sub>2</sub>*)*x<sub>2</sub>* | -1.68 |
 
-
+Essentially, we break divide the composite function sin(2x) into the elementary operations *x<sub>1</sub>*=x, *x<sub>2</sub>*=2*x<sub>1</sub>*, and *x<sub>3</sub>*=sin(*x<sub>2</sub>*), and we maintain the derivatives along the way. We start with the first operation, x_1, the identity, which represents the variable x. Its derivative is dx_1 / dx_1 = 1. The next operation, x_2, is 2 * x_1. The derivative of this w.r.t x_1 is 2. The last operation, x_3, is sin(x_2). Then dx_3/dx_1 = d/dx_2 sin(x_2) * d/dx1 x_2 = cos(x_2) * d/dx1 x_2 = cos(x_2) * 2. 
 
 It is also useful to give some background on dual numbers. Dual numbers are numbers of the form *a+bε*. In the case of automatic differentiation, the *ε* value can be used to represent the derivative of the function at a particular value *x*. For example, an element *x* would be represented as the vector *(x,x')*. A simple application of a function *f* might look like *f((x,x')) = (f(x), f(x)x')*, making use of the chain rule as described above. 
 
