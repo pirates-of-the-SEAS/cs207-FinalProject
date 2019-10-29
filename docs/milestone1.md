@@ -25,7 +25,7 @@ Using the chain rule, we can generalize forward mode automatic differentiation i
 
 This also leads to a graph structure of computations. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function *sin(2x)* can be seen below, where *x<sub>n</sub>* represents the *n*th step of the function. 
 
-![graph struct](./graph_structure.png)
+![graph struct](./graph_structure.PNG)
 
 It is also useful to give some background on dual numbers. Dual numbers are numbers of the form *a+bε*. In the case of automatic differentiation, the *ε* value can be used to represent the derivative of the function at a particular value *x*. For example, an element *x* would be represented as the vector *(x,x')*. A simple application of a function *f* might look like *f((x,x')) = (f(x), f(x)x')*, making use of the chain rule as described above. 
 
