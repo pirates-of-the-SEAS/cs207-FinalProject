@@ -23,11 +23,11 @@ The chain rule describes the differentiation of a composite function, where the 
 
 Using the chain rule, we can generalize forward mode automatic differentiation into arbitrary multivariate, vector-valued functions that take in multiple inputs and produce vectored outputs of the function value and derivative. 
 
-This also leads to a graph structure of computations. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function sin(2x) can be seen below, where x_n represents the nth step of the function. 
+This also leads to a graph structure of computations. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function *sin(2x)* can be seen below, where *x_n* represents the *n*th step of the function. 
 
 ![graph struct](./graph_structure.png)
 
-It is also useful to give some background on dual numbers. Dual numbers are numbers of the form a+bε. In the case of automatic differentiation, the ε value can be used to represent the derivative of the function at a particular value x. For example, an element x would be represented as the vector (x,x'). A simple application of a function f might look like f((x,x')) = (f(x),f(x)x'), making use of the chain rule as described above. 
+It is also useful to give some background on dual numbers. Dual numbers are numbers of the form *a+bε*. In the case of automatic differentiation, the *ε* value can be used to represent the derivative of the function at a particular value *x*. For example, an element *x* would be represented as the vector *(x,x')*. A simple application of a function *f* might look like *f((x,x')) = (f(x),f(x)x')*, making use of the chain rule as described above. 
 
 # How to use ARRRtomatic_diff
 
@@ -57,7 +57,7 @@ grad = f.get_gradient()
 
 # Software Organization
 
-We expect the directory structure to look similar to the following
+We expect the directory structure to look similar to the following:
 
 ![directory structure](./directory_struct.png)
 
@@ -79,18 +79,18 @@ We expect the directory structure to look similar to the following
 <!-- │   └── milestone1.md -->
 <!-- └── tests -->
 
-We will distribute our package via PyPI, since it is the standard repository for Python packages, and will enable users to install our package using pip.  
+We will distribute our package via PyPI, since it is the standard repository for Python packages, and will enable users to install our package using pip, with which most Python users will be familiar.  
 
-We will include the auto_diff module which defines the AutoDiffVariable object in our computational graph. This variable will overload elementary operations such as `__add__` to not only maintain the current value in the computational graph / trace table but also all of the partial derivatives for all named variables. We will also have modules for each elementary function e.g. exp, log, sin, etc. These functions will use duck typing to attempt to update values and partial derivatives if passed an AutoDiffVariable object, otherwise they will assume the input is a numeric primitive.
+We will include the auto_diff module which defines the AutoDiffVariable object in our computational graph. This variable will overload elementary operations such as `__add__` to not only maintain the current value in the computational graph / trace table but also all of the partial derivatives for all named variables. We will also have modules for each elementary function (e.g. exp, log, sin, etc.). These functions will use duck typing to attempt to update values and partial derivatives if passed an AutoDiffVariable object, otherwise they will assume the input is a numeric primitive.
 
-We plan to maintain a test suite in another directory (specified in the hierarchy above) and will use both TravisCI and CodeCov. We also plan to follow PEP 257 https://www.python.org/dev/peps/pep-0257/ for our documentation.
+We plan to maintain a test suite in another directory (specified 'tests' in the hierarchy above) and will use both TravisCI and CodeCov. We also plan to follow PEP 257 https://www.python.org/dev/peps/pep-0257/ for our documentation.
 
 We will use setuptools (https://packaging.python.org/tutorials/packaging-projects/) to package our software. This seems to be standard approach within the Python community, and we believe that it is important to adhere to standards.
 
 
 # Implementation
 
-We plan on implementing the forward mode of automatic differentiation through operator overlaoding. That is, for each of the elementary operations (add, subtract, etc.), we will overload the standard operators to to function for our automatic differentiation package. Note that for each of the elementary operations, this also includes overloading the reverse operands ('__rmul__', '__radd__', etc.). These will work for any real number the user enters, and will also extend to dual numbers.  
+We plan on implementing the forward mode of automatic differentiation through operator overlaoding. That is, for each of the elementary operations (add, subtract, etc.), we will overload the standard operators to to function for our automatic differentiation package. Note that for each of the elementary operations, this also includes overloading the reverse operands (`__rmul__`, `__radd__`, etc.). These will work for any real number the user enters, and will also extend to dual numbers.  
 
 Our core data structure will be a representation of a particular row in the trace table, which in turn corresponds to a step in the computational graph. Users will instantiate named variables that represent root nodes in the computational graph (which corresponds to the inputs to the *n* initial rows of the trace table, where *n* represents the number of input variables). Users will then be able to create arbitrarily complicated functions by manipulating these variables with elementary operations. At every step the package will be able to output the derivative and the function value. Once the user has finished composing a function, our package's output will then be the final derivative and function value.  
 
