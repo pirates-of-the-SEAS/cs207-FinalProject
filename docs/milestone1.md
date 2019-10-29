@@ -6,7 +6,7 @@ Our software package is an automatic differentiation suite that solves the probl
 
 A derivative of a univariate function represents the instantaneous rate of change of that function at a particular point. A vector containing each partial derivative of a multivariate function is known as a gradient and gives the direction of greatest increase at a particular point. A Jacobian of a vector-valued function is a matrix where each row contains the gradient of the corresponding function.
 
-Automatic Differentiation of a function can be conceptualized as 
+Forward-mode automatic differentiation of a function can be conceptualized as 
 
 1. Dividing that function into a composition of elementary operations through a computational graph. Basic elementary operations include:
     1. Addition
@@ -17,15 +17,15 @@ Automatic Differentiation of a function can be conceptualized as
     6. Logarithms
     7. Trigonometric functions
     
-2. Iteratively applying the chain rule at each step of the computational graph from beginning to end in order to propagate the exact numeric values of the partial derivatives all the way until the final step of the computational graph, which represents the output of the function. The partial derivatives at the final step are with respect to the function's variables and so represent the numeric value of the gradient for a chosen value of the function's variables.
+2. Iteratively applying the chain rule, a result from univariate calculus for computing the derivative of a composite function, at each step of the computational graph from beginning to end in order to propagate the exact numeric values of the partial derivatives all the way until the final step of the computational graph, which represents the output of the function. The partial derivatives at the final step are with respect to the function's variables and so represent the numeric value of the gradient for a chosen value of the function's variables.
 
 The chain rule describes the differentiation of a composite function, where the derivatives are taken at each step as described by the following diagram: 
 
 ![chain rule](./chain_rule.png)
 
-Using the chain rule, we can generalize forward mode automatic differentiation into arbitrary multivariate, vector-valued functions that take in multiple inputs and produce vectored outputs of the function value and derivative. 
+The procedure described above allows for numerical gradient computations of particular classes of multivariate, scalar-valued functions, and can easily be extended to vector-valued functions as well -- simply apply the procedure component-wise to each function.
 
-This also leads to a graph structure of computations. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function *sin(2x)* can be seen below, where *x<sub>n</sub>* represents the *n*th step of the function. 
+We illustrate the graph structure of computations with an example. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function *sin(2x)* can be seen below, where *x<sub>n</sub>* represents the *n*th step of the function. 
 
 ![graph struct](./graph_structure.PNG)
 
