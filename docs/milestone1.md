@@ -31,7 +31,7 @@ We illustrate both the graph structure of computations as well as the propagatio
 
 | trace | func        | value   | deriv                 |   dx1 |
 |-------|-------------|---------|-----------------------|-------|
-| *x<sub>1</sub>* | *x<sub>1</sub>*       | 5     | d*x<sub>1</sub>*           |     1 |
+| *x<sub>1</sub>* | *x<sub>1</sub>*       | 5     | 1           |     1 |
 | *x<sub>2</sub>* | 2*x<sub>1</sub>*      | 10    | 2d*x<sub>1</sub>*          |     2 |
 | *x<sub>3</sub>* | sin(*x<sub>2</sub>*) | -.544 | cos(*x<sub>2</sub>*)*dx<sub>2</sub>* | -1.68 |
 
