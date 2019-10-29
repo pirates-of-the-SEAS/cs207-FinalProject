@@ -31,9 +31,9 @@ We illustrate both the graph structure of computations as well as the propagatio
 
 | trace | func        | value   | deriv                 |   dx1 |
 |-------|-------------|---------|-----------------------|-------|
-| $x_1$ | $x_1$       | $5$     | $\dot{x_1}$           |     1 |
-| $x_2$ | $2x_1$      | $10$    | $2\dot{x_1}$          |     2 |
-| $x_3$ | $\sin(x_{2})$ | $-.544$ | $\cos(x_2)\dot{x_2}$ | -1.68 |
+| x_1 | x_1       | 5     | dx_1           |     1 |
+| x_2 | 2x_1      | 10    | 2dx_1          |     2 |
+| x_3 | sin(x_{2}) | -.544 | cos(x_2)dx_2 | -1.68 |
 
 
 
