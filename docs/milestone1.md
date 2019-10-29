@@ -25,7 +25,7 @@ The chain rule describes the differentiation of a composite function, where the 
 
 The procedure described above allows for numerical gradient computations of particular classes of multivariate, scalar-valued functions, and can easily be extended to vector-valued functions as well -- simply apply the procedure component-wise to each function.
 
-We illustrate both the graph structure of computations as well as the propagation of the der with an example. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function *sin(2x)* can be seen below, where *x<sub>n</sub>* represents the *n*th step of the function. 
+We illustrate both the graph structure of computations as well as the propagation of the derivative via the chain rule with an example. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function *sin(2x)* can be seen below, where *x<sub>n</sub>* represents the *n*th step of the function. 
 
 ![graph struct](./graph_structure.PNG)
 
