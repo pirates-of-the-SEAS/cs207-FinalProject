@@ -97,6 +97,8 @@ We plan to maintain a test suite in another directory (specified 'tests' in the 
 
 We will use setuptools (https://packaging.python.org/tutorials/packaging-projects/) to package our software. This seems to be standard approach within the Python community, and we believe that it is important to adhere to standards.
 
+We will also consider dockerizing our project.
+
 
 # Implementation
 
