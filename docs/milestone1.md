@@ -112,7 +112,7 @@ We will use NumPy for elementary computations. Beyond benefitting our package wi
 
 Beyond NumPy, our package will not have other external dependencies.
 
-We will create additional modules for each elementary function. Each module will contain a function that will update an AutoDiffVariable object accordingly. For example, "adfuncs.exp(x)" would exponentiate the value and then multiply each partial derivative by the new exponentiated value. The variable "x" would then point to that updated value. 
+We will create additional modules for each elementary function. Each module will contain a function that will update an AutoDiffVariable object accordingly. For example, "f = adfuncs.exp(x)" would exponentiate the value and then multiply each partial derivative by the new exponentiated value. The variable "f" would then point to that updated value. 
 
 We expect this approach to be robust enough to handle vector valued functions with vector inputs. We envision creating convenience methods if a user wishes to work in a multivariate setting (i.e. we'll create convenience classes to create vectors of AutoDiffVariables and allow for broadcasting operations on iterables of AutoDiffVariable objects).
 
