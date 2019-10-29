@@ -25,9 +25,17 @@ The chain rule describes the differentiation of a composite function, where the 
 
 The procedure described above allows for numerical gradient computations of particular classes of multivariate, scalar-valued functions, and can easily be extended to vector-valued functions as well -- simply apply the procedure component-wise to each function.
 
-We illustrate the graph structure of computations with an example. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function *sin(2x)* can be seen below, where *x<sub>n</sub>* represents the *n*th step of the function. 
+We illustrate both the graph structure of computations as well as the propagation of the der with an example. As each step in automatic differentiation involves a single elementary function, each of these "steps" can be used as input into an outer function. An example graph of automatic differentiation of the function *sin(2x)* can be seen below, where *x<sub>n</sub>* represents the *n*th step of the function. 
 
 ![graph struct](./graph_structure.PNG)
+
+| trace | func        | value   | deriv                 |   dx1 |
+|-------|-------------|---------|-----------------------|-------|
+| $x_1$ | $x_1$       | $5$     | $\dot{x_1}$           |     1 |
+| $x_2$ | $2x_1$      | $10$    | $2\dot{x_1}$          |     2 |
+| $x_3$ | $\sin(x_{2})$ | $-.544$ | $\cos(x_2)\dot{x_2}$ | -1.68 |
+
+
 
 It is also useful to give some background on dual numbers. Dual numbers are numbers of the form *a+bε*. In the case of automatic differentiation, the *ε* value can be used to represent the derivative of the function at a particular value *x*. For example, an element *x* would be represented as the vector *(x,x')*. A simple application of a function *f* might look like *f((x,x')) = (f(x), f(x)x')*, making use of the chain rule as described above. 
 
