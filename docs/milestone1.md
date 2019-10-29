@@ -4,6 +4,8 @@ Our software package is an automatic differentiation suite that solves the probl
 
 # Background
 
+A derivative of a univariate function represents the instantaneous rate of change of that function at a particular point. A vector containing each partial derivative of a multivariate function is known as a gradient and gives the direction of greatest increase at a particular point. A Jacobian of a vector-valued function is a matrix where each row contains the gradient of the corresponding function.
+
 Automatic Differentiation of a function can be conceptualized as 
 
 1. Dividing that function into a composition of elementary operations through a computational graph. Basic elementary operations include:
