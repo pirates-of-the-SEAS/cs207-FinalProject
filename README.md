@@ -13,7 +13,14 @@
 # Milestone 2 todos
 
 
-+ [ ] Adhere to project submission format 
+
+
+
++ [ ] Quality Control
+    + [ ] Double check the milestone page (https://harvard-iacs.github.io/2019-CS207/project/M2/) to make sure we're not missing any requirements
+    + [ ] Go through start to finish process of downloading, installing, and setting up package
+
+    + [ ] Adhere to project submission format 
 
 project_repo/
              README.md
@@ -24,10 +31,6 @@ project_repo/
                  ...
 
 
-
-+ [ ] Quality Control
-    + [ ] Double check the milestone page (https://harvard-iacs.github.io/2019-CS207/project/M2/) to make sure we're not missing any requirements
-    + [ ] Go through start to finish process of downloading, installing, and setting up package
 
 + [ ] Working forward mode implementation on scalar values and scalar input functions
     + [ ] Deal with circular imports
@@ -47,21 +50,21 @@ project_repo/
     + [x] Overload division
     + [x] Overload power
     + [x] Overload negation
-    + [] Double check for other binary / unary operations
+    + [ ] Double check for other binary / unary operations
     + [x] implement exponential
     + [x] implement sine
     + [x] implement cosine
     + [x] implement tangent
     
 
-    + [] (optional?) implement cosecant
-    + [] (optional?) implement secant
-    + [] (optional?) implement cotangent
-    + [] (optional?) implement tanh
-    + [] (optional?) implement sinh
-    + [] (optional?) implement cosh 
+    + [ ] (optional?) implement cosecant
+    + [ ] (optional?) implement secant
+    + [ ] (optional?) implement cotangent
+    + [ ] (optional?) implement tanh
+    + [ ] (optional?) implement sinh
+    + [ ] (optional?) implement cosh 
     
-    + [] (optional?) doc strings?
+    + [ ] (optional?) doc strings?
     
     + [ ] (Optional) Remove code redundancy
     + [ ] (Optional) set it up for release on PyPi
@@ -70,71 +73,71 @@ project_repo/
 
 
 + [ ] Test suite
-    + []  addition
-    + []  multiplication
-    + []  subtraction
-    + []  division
-    + []  power
-    + []  negation
-    + [] Negation
-    + []  exponential
-    + []  sine
-    + []  cosine
-    + []  tangent
-    + [] (optional?)  cosecant
-    + [] (optional?)  secant
-    + [] (optional?)  cotangent
-    + [] (optional?)  tanh
-    + [] (optional?)  sinh
-    + [] (optional?)  cosh 
-    + [] edge cases
+    + [ ]  addition
+    + [ ]  multiplication
+    + [ ]  subtraction
+    + [ ]  division
+    + [ ]  power
+    + [ ]  negation
+    + [ ] Negation
+    + [ ]  exponential
+    + [ ]  sine
+    + [ ]  cosine
+    + [ ]  tangent
+    + [ ] (optional?)  cosecant
+    + [ ] (optional?)  secant
+    + [ ] (optional?)  cotangent
+    + [ ] (optional?)  tanh
+    + [ ] (optional?)  sinh
+    + [ ] (optional?)  cosh 
+    + [ ] edge cases
     + [ ] Make sure all tests pass
-    + [] Test suite using pytest 
+    + [ ] Test suite using pytest 
     + [x] integration with travis ci
-    + [] make sure code is passing all tests
-    + [] codecov integration
-    + [] make sure codecov is showing at least 90% code coverage
+    + [ ] make sure code is passing all tests
+    + [ ] codecov integration
+    + [ ] make sure codecov is showing at least 90% code coverage
 + [ ] Updated / extended documentation
     + [ ] Separate milestone 2 documentation into its own file
-    + [] complete docs folder and documentation
-    + [] Introduction (copy from milestone 1 documentation)
-    + [] Emend background (change use of word numerical, add info on Jacobian and seed vector)
-    + [] Background (copy from milestone 1 documentation)
-    + [] How to use the package (walk through creation of virtual environment and installation)
-    + [] How to use the package (basic demo of package)
-    + [] Updated software organization
-        + [] Directory structure
-        + [] What the modules do
-        + [] Where the tests live
-        + [] how the rests run
-        + [] how the tests are integrated
-    + [] Implementation details
-        + [] Description of current implementation
-            + [] Core data structures
-            + [] Core classes
-            + [] Important attributes
-            + [] External dependencies
-            + [] elementary functions
-        + [] Discussion of features not yet implemented
+    + [ ] complete docs folder and documentation
+    + [ ] Introduction (copy from milestone 1 documentation)
+    + [ ] Emend background (change use of word numerical, add info on Jacobian and seed vector)
+    + [ ] Background (copy from milestone 1 documentation)
+    + [ ] How to use the package (walk through creation of virtual environment and installation)
+    + [ ] How to use the package (basic demo of package)
+    + [ ] Updated software organization
+        + [ ] Directory structure
+        + [ ] What the modules do
+        + [ ] Where the tests live
+        + [ ] how the rests run
+        + [ ] how the tests are integrated
+    + [ ] Implementation details
+        + [ ] Description of current implementation
+            + [ ] Core data structures
+            + [ ] Core classes
+            + [ ] Important attributes
+            + [ ] External dependencies
+            + [ ] elementary functions
+        + [ ] Discussion of features not yet implemented
 
-    + [] (optional) Jupyter notebook with markdown cells for documentation
-    + [] (optional) use read the docs
+    + [ ] (optional) Jupyter notebook with markdown cells for documentation
+    + [ ] (optional) use read the docs
 + [ ] Proposal for additional features
- + [] write up plans for implementing vector valued functions
-     + [] How will the software change?
-     + [] What will the challenges be?
-     + [] How will the directory structure change?
-     + [] What new models will be required?
-     + [] What new classes will be required?
-     + [] What new data structures will be required?
- + [] Decide on advanced feature(s)
-     + [] write up plans for implementing advanced feature
-     + [] How will the software change?
-     + [] What will the challenges be?
-     + [] How will the directory structure change?
-     + [] What new models will be required?
-     + [] What new classes will be required?
-     + [] What new data structures will be required?
+ + [ ] write up plans for implementing vector valued functions
+     + [ ] How will the software change?
+     + [ ] What will the challenges be?
+     + [ ] How will the directory structure change?
+     + [ ] What new models will be required?
+     + [ ] What new classes will be required?
+     + [ ] What new data structures will be required?
+ + [ ] Decide on advanced feature(s)
+     + [ ] write up plans for implementing advanced feature
+     + [ ] How will the software change?
+     + [ ] What will the challenges be?
+     + [ ] How will the directory structure change?
+     + [ ] What new models will be required?
+     + [ ] What new classes will be required?
+     + [ ] What new data structures will be required?
 
 + [ ] do peer evaluation forms
 
@@ -150,7 +153,7 @@ project_repo/
  
  We could also implement newton's method.
  
- I think that some combination of :
+ I think that some combination of:
  1. Reverse Mode
  2. Backprop
  3. Newton's Method
