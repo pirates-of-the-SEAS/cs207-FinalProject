@@ -7,7 +7,8 @@
 + Cameron Hickert
 + Dianne Lee
 + Michael Downs
-+ Victor Song
++ Victor(Wisoo) Song
+
 
 # Milestone 2 todos
 
@@ -208,3 +209,4 @@ project_repo/
 
 # Goal
 https://harvard-iacs.github.io/2019-CS207/pages/project.html
+>>>>>>> 1e468afbea8e57a52587d388dd478e855080b949
