@@ -18,18 +18,19 @@
 
 + [ ] Quality Control
     + [ ] Double check the milestone page (https://harvard-iacs.github.io/2019-CS207/project/M2/) to make sure we're not missing any requirements
-    + [ ] Go through start to finish process of downloading, installing, and setting up package
+    + [ ] Go through start to finish process of downloading, installing, setting up, and using package
 
     + [ ] Adhere to project submission format 
 
-project_repo/
+``` 
+ project_repo/
              README.md
              docs/  
                   milestone1
                   milestone2
              project_name/
                  ...
-
+```
 
 
 + [ ] Working forward mode implementation on scalar values and scalar input functions
