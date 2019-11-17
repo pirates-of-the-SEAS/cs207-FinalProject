@@ -1,8 +1,14 @@
 import math
+import numpy as np
 
 from ARRRtomatic_diff import AutoDiff
 
-x = AutoDiff(name='x', val=2)
+x = AutoDiff(name='x', val=np.pi)
+
+
+print(x.trace['val'])
+print(np.cos(x.trace['val']) == -1)
+
 
 print(x // 2)
 print(x % 2)
