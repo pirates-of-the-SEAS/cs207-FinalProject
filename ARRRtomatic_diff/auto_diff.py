@@ -422,4 +422,136 @@ class AutoDiff:
     def __str__(self):
         return str(self.trace)
 
+    def __floordiv__(self, other):
+        return self.get_trace()['val'] // other
+
+    def __mod__(self, other):
+        return self.get_trace()['val'] % other
+
+    def __lshift__(self, other):
+        return self.get_trace()['val'] << other
+
+    def __rshift__(self, other):
+        return self.get_trace()['val'] >> other
+
+    def __and__(self, other):
+        return self.get_trace()['val'] & other
+
+    def __xor__(self, other):
+        return self.get_trace()['val'] ^ other
+
+    def __or__(self, other):
+        return self.get_trace()['val'] | other
+
+    def __rfloordiv__(self, other):
+        return other // self.get_trace()['val']
+
+    def __rmod__(self, other):
+        return other % self.get_trace()['val'] 
+
+    def __rlshift__(self, other):
+        return other << self.get_trace()['val']
+
+    def __rrshift__(self, other):
+        return other >> self.get_trace()['val']
+
+    def __rand__(self, other):
+        return other & self.get_trace()['val'] 
+
+    def __rxor__(self, other):
+        return other ^ self.get_trace()['val']
+
+    def __ror__(self, other):
+        return other | self.get_trace()['val']
+
+    def __pos__(self):
+        return self
+
+    def __abs__(self):
+        return abs(self.get_trace()['val'])
+
+    def __invert__(self):
+        return ~self.get_trace()['val']
+
+    def __complex__(self):
+        return complex(self.get_trace()['val'])
+
+    def __int__(self):
+        return int(self.get_trace()['val'])
+
+    def __float__(self):
+        return float(self.get_trace()['val'])
+
+
+    def __lt__(self, other):
+        try:
+            return self.get_trace()['val'] < other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] < other
+
+    def __le__(self, other):
+        try:
+            return self.get_trace()['val'] <= other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] <= other
+
+    def __eq__(self, other):
+        try:
+            return self.get_trace()['val'] == other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] == other
+
+    def __ne__(self, other):
+        try:
+            return self.get_trace()['val'] != other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] != other
+
+    def __ge__(self, other):
+        try:
+            return self.get_trace()['val'] >= other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] >= other
+
+    def __gt__(self, other):
+        try:
+            return self.get_trace()['val'] > other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] > other
+
+    def __rlt__(self, other):
+        try:
+            return other.get_trace()['val'] < self.get_trace()['val']
+        except:
+            return other < self.get_trace()['val']
+
+    def __rle__(self, other):
+        try:
+            return other.get_trace()['val'] <= self.get_trace()['val']
+        except:
+            return other <= self.get_trace()['val']
+
+    def __req__(self, other):
+        try:
+            return other.get_trace()['val'] == self.get_trace()['val'] 
+        except:
+            return other == self.get_trace()['val']
+
+    def __rne__(self, other):
+        try:
+            return other.get_trace()['val'] != self.get_trace()['val'] 
+        except:
+            return other != self.get_trace()['val'] 
+
+    def __rge__(self, other):
+        try:
+            return other.get_trace()['val'] >= self.get_trace()['val']
+        except:
+            return other >= self.get_trace()['val']
+
+    def __rgt__(self, other):
+        try:
+            return other.get_trace()['val'] > self.get_trace()['val']
+        except:
+            return other > self.get_trace()['val']
 
