@@ -24,7 +24,7 @@ def test_subtract():
    assert (x - 1).trace['val'] == 8, 'Subtraction failed'
    assert (x - 1).trace['d_x'] == 1, 'Subtraction failed'
    assert (1 - x).trace['val'] == -8, 'Subtraction failed'
-   assert (1 - x).trace['d_x'] == 1, 'Subtraction failed'
+   assert (1 - x).trace['d_x'] == -1, 'Subtraction failed'
    assert (y - x).trace['val'] == -14, 'Subtraction failed'
    assert (y - x).trace['d_x'] == 1, 'Subtraction failed'
    assert (y - x).trace['d_y'] == 1, 'Subtraction failed'
@@ -37,7 +37,7 @@ def test_multiply():
    y = AutoDiff(name='y', val=-5)
    z = AutoDiff(name='z', val=0)
    assert (x * 2).trace['val'] == 12, 'Multiplication failed'
-   assert (x * 1).trace['d_x'] == 2, 'Multiplication failed'
+   assert (x * 2).trace['d_x'] == 2, 'Multiplication failed'
    assert (2 * x).trace['val'] == 12, 'Multiplication failed'
    assert (2 * x).trace['d_x'] == 2, 'Multiplication failed'
    assert (y * x).trace['val'] == -30, 'Multiplication failed'
