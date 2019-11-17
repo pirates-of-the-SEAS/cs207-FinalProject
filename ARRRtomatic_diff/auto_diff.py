@@ -242,7 +242,7 @@ class AutoDiff:
 
             updated_trace['val'] = trace['val']**other
             for var in named_variables:
-                updated_trace[f'd_{var}'] = other * (trace['val'])**(other-1) 
+                updated_trace[f'd_{var}'] = other * (trace['val'])**(other-1) * updated_trace[f'd_{var}']
             
             return AutoDiff(name=named_variables,
                             trace=updated_trace)
@@ -303,7 +303,7 @@ class AutoDiff:
             for var in named_variables:
 
                 
-                val = other**trace['val'] * np.log(other)
+                val = other**trace['val'] * np.log(other) * updated_trace[f'd_{var}']
 
                 if np.isnan(val):
                     raise ValueError

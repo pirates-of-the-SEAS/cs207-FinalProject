@@ -51,19 +51,20 @@
     + [x] Overload division
     + [x] Overload power
     + [x] Overload negation
-    + [ ] Double check for other binary / unary operations
+    + [x] Double check for other binary / unary operations
     + [x] implement exponential
     + [x] implement sine
     + [x] implement cosine
     + [x] implement tangent
     
 
-    + [ ] (optional?) implement cosecant
-    + [ ] (optional?) implement secant
-    + [ ] (optional?) implement cotangent
-    + [ ] (optional?) implement tanh
-    + [ ] (optional?) implement sinh
-    + [ ] (optional?) implement cosh 
+    + [x] (optional?) implement cosecant
+    + [x] (optional?) implement secant
+    + [x] (optional?) implement cotangent
+    + [x] (optional?) implement tanh
+    + [x] (optional?) implement sinh
+    + [x] (optional?) implement cosh
+    
     
     + [ ] (optional?) doc strings?
     
