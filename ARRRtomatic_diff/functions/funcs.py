@@ -3,6 +3,10 @@ import numpy as np
 from .. import AutoDiff
 
 
+def __update_unary(self):
+        pass
+
+
 def exp(x):
     try:
         named_variables = x.get_named_variables()
