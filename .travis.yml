@@ -2,15 +2,7 @@ language: python
 python:
     - "3.6"
 before_install:
-#    - pip install -U pytest
     - pip install pytest pytest-cov
-    - pip install coveralls
-
-# Are there any other dependencies or required packages before testing?
-# For example, something like:
-#    - pip install -r requirements.txt
-
+    - pip install codecov
 script:
-    - pytest
-after_success:
-    - coveralls
+    - pytest --cov=./
