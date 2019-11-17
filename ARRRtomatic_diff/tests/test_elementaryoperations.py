@@ -26,7 +26,7 @@ def test_subtract():
    assert (1 - x).trace['val'] == -8, 'Subtraction failed'
    assert (1 - x).trace['d_x'] == -1, 'Subtraction failed'
    assert (y - x).trace['val'] == -14, 'Subtraction failed'
-   assert (y - x).trace['d_x'] == 1, 'Subtraction failed'
+   assert (y - x).trace['d_x'] == -1, 'Subtraction failed'
    assert (y - x).trace['d_y'] == 1, 'Subtraction failed'
    assert (z + z).trace['val'] == 0, 'Subtraction failed'
    assert (z + z).trace['d_z'] == 2, 'Subtraction failed'
