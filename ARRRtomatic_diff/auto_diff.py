@@ -6,10 +6,10 @@ Documentation goes here
 
 https://docs.python.org/2/reference/datamodel.html#emulating-numeric-types
 """
-if __package__:
-    import ARRRtomatic_diff.functions as adfuncs
-else:
-    import functions as adfuncs
+
+import math
+
+import numpy as np
 
 class AutoDiff:
     def __init__(self, **kwargs):
@@ -192,26 +192,126 @@ class AutoDiff:
         """
         obj**other
         """
-        return adfuncs.exp(other * adfuncs.log(self))
-          
-        # except AttributeError:
-        #     named_variables = self.get_named_variables()
-        #     trace = self.get_trace()
-        #     updated_trace = {}
-        #     updated_trace.update(trace)
+    
+        try:
+            other_named_variables = other.get_named_variables()
+            named_variables = self.get_named_variables()
 
-        #     updated_trace['val'] = trace['val']**other
-        #     for var in named_variables:
-        #         updated_trace[f'd_{var}'] = other * (trace['val'])**(other-1) * updated_trace[f'd_{var}']
+            other_trace = other.get_trace()
+            trace = self.get_trace()
+
+            combined_named_variables = named_variables | other_named_variables
+
+            val1 = trace['val']
+            val2 = other_trace['val']
+
+            combined_trace = {
+                'val': val1**val2
+            }
+
+            for var in combined_named_variables:
+                try:
+                    d1 = trace[f'd_{var}']
+                except KeyError:
+                    d1 = 0
+
+                try:
+                    d2 = other_trace[f'd_{var}']
+                except KeyError:
+                    d2 = 0 
+
+                term1 = val1**(val2 - 1)
+                term2 = val2 * d1 
+                term3 = val1 * np.log(val1) * d2
+
+                total = term1*(term2 + term3)
+
+                if np.isnan(total):
+                    raise ValueError
+                 
+                combined_trace[f'd_{var}'] = total
+
+            return AutoDiff(name=combined_named_variables,
+                                trace=combined_trace)
+          
+        except AttributeError:
+            named_variables = self.get_named_variables()
+            trace = self.get_trace()
+            updated_trace = {}
+            updated_trace.update(trace)
+
+            updated_trace['val'] = trace['val']**other
+            for var in named_variables:
+                updated_trace[f'd_{var}'] = other * (trace['val'])**(other-1) * updated_trace[f'd_{var}']
             
-        #     return AutoDiff(name=named_variables,
-        #                     trace=updated_trace)
+            return AutoDiff(name=named_variables,
+                            trace=updated_trace)
 
     def __rpow__(self, other):
         """
         other**obj
         """
-        return adfuncs.exp(self * adfuncs.log(other))
+        try:
+            other_named_variables = other.get_named_variables()
+            named_variables = self.get_named_variables()
+
+            other_trace = other.get_trace()
+            trace = self.get_trace()
+
+            combined_named_variables = named_variables | other_named_variables
+
+            val1 = trace['val']
+            val2 = other_trace['val']
+
+            combined_trace = {
+                'val': val1**val2
+            }
+
+            for var in combined_named_variables:
+                try:
+                    d1 = trace[f'd_{var}']
+                except KeyError:
+                    d1 = 0
+
+                try:
+                    d2 = other_trace[f'd_{var}']
+                except KeyError:
+                    d2 = 0 
+
+                term1 = val2**(val1 - 1)
+                term2 = val2 * d1 * np.log(val2)
+                term3 = val1 * d2
+
+                total = term1*(term2 + term3)
+
+                if np.isnan(total):
+                    raise ValueError
+ 
+                combined_trace[f'd_{var}'] = total
+        
+
+            return AutoDiff(name=combined_named_variables,
+                                trace=combined_trace)
+          
+        except AttributeError:
+            named_variables = self.get_named_variables()
+            trace = self.get_trace()
+            updated_trace = {}
+            updated_trace.update(trace)
+
+            updated_trace['val'] = other**trace['val']
+            for var in named_variables:
+
+                
+                val = other**trace['val'] * np.log(other) * updated_trace[f'd_{var}']
+
+                if np.isnan(val):
+                    raise ValueError
+
+                updated_trace[f'd_{var}'] = val
+            
+            return AutoDiff(name=named_variables,
+                            trace=updated_trace)
 
     def __truediv__(self, other):
         """
@@ -320,104 +420,179 @@ class AutoDiff:
     def __neg__(self):
         return -1 * self
 
+    def __bool__(self):
+        return bool(self.get_trace()['val'])
+
+
+    def __repr__(self):
+        return """AutoDiff(name={}, trace={})""".format(
+                                repr(self.named_variables),
+                                repr(repr(self.trace).strip('"'))
+                            )
+
+    def __getitem__(self, key):
+        return self.get_trace()[key]
+
+    def __setitem__(self, key, value):
+        self.trace[key] = value
+
+    def __delitem__(self, key):
+        del self.trace[key]
+
+    def __len__(self):
+        return len(self.trace)
+
+    def __contains__(self, item):
+        return item in self.trace
+
+    def __iter__(self):
+        return iter(self.trace)
 
     def __str__(self):
         return str(self.trace)
 
+    def __floordiv__(self, other):
+        return self.get_trace()['val'] // other
+
+    def __mod__(self, other):
+        return self.get_trace()['val'] % other
+
+    def __lshift__(self, other):
+        return self.get_trace()['val'] << other
+
+    def __rshift__(self, other):
+        return self.get_trace()['val'] >> other
+
+    def __and__(self, other):
+        return self.get_trace()['val'] & other
+
+    def __xor__(self, other):
+        return self.get_trace()['val'] ^ other
+
+    def __or__(self, other):
+        return self.get_trace()['val'] | other
+
+    def __rfloordiv__(self, other):
+        return other // self.get_trace()['val']
+
+    def __rmod__(self, other):
+        return other % self.get_trace()['val'] 
+
+    def __rlshift__(self, other):
+        return other << self.get_trace()['val']
+
+    def __rrshift__(self, other):
+        return other >> self.get_trace()['val']
+
+    def __rand__(self, other):
+        return other & self.get_trace()['val'] 
+
+    def __rxor__(self, other):
+        return other ^ self.get_trace()['val']
+
+    def __ror__(self, other):
+        return other | self.get_trace()['val']
+
+    def __pos__(self):
+        return self
+
+    def __abs__(self):
+        return abs(self.get_trace()['val'])
+
+    def __round__(self):
+        return round(self.get_trace()['val'])
+
+    def __floor__(self):
+        return math.floor(self.get_trace()['val'])
+
+    def __ceil__(self):
+        return math.ceil(self.get_trace()['val'])
+
+    def __trunc__(self):
+        return math.trunc(self.get_trace()['val'])
+
+    def __invert__(self):
+        return ~self.get_trace()['val']
+
+    def __complex__(self):
+        return complex(self.get_trace()['val'])
+
+    def __int__(self):
+        return int(self.get_trace()['val'])
+
+    def __float__(self):
+        return float(self.get_trace()['val'])
 
 
-def main():
-    x = AutoDiff(name='x', val=2)
-    y = AutoDiff(name='y', val=-5)
+    def __lt__(self, other):
+        try:
+            return self.get_trace()['val'] < other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] < other
 
-    # addition
-    print("Addition")
-    print(1 + x)
-    print(x + 1)
+    def __le__(self, other):
+        try:
+            return self.get_trace()['val'] <= other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] <= other
 
-    print(x + x)
+    def __eq__(self, other):
+        try:
+            return self.get_trace()['val'] == other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] == other
 
-    print(x + y)
-    print(y + x)
+    def __ne__(self, other):
+        try:
+            return self.get_trace()['val'] != other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] != other
 
-    # multiplication
-    print("Multiplication")
-    print(3 * x)
-    print(x * 3)
+    def __ge__(self, other):
+        try:
+            return self.get_trace()['val'] >= other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] >= other
 
-    print(x * x)
+    def __gt__(self, other):
+        try:
+            return self.get_trace()['val'] > other.get_trace()['val']
+        except:
+            return self.get_trace()['val'] > other
 
-    print(x * y)
-    print(y * x)
+    def __rlt__(self, other):
+        try:
+            return other.get_trace()['val'] < self.get_trace()['val']
+        except:
+            return other < self.get_trace()['val']
 
-    # subtraction
-    print("Subtraction")
-    print(1 - x)
-    print(x - 1)
+    def __rle__(self, other):
+        try:
+            return other.get_trace()['val'] <= self.get_trace()['val']
+        except:
+            return other <= self.get_trace()['val']
 
-    print(x - x)
+    def __req__(self, other):
+        try:
+            return other.get_trace()['val'] == self.get_trace()['val'] 
+        except:
+            return other == self.get_trace()['val']
 
-    print(x - y)
-    print(y - x)
+    def __rne__(self, other):
+        try:
+            return other.get_trace()['val'] != self.get_trace()['val'] 
+        except:
+            return other != self.get_trace()['val'] 
 
-    # division
-    print("Division")
-    print(3 / x)
-    print(x / 3)
+    def __rge__(self, other):
+        try:
+            return other.get_trace()['val'] >= self.get_trace()['val']
+        except:
+            return other >= self.get_trace()['val']
 
-    print(x / x)
-
-    print(x / y)
-    print(y / x)
-
-    # exp
-    print("Exp")
-    print(adfuncs.exp(x))
-
-    # log
-    print("log")
-    print(x)
-    print(adfuncs.log(x))
-
-    # sin
-    print("sin")
-    print(adfuncs.sin(x))
-
-    # cos
-    print("cos")
-    print(adfuncs.cos(x))
-
-    # tan
-    print("tan")
-    print(adfuncs.tan(x))
-
-    # exponentiation
-    print("exponentiation")
-    print(3 ** x)
-    print(x ** 3)
-    print((-3) ** x)
-    print(x ** (-3))
-
-    print(x ** x)
-
-    # these need to be fixed
-    # pow needs to be improved for numerical stability
-    print(x ** y)
-    print(y ** x)
-
-    z = AutoDiff(name='z', val=8)
-    z1 = z**2
-    print(z1)
-    z2 = adfuncs.sin(z1)
-    print(z2)
-    z3 = adfuncs.exp(z2)
-    print(z3)
-
-    print(adfuncs.exp(x + adfuncs.sin(y) + z))
-
-
-
-if __name__ == '__main__':
-    main()
-
+    def __rgt__(self, other):
+        try:
+            return other.get_trace()['val'] > self.get_trace()['val']
+        except:
+            return other > self.get_trace()['val']
 
