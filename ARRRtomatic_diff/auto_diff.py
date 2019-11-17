@@ -7,6 +7,8 @@ Documentation goes here
 https://docs.python.org/2/reference/datamodel.html#emulating-numeric-types
 """
 
+import math
+
 import numpy as np
 
 class AutoDiff:
@@ -418,6 +420,33 @@ class AutoDiff:
     def __neg__(self):
         return -1 * self
 
+    def __bool__(self):
+        return bool(self.get_trace()['val'])
+
+
+    def __repr__(self):
+        return """AutoDiff(name={}, trace={})""".format(
+                                repr(self.named_variables),
+                                repr(repr(self.trace).strip('"'))
+                            )
+
+    def __getitem__(self, key):
+        return self.get_trace()[key]
+
+    def __setitem__(self, key, value):
+        self.trace[key] = value
+
+    def __delitem__(self, key):
+        del self.trace[key]
+
+    def __len__(self):
+        return len(self.trace)
+
+    def __contains__(self, item):
+        return item in self.trace
+
+    def __iter__(self):
+        return iter(self.trace)
 
     def __str__(self):
         return str(self.trace)
@@ -469,6 +498,18 @@ class AutoDiff:
 
     def __abs__(self):
         return abs(self.get_trace()['val'])
+
+    def __round__(self):
+        return round(self.get_trace()['val'])
+
+    def __floor__(self):
+        return math.floor(self.get_trace()['val'])
+
+    def __ceil__(self):
+        return math.ceil(self.get_trace()['val'])
+
+    def __trunc__(self):
+        return math.trunc(self.get_trace()['val'])
 
     def __invert__(self):
         return ~self.get_trace()['val']
