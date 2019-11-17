@@ -14,7 +14,6 @@
 
 
 
- 
 
 + [ ] Quality Control
     + [ ] Double check the milestone page (https://harvard-iacs.github.io/2019-CS207/project/M2/) to make sure we're not missing any requirements
