@@ -13,19 +13,19 @@ from ARRRtomatic_diff import AutoDiff
 
 def test_instantiation_neg():
     x = AutoDiff(name='b0', val=-3)
-    assert x == -3,'negative instantiation failed'
+    assert x.trace['val'] == -3,'negative instantiation failed'
 
 def test_instantiation_pos():
     x = AutoDiff(name='b0', val=3)
-    assert x == 3,'positive instantiation failed'
+    assert x.trace['val'] == 3,'positive instantiation failed'
 
 def test_instantiation_zero():
     x = AutoDiff(name='b0', val=0)
-    assert x == 3,'zero instantiation failed'
+    assert x.trace['val'] == 3,'zero instantiation failed'
 
-def test_string_instantiation():
-    try:
-        x = AutoDiff(name='b0', val="string")
-    except TypeError as e:
-        print("Caught TypeError as expected.")
+# def test_string_instantiation():
+#     try:
+#         x = AutoDiff(name='b0', val="string")
+#     except TypeError as e:
+#         print("Caught TypeError as expected.")
 
