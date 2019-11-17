@@ -5,11 +5,28 @@ def test_add():
    # from ARRRtomatic_diff.auto_diff import AutoDiff
    x = AutoDiff(name='x', val=2)
    y = AutoDiff(name='y', val=-5)
-   # print(type(x+1))
-   assert (x + 1).trace['val'] == 3
-   assert (x + 1).trace['d_x'] == 1
-   assert (1 + x).trace['val'] == 3
-   assert (1 + x).trace['d_x'] == 1
+   z = AutoDiff(name='z', val=0)
+   assert (x + 1).trace['val'] == 3, 'Addition failed'
+   assert (x + 1).trace['d_x'] == 1, 'Addition failed'
+   assert (1 + x).trace['val'] == 3, 'Addition failed'
+   assert (1 + x).trace['d_x'] == 1, 'Addition failed'
+   assert (y + x).trace['val'] == -3, 'Addition failed'
+   assert (y + x).trace['d_x'] == 1, 'Addition failed'
+   assert (y + x).trace['d_y'] == 1, 'Addition failed'
+   assert (z + z).trace['val'] == 0, 'Addition failed'
+   assert (z + z).trace['d_z'] == 2, 'Addition failed'
+
+
+
+# def test_add():
+#    # from ARRRtomatic_diff.auto_diff import AutoDiff
+#    x = AutoDiff(name='x', val=2)
+#    y = AutoDiff(name='y', val=-5)
+#    # print(type(x+1))
+#    assert (x + 1).trace['val'] == 3
+#    assert (x + 1).trace['d_x'] == 1
+#    assert (1 + x).trace['val'] == 3
+#    assert (1 + x).trace['d_x'] == 1
 
 # def test_addition():
 #     x = AutoDiff(name='a0', val=3)
