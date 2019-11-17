@@ -1,7 +1,6 @@
-
 import numpy as np
 
-
+from .. import AutoDiff
 
 
 def exp(x):
