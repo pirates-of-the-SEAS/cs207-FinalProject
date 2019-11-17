@@ -21,7 +21,7 @@ def test_instantiation_pos():
 
 def test_instantiation_zero():
     x = AutoDiff(name='b0', val=0)
-    assert x.trace['val'] == 3,'zero instantiation failed'
+    assert x.trace['val'] == 0,'zero instantiation failed'
 
 # def test_string_instantiation():
 #     try:
