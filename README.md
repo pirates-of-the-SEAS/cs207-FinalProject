@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=ws-dev2)](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=ws-dev2)
 
 [![codecov](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject/branch/ws-dev2/graph/badge.svg)](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject)
-
+  
 # Group 16
 
 + Cameron Hickert
@@ -14,7 +14,7 @@
 
 
 
-
+ 
 
 + [ ] Quality Control
     + [ ] Double check the milestone page (https://harvard-iacs.github.io/2019-CS207/project/M2/) to make sure we're not missing any requirements
