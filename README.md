@@ -34,10 +34,10 @@
 
 
 + [ ] Working forward mode implementation on scalar values and scalar input functions
-    + [ ] Deal with circular imports
-    + [ ] Combine functions into a single file
-    + [ ] Improve numerical stability of pow operation
-    + [ ] Raise exceptions for invalid operations for reals (i.e. division by zero, sqrt of negative, etc.)
+    + [x] Deal with circular imports
+    + [x] Combine functions into a single file
+    + [x] Improve numerical stability of pow operation
+    + [x] Raise exceptions for invalid operations for reals (i.e. division by zero, sqrt of negative, etc.)
 
     + [ ] Make software available for download from GitHub org
 
