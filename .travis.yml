@@ -4,12 +4,12 @@ python:
 before_install:
     - pip install pytest pytest-cov
     - pip install codecov
-    - pip install freeze
-    # - pip -r requirements.txt
+    # - pip install freeze
+    - pip -r requirements.txt
 script:
     # - pip freeze > requirements.txt
     - pytest --cov=./
 
 after_success:
     - codecov
-    - pip freeze > requirements.txt
+    # - pip freeze > requirements.txt
