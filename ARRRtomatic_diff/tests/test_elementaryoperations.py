@@ -70,6 +70,5 @@ def test_divide():
 
 def test_exponentiation():
     x = AutoDiff(name='x', val=3)
-    # assert (x**2).trace['val'] == 9, "Exponentiation failed"
-    assert (x.trace['val'] ** 2) == 9, "Exponentiation failed"
+    assert (x**2).trace['val'] == 9, "Exponentiation failed"
 
