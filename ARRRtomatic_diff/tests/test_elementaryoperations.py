@@ -94,6 +94,7 @@ def test_exponentiation():
     y = AutoDiff(name='y', val=0)
     z = AutoDiff(name='z', val=-2)
     q = AutoDiff(name='b0', val="string")
+    r = AutoDiff(name='r', val=5)
     assert (x ** 2) == 9, "Exponentiation failed"
     assert (x ** 2).trace['d_x'] == 6, "Exponentiation failed"
     assert (x ** 0) == 1, "Exponentiation failed"
@@ -106,6 +107,8 @@ def test_exponentiation():
     assert (z ** 3).trace['d_z'] == 12, "Exponentiation failed"
     assert (y ** 2) == 0, "Exponentiation failed"
     assert (y ** 2).trace['d_y'] == 0, "Exponentiation failed"
+    assert (x ** x) == 27, "Exponentiation failed"
+    assert (r ** x) == 125, "Exponentiation failed"
     try:
        (q ** 5)
     except TypeError:
@@ -125,3 +128,25 @@ def test_abs():
       (abs(r))
    except TypeError:
       print("Caught error as expected")
+
+def test_eq():
+   x = AutoDiff(name='x', val=2)
+   y = AutoDiff(name='x', val=2)
+   assert 2 == x, "Equals failed"
+   assert x == 2, "Equals failed"
+   assert x == y, "Equals failed"
+   assert y == x, "Equals failed"
+
+def test_req():
+   x = AutoDiff(name='x', val=2)
+   assert 2 == x, "Reverse equals failed"
+
+def test_gt():
+   x = AutoDiff(name='x', val=10)
+   assert x > 2, "Greater than failed"
+   assert 20 > x, "Greater than failed"
+
+def test_lt():
+   x = AutoDiff(name='x', val=10)
+   assert 2 < x, "Less than failed"
+   assert x < 20, "Less than failed"
