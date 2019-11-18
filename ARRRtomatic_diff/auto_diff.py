@@ -112,6 +112,9 @@ class AutoDiff:
  
         # context 1: handle initial construction of an auto diff toy object 
         if 'val' in kwargs:
+            self.init_variable = True
+
+
             self.trace = {
                 'val': kwargs['val']
             }
@@ -124,6 +127,9 @@ class AutoDiff:
 
         # context 2: construct object assuming trace has been pre-computed
         elif 'trace' in kwargs:
+            self.init_variable = False
+
+
             self.trace = kwargs['trace']
 
             if 'name' in kwargs:
@@ -143,8 +149,40 @@ class AutoDiff:
     def get_gradient(self):
         return {f'd_{var}':self.trace[f'd_{var}'] for var in self.named_variables}
 
+    @property
+    def variables(self):
+        return self.get_named_variables()
+
+    @property
+    def val(self):
+        return self.get_value()
+
+    @property
+    def gradient(self):
+        return self.get_gradient()
+
+    @staticmethod
+    def __verify_same_name_same_value(trace1, trace2):
+        pass
+
     def __update_binary_autodiff(self, other, update_vals,
                                  update_deriv):
+        """Combines two autodiff objects depending on the supplied val and
+           derivative update rule. Not to be used externally.
+            INPUTS
+            =======
+            other: AutoDiff, the other AutoDiff object whose value and
+                      gradient will be combined
+            update_vals: function, how to combine the values of the two
+                                   auto diff object
+            update_deriv: function, how to combine the gradients of the two
+                             auto diff objects
+
+            RETURNS
+            ========
+            an AutoDiff object with the combined values and gradients
+
+        """
         other_named_variables = other.get_named_variables()
         named_variables = self.get_named_variables()
 
@@ -156,14 +194,19 @@ class AutoDiff:
         val = trace['val'] 
         other_val = other_trace['val']
 
+        # check to see that if we're combining two initial variables
+        # of the same name that they have the same value
+        if self.init_variable and other.init_variable:
+            if (self.named_variables == other.named_variables) and \
+               (val != other_val):
+                raise Exception("Variables of same name have different values")
+
         updated_val = update_vals(val, other_val)
 
         if np.isnan(updated_val):
             raise ValueError
 
-        combined_trace = {
-            'val': updated_val
-        }
+        combined_trace = {'val': updated_val}
 
         for var in combined_named_variables:
             try:
@@ -187,31 +230,48 @@ class AutoDiff:
                         trace=combined_trace)
 
     def __update_binary_numeric(self, num, update_val, update_deriv):
-         named_variables = self.get_named_variables()
-         trace = self.get_trace()
-         updated_trace = {}
-         updated_trace.update(trace)
+        """Returns an updated AutoDiff object assuming the current one
+                is being used in a binary operation with a numeric.
+                Not to be used externally.
 
-         val = updated_trace['val']
+            INPUTS
+            =======
+            num: numeric, a numeric value that will be used to update the
+                           value and gradient of the AutoDiff object
+            update_vals: function, how to combine the AutoDiff object's val
+                                   with the numeric variable
+            update_deriv: function, how to combine the AutoDiff object's
+                            gradient with the numeric variable
 
-         updated_val = update_val(val, num)
+            RETURNS
+            ========
+            an AutoDiff object with the updated values and gradients
+          """
+        named_variables = self.get_named_variables()
+        trace = self.get_trace()
+        updated_trace = {}
+        updated_trace.update(trace)
 
-         if np.isnan(updated_val):
-             raise ValueErrr
+        val = updated_trace['val']
+         
+        updated_val = update_val(val, num)
 
-         updated_trace['val'] = updated_val
-         for var in named_variables:
-             updated_deriv = update_deriv(val,
-                                          num,
-                                          updated_trace[f'd_{var}'],
-                                          0)
+        if np.isnan(updated_val):
+            raise ValueErrr
+         
+        updated_trace['val'] = updated_val
+        for var in named_variables:
+            updated_deriv = update_deriv(val,
+                                         num,
+                                         updated_trace[f'd_{var}'],
+                                         0)
 
-             if np.isnan(updated_deriv):
-                 raise ValueError
+            if np.isnan(updated_deriv):
+                raise ValueError
 
-             updated_trace[f'd_{var}'] = updated_deriv
+            updated_trace[f'd_{var}'] = updated_deriv
 
-         return AutoDiff(name=named_variables,
+        return AutoDiff(name=named_variables,
                             trace=updated_trace)
 
     @staticmethod
@@ -236,7 +296,10 @@ class AutoDiff:
 
     @staticmethod
     def __dlpow(x, y, dx, dy):
-        return x**(y-1) * (y*dx + x * np.log(x) * dy)
+        if dy == 0:
+            return x**(y-1) * (y*dx)
+        else:
+            return x**(y-1) * (y*dx + x * np.log(x) * dy)
 
     @staticmethod
     def __rpow(x, y):
@@ -244,7 +307,10 @@ class AutoDiff:
 
     @staticmethod
     def __drpow(x, y, dx, dy):
-        return y*(x-1)*(y*dx + np.log(y) + x*dy)
+        if dy == 0:
+            return y**x * np.log(y) * dx
+        else:
+            return y**(x-1)*(x*dy + y * np.log(y) * dx)
 
     @staticmethod
     def __ldiv(x, y):
@@ -270,24 +336,12 @@ class AutoDiff:
             return self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
 
     def __radd__(self, other):
-        """__radd__ is only called if the left object does not have an __add__
-        method, or that method does not know how to add the two objects (which
-        it flags by returning NotImplemented). Both classes have an __add__
-        method, which do not return NotImplemented. Therefore the __radd__
-        method would never be called.
-        """
-        return self.__add__(other)
+        return self + other
 
     def __sub__(self, other):
-        """
-        obj - other
-        """
         return self + -other
 
     def __rsub__(self, other):
-        """
-        other - obj
-        """
         return other + -self
 
     def __mul__(self, other):
@@ -300,44 +354,24 @@ class AutoDiff:
         return self * other
 
     def __pow__(self, other):
-        """
-        obj**other
-        """
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__lpow, AutoDiff.__dlpow)
         except AttributeError:
             return self.__update_binary_numeric(other, AutoDiff.__lpow, AutoDiff.__dlpow)
           
     def __rpow__(self, other):
-        """
-        other**obj
-        """
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__rpow, AutoDiff.__drpow)
         except AttributeError:
             return self.__update_binary_numeric(other, AutoDiff.__rpow, AutoDiff.__drpow)
 
     def __truediv__(self, other):
-        """
-        obj/other
-
-        f(x) = g(x)/h(x)
-
-        f'(x) = (g'(x)h(x) - g(x)h'(x)) / h(x)**2
-        """
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
         except AttributeError:
             return self.__update_binary_numeric(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
 
     def __rtruediv__(self, other):
-        """
-        other / obj
-
-        f(x) = g(x)/h(x)
-
-        f'(x) = (g'(x)h(x) - g(x)h'(x)) / h(x)**2
-        """
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
         except AttributeError:
@@ -447,7 +481,6 @@ class AutoDiff:
 
     def __float__(self):
         return float(self.get_trace()['val'])
-
 
     def __lt__(self, other):
         try:
