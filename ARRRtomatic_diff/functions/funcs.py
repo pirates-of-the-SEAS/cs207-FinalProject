@@ -42,6 +42,9 @@ def exp(x):
     return __update_unary(x, np.exp, np.exp)
 
 def dlog(x):
+    if x <= 0:
+        raise ValueError
+
     return 1./x
    
 def log(x):
