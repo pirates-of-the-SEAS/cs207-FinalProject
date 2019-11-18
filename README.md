@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=master)](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=master)
+[![Build Status](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=ws-dev2)](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=ws2-dev)
 
 [![codecov](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject/branch/ws-dev2/graph/badge.svg)](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject)
   
@@ -12,7 +12,7 @@
 
 # Milestone 2 todos
 
-
+ 
 
 
 
