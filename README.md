@@ -68,7 +68,7 @@
     
     + [ ] (optional?) doc strings?
     
-    + [ ] (Optional) Remove code redundancy
+    + [x] (Optional) Remove code redundancy
     + [ ] (Optional) set it up for release on PyPi
 
     + [ ] (optional) Create wrapper classes for vector valued functions (i.e. broadcasted operations, accessing Jacobian, etc.)
