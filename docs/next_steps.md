@@ -58,7 +58,7 @@ data structures,
 etc.
 
 # Reverse mode
-We plan to implement the reverse mode as an alternative to forwad mode. We will do so by creating another AutoDiff class, AutoDiffRev, and the corresponding reverse AutoDiffVector, AutoDiffVectorRev. The API
+We plan to implement the reverse mode as an alternative to forwad mode. We will do so by creating another AutoDiff class, AutoDiffRev, and the corresponding reverse AutoDiffVector, AutoDiffVectorRev. The API will be roughly the same - the computational graph will be explicitly constructed via algebraically combining AutoDiffRev variables. The intermediate forward pass values will be calculated during this time and 
 
 # Checks to ensure that variables of the same name have the same initial value
 Currently, we have a rudimentary check to verify that user isn't attempting to combine two AutoDiff variables that have the same named variable but with differing values. It's still possible for a user to create an AutoDiff object with a named variable, perform operations on it, and then combing it with another AutoDiff object with the same named variable but with a different value. We plan to make our software throw an exception when this happens. This will require modifying AutoDiff to keep track of the initial values for each variable and then perform a check when attempting to combine two AutoDiff objects.
