@@ -90,7 +90,7 @@ def test_divide():
     except ZeroDivisionError as e:
         print("Caught Zero Division Error")
     try:
-        (q * 5)
+        (q / 5)
     except TypeError:
         print("Caught error as expected")
 
@@ -146,67 +146,90 @@ def test_eq():
     assert y == x, "Equals failed"
 
 
-def test_req():
-    x = AutoDiff(name='x', val=2)
-    assert 2 == x, "Reverse equals failed"
-
-
 def test_gt():
     x = AutoDiff(name='x', val=10)
     y = AutoDiff(name='y', val=100)
+    q = AutoDiff(name='b0', val="string")
     assert x > 2, "Greater than failed"
     assert 20 > x, "Greater than failed"
     assert y > x, "Greater than failed"
+    try:
+        (12 > q)
+    except TypeError:
+        print("Caught error as expected")
 
 
 def test_ge():
     x = AutoDiff(name='x', val=10)
     y = AutoDiff(name='y', val=100)
+    q = AutoDiff(name='b0', val="string")
     assert x >= 2, "Greater than or equal to failed"
     assert x >= 10, "Greater than or equal to failed"
     assert 20 >= x, "Greater than or equal to failed"
     assert 10 >= x, "Greater than or equal to failed"
     assert y >= x, "Greater than or equal to failed"
+    try:
+        (12 >= q)
+    except TypeError:
+        print("Caught error as expected")
 
 
 def test_lt():
     x = AutoDiff(name='x', val=10)
     y = AutoDiff(name='y', val=100)
+    q = AutoDiff(name='b0', val="string")
     assert 2 < x, "Less than failed"
     assert x < 20, "Less than failed"
     assert x < y, "Less than failed"
+    try:
+        (12 < q)
+    except TypeError:
+        print("Caught error as expected")
 
 
 def test_le():
     x = AutoDiff(name='x', val=10)
     y = AutoDiff(name='y', val=100)
+    q = AutoDiff(name='b0', val="string")
     assert 2 <= x, "Less than or equal to failed"
     assert 10 <= x, "Less than or equal to failed"
     assert x <= 20, "Less than or equal to failed"
     assert x <= 10, 'Less than or equal to failed'
     assert x <= y, "Less than or equal to failed"
+    try:
+        (12 <= q)
+    except TypeError:
+        print("Caught error as expected")
 
 
 def test_ne():
     x = AutoDiff(name='x', val=10)
     y = AutoDiff(name='y', val=100)
+    q = AutoDiff(name='b0', val="string")
     assert x != 11, "Not equal failed"
     assert 11 != x, "Not equal failed"
     assert x != y, "Not equal failed"
+    assert 12 != q, "Not equal failed"
 
 
 def test_modulo():
     x = AutoDiff(name='x', val=15)
     y = AutoDiff(name='y', val=12)
     z = AutoDiff(name='z', val=4)
+    q = AutoDiff(name='b0', val="string")
     assert x % 2 == 1, "Modulo failed"
     assert y % 2 == 0, "Modulo failed"
     assert y % z == 0, "Modulo failed"
     assert x % z == 3, "Modulo failed"
+    try:
+        (12 % q)
+    except TypeError:
+        print("Caught error as expected")
+    try:
+        (q % 4)
+    except TypeError:
+        print("Caught error as expected")
 
-
-# How to do rshift for scalars?
-# How to do lshfit for scalars?
 
 def test_or():
     x = AutoDiff(name='x', val=10)
@@ -300,11 +323,6 @@ def test_bool():
     assert bool(y) == False, "Bool failed"
 
 
-# def test_getitem():
-#     x = AutoDiff(name='x', val=13)
-#     assert _getitem_(x, 'd_x') == 1, "Get item failed"
-
-
 def test_float():
     x = AutoDiff(name='x', val=3)
     assert type(float(x)) is float, "Float failed"
@@ -332,6 +350,17 @@ def test_get_gradient():
     assert x.get_gradient() == {'d_x': 1}, "Get gradient failed"
     assert (8 * x).get_gradient() == {'d_x': 8}, "Get gradient failed"
     assert x.gradient == {'d_x': 1}, "Get gradient property failed"
+
+
+# How to do rshift for scalars?
+# How to do lshfit for scalars?
+
+
+# can't call getitem in order to test it
+# def test_getitem():
+#     x = AutoDiff(name='x', val=13)
+#     assert _getitem_(x, 'd_x') == 1, "Get item failed"
+
 
 # Couldn't test neg b/c "NameError: name 'neg' is not defined"
 # def test_neg():

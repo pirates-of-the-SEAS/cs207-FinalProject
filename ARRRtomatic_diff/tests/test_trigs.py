@@ -4,21 +4,43 @@ import numpy as np
 
 def test_sin():
     x = AutoDiff(name='x', val=np.pi)
+    y = AutoDiff(name='y', val=3*np.pi)
+    z = AutoDiff(name='z', val=-12)
+    q = AutoDiff(name='q', val="string")
     assert ad.sin(x) == np.sin(np.pi), "Sine failed"
     assert ad.sin(x).trace['d_x'] == -1, 'Sine failed'
+    assert np.allclose(ad.sin(y).trace['val'], ad.sin(x).trace['val'], atol=1e-12) is True, "Sine failed"
+    assert np.allclose(ad.sin(y).trace['d_y'], ad.sin(x).trace['d_x'], atol=1e-12) is True, "Sine failed"
+    assert np.allclose(ad.sin(z).trace['val'], 0.536572918, atol=1e-12) is True, "Sine failed"
+    try:
+        ad.sin(q)
+    except TypeError:
+        print("Caught error as expected")
 
 def test_cos():
     x = AutoDiff(name='x', val=np.pi)
     y = AutoDiff(name='y', val=-np.pi)
-    assert (ad.cos(x)) == -1, "Cosine failed"
-    assert np.allclose((ad.cos(x)).trace['d_x'], 0, atol=1e-12) is True, 'Cosine failed'
+    q = AutoDiff(name='q', val="string")
+    assert ad.cos(x) == -1, "Cosine failed"
+    assert np.allclose(ad.cos(x).trace['d_x'], 0, atol=1e-12) is True, 'Cosine failed'
     assert ad.cos(y) == np.cos(-np.pi), "Cosine failed"
     assert np.allclose(ad.cos(y).trace['d_y'], -np.sin(-np.pi), atol=1e-12) is True, "Cosine failed"
+    try:
+        ad.cos(q)
+    except TypeError:
+        print("Caught error as expected")
 
 def test_tan():
     x = AutoDiff(name='x', val=np.pi)
+    y = AutoDiff(name='y', val=np.pi/2)
+    q = AutoDiff(name='q', val="string")
     assert ad.tan(x) == np.tan(np.pi), "Tan failed"
     assert np.allclose(ad.tan(x).trace['d_x'], (1/np.cos(np.pi))**2, atol=1e-12) is True, "Tan failed"
+    # assert np.allclose(ad.tan(y).trace['val'], np.inf, atol=1e-12) is True, "Tan failed"
+    try:
+        ad.tan(q)
+    except TypeError:
+        print("Caught error as expected")
 
 def test_csc():
     x = AutoDiff(name='x', val=np.pi/2)
