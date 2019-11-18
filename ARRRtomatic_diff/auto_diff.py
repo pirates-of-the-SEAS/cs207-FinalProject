@@ -112,6 +112,9 @@ class AutoDiff:
  
         # context 1: handle initial construction of an auto diff toy object 
         if 'val' in kwargs:
+            self.init_variable = True
+
+
             self.trace = {
                 'val': kwargs['val']
             }
@@ -124,6 +127,9 @@ class AutoDiff:
 
         # context 2: construct object assuming trace has been pre-computed
         elif 'trace' in kwargs:
+            self.init_variable = False
+
+
             self.trace = kwargs['trace']
 
             if 'name' in kwargs:
@@ -155,6 +161,10 @@ class AutoDiff:
     def gradient(self):
         return self.get_gradient()
 
+    @staticmethod
+    def __verify_same_name_same_value(trace1, trace2):
+        pass
+
     def __update_binary_autodiff(self, other, update_vals,
                                  update_deriv):
         """Combines two autodiff objects depending on the supplied val and
@@ -183,6 +193,13 @@ class AutoDiff:
 
         val = trace['val'] 
         other_val = other_trace['val']
+
+        # check to see that if we're combining two initial variables
+        # of the same name that they have the same value
+        if self.init_variable and other.init_variable:
+            if (self.named_variables == other.named_variables) and \
+               (val != other_val):
+                raise Exception("Variables of same name have different values")
 
         updated_val = update_vals(val, other_val)
 
