@@ -143,8 +143,41 @@ class AutoDiff:
     def get_gradient(self):
         return {f'd_{var}':self.trace[f'd_{var}'] for var in self.named_variables}
 
+    @property
+    def variables(self):
+        return self.get_named_variables()
+
+    @property
+    def val(self):
+        return self.get_value()
+
+    @property
+    def gradient(self):
+        return self.get_gradient()
+
     def __update_binary_autodiff(self, other, update_vals,
                                  update_deriv):
+        """Combines two autodiff objects depending on the binary operation used
+            INPUTS
+            =======
+            other: AutoDiff, the other AutoDiff object whose value and
+                      gradient 
+            update_vals: function, optional, default value is 2
+               Coefficient of linear term
+            update_deriv: function, optional, default value is 0
+               Constant term
+
+            RETURNS
+            ========
+            roots: 2-tuple of complex floats
+               Has the form (root1, root2) unless a = 0 
+               in which case a ValueError exception is raised
+
+            EXAMPLES
+            =========
+            >>> quad_roots(1.0, 1.0, -12.0)
+            ((3+0j), (-4+0j))
+        """
         other_named_variables = other.get_named_variables()
         named_variables = self.get_named_variables()
 
