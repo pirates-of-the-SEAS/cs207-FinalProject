@@ -161,10 +161,6 @@ class AutoDiff:
     def gradient(self):
         return self.get_gradient()
 
-    @staticmethod
-    def __verify_same_name_same_value(trace1, trace2):
-        pass
-
     def __update_binary_autodiff(self, other, update_vals,
                                  update_deriv):
         """Combines two autodiff objects depending on the supplied val and
