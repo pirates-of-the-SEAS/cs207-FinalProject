@@ -4,18 +4,28 @@ import numpy as np
 
 def test_sin():
     x = AutoDiff(name='x', val=np.pi)
-    assert np.allclose((ad.sin(x)).trace['val'], 0, atol=1e-12) == True, 'Sine failed'
+    assert ad.sin(x) == np.sin(np.pi), "Sine failed"
     assert ad.sin(x).trace['d_x'] == -1, 'Sine failed'
 
 def test_cos():
     x = AutoDiff(name='x', val=np.pi)
     y = AutoDiff(name='y', val=-np.pi)
     assert (ad.cos(x)) == -1, "Cosine failed"
-    assert np.allclose((ad.cos(x)).trace['d_x'], 0, atol=1e-12) == True, 'Cosine failed'
+    assert np.allclose((ad.cos(x)).trace['d_x'], 0, atol=1e-12) is True, 'Cosine failed'
+    assert ad.cos(y) == np.cos(-np.pi), "Cosine failed"
+    assert np.allclose(ad.cos(y).trace['d_y'], -np.sin(-np.pi), atol=1e-12) is True, "Cosine failed"
 
-# def test_tan():
-#
-# def test_csc():
+def test_tan():
+    x = AutoDiff(name='x', val=np.pi)
+    assert ad.tan(x) == np.tan(np.pi), "Tan failed"
+    assert np.allclose(ad.tan(x).trace['d_x'], (1/np.cos(np.pi))**2, atol=1e-12) is True, "Tan failed"
+
+def test_csc():
+    x = AutoDiff(name='x', val=np.pi/2)
+    assert ad.csc(x) == 1, "Cosecant failed"
+    # y = AutoDiff(name='y', val=np.pi)
+    # print(ad.csc(np.pi))
+
 #
 # def test_sec():
 #

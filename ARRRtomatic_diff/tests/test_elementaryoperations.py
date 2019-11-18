@@ -4,6 +4,7 @@ def test_add():
    x = AutoDiff(name='x', val=2)
    y = AutoDiff(name='y', val=-5)
    z = AutoDiff(name='z', val=0)
+   q = AutoDiff(name='b0', val="string")
    assert (x + 1) == 3, 'Addition failed'
    assert (x + 1).trace['d_x'] == 1, 'Addition failed'
    assert (1 + x) == 3, 'Addition failed'
@@ -13,11 +14,16 @@ def test_add():
    assert (y + x).trace['d_y'] == 1, 'Addition failed'
    assert (z + z) == 0, 'Addition failed'
    assert (z + z).trace['d_z'] == 2, 'Addition failed'
+   try:
+      (q + 5)
+   except TypeError:
+      print("Caught error as expected")
 
 def test_subtract():
    x = AutoDiff(name='x', val=9)
    y = AutoDiff(name='y', val=-5)
    z = AutoDiff(name='z', val=0)
+   q = AutoDiff(name='b0', val="string")
    assert (x - 1) == 8, 'Subtraction failed'
    assert (x - 1).trace['d_x'] == 1, 'Subtraction failed'
    assert (1 - x) == -8, 'Subtraction failed'
@@ -27,11 +33,16 @@ def test_subtract():
    assert (y - x).trace['d_y'] == 1, 'Subtraction failed'
    assert (z + z) == 0, 'Subtraction failed'
    assert (z + z).trace['d_z'] == 2, 'Subtraction failed'
+   try:
+      (q - 5)
+   except TypeError:
+      print("Caught error as expected")
 
 def test_multiply():
    x = AutoDiff(name='x', val=6)
    y = AutoDiff(name='y', val=-5)
    z = AutoDiff(name='z', val=0)
+   q = AutoDiff(name='b0', val="string")
    assert (x * 2) == 12, 'Multiplication failed'
    assert (x * 2) == 12, 'Multiplication failed'
    assert (x * 2).trace['d_x'] == 2, 'Multiplication failed'
@@ -45,11 +56,16 @@ def test_multiply():
    assert (x * y).trace['d_y'] == 6, 'Multiplication failed'
    assert (z * z) == 0, 'Multiplication failed'
    assert (z * z).trace['d_z'] == 0, 'Multiplication failed'
+   try:
+      (q * 5)
+   except TypeError:
+      print("Caught error as expected")
 
 def test_divide():
    x = AutoDiff(name='x', val=6)
    y = AutoDiff(name='y', val=-12)
    z = AutoDiff(name='z', val=0)
+   q = AutoDiff(name='b0', val="string")
    assert (x / 2) == 3, 'Division failed'
    assert (x / 2).trace['d_x'] == (1/2), 'Division failed'
    assert (18 / x) == 3, 'Division failed'
@@ -68,27 +84,44 @@ def test_divide():
        assert (z / z).trace['d_z'] == 0
    except ZeroDivisionError as e:
        print("Caught Zero Division Error")
+   try:
+      (q * 5)
+   except TypeError:
+      print("Caught error as expected")
 
 def test_exponentiation():
     x = AutoDiff(name='x', val=3)
     y = AutoDiff(name='y', val=0)
     z = AutoDiff(name='z', val=-2)
+    q = AutoDiff(name='b0', val="string")
     assert (x ** 2) == 9, "Exponentiation failed"
     assert (x ** 2).trace['d_x'] == 6, "Exponentiation failed"
     assert (x ** 0) == 1, "Exponentiation failed"
     assert (x ** 0).trace['d_x'] == 0, "Exponentiation failed"
     assert (x ** -2) == (1/9), "Exponentiation failed"
     assert (x ** -2).trace['d_x'] == -2/(3**3), "Exponentiation failed"
-    #assert (z**2) == 4, "Exponentiation failed"
-    #assert (z**3) == -8, "Exponentiation failed"
-    #assert (y**2) == 0, "Exponentiation failed"
+    assert (z ** 2) == 4, "Exponentiation failed"
+    assert (z ** 2).trace['d_z'] == -4, "Exponentiation failed"
+    assert (z ** 3) == -8, "Exponentiation failed"
+    assert (z ** 3).trace['d_z'] == 12, "Exponentiation failed"
+    assert (y ** 2) == 0, "Exponentiation failed"
+    assert (y ** 2).trace['d_y'] == 0, "Exponentiation failed"
+    try:
+       (q ** 5)
+    except TypeError:
+       print("Caught error as expected")
 
 def test_abs():
    x = AutoDiff(name='x', val=-3)
    y = AutoDiff(name='y', val=3)
    z = AutoDiff(name='z', val=0)
    q = AutoDiff(name='q', val=-30.23)
+   r = AutoDiff(name='b0', val="string")
    assert abs(x) == 3, "Abs val failed"
    assert abs(y) == 3, "Abs val failed"
    assert abs(z) == 0, 'Abs val failed'
    assert abs(q) == 30.23, "Abs val failed"
+   try:
+      (abs(r))
+   except TypeError:
+      print("Caught error as expected")
