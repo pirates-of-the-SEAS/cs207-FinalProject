@@ -58,7 +58,22 @@ data structures,
 etc.
 
 # Reverse mode
-We plan to implement the reverse mode as an alternative to forwad mode. We will do so by creating another AutoDiff class, AutoDiffRev, and the corresponding reverse AutoDiffVector, AutoDiffVectorRev. The API will be roughly the same - the computational graph will be explicitly constructed via algebraically combining AutoDiffRev variables. The intermediate forward pass values will be calculated during this time and 
+We plan to implement the reverse mode as an alternative to forward mode. We will do so by creating another AutoDiff class, AutoDiffRev, and the corresponding reverse AutoDiffVector, AutoDiffVectorRev. The API will be mostly the same - the computational graph will be explicitly constructed via algebraically combining AutoDiffRev variables. The intermediate forward pass values and partials will be calculated through these operations as well as the graph dependency structure. For example:
+
+```python
+from ARRRtomatic_diff import AutoDiffRev
+
+x = Var(1)
+y = Var(2)
+z = x * y
+z.partial = 1.0
+
+print(z.value)
+print(x.partial)
+```
+
+In the above code, the multiplication of x and y keeps track of the forward pass evaluations and immediate partials and also specifies z as a child node of x and y in the dependency graph. Each AutoDiffRev variable will keep track of the operations that it's used in. Unlike our forward mode implementation, dz/dx and dz/dy are maintained in the x and y variables, so they must be kept around. The computation of the partial derivatives of the output with respect to the input is performed recursively. 
+
 
 # Checks to ensure that variables of the same name have the same initial value
 Currently, we have a rudimentary check to verify that user isn't attempting to combine two AutoDiff variables that have the same named variable but with differing values. It's still possible for a user to create an AutoDiff object with a named variable, perform operations on it, and then combing it with another AutoDiff object with the same named variable but with a different value. We plan to make our software throw an exception when this happens. This will require modifying AutoDiff to keep track of the initial values for each variable and then perform a check when attempting to combine two AutoDiff objects.
