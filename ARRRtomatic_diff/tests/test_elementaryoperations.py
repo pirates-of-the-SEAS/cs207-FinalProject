@@ -377,6 +377,16 @@ def test_neg():
     assert -x.trace['d_x'] == -1, "Neg failed"
 
 
+def test_pos():
+    x = AutoDiff(name='x', val=2)
+    assert x == 2, "Pos failed"
+
+
 def test_invert():
     x = AutoDiff(name='x', val=2)
     assert ~x == -3, "Invert failed"
+
+
+def test_complex():
+    x = AutoDiff(name='x', val=2)
+    assert complex(x) == (2+0j), "Complex failed"
