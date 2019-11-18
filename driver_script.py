@@ -1,11 +1,40 @@
-import math
-import numpy as np
+"""
+Example driver script using Newton's Method to find the roots of sin
+"""
 
 from ARRRtomatic_diff import AutoDiff
 from ARRRtomatic_diff.functions import sin, exp
 
-y = AutoDiff(name='y', val=0)
-z = AutoDiff(name='z', val=-2)
-assert (z**2) == 4, "Exponentiation failed"
-assert (z**3) == -8, "Exponentiation failed"
-assert (y**2) == 0, "Exponentiation failed"
+def f(x):
+    x = AutoDiff(name='x', val=x)
+
+    auto_diff_results = sin(x)
+
+    return auto_diff_results['val'], auto_diff_results['d_x']
+
+def do_newtons_method(x, f, tol=1e-6, verbose=0):
+    num_iters = 1
+    while abs(f(x)[0]) > tol:
+        val, deriv = f(x)
+
+        if verbose > 0:
+            print(f"Iteration {num_iters} | x: {x:2f} | f(x): {val:2f} | deriv: {deriv:2f}")
+
+        x = x - val/deriv
+
+        
+
+        num_iters += 1
+
+    if verbose > 0:
+        print(f"Converged to {x} after {num_iters} iterations")
+
+    return x
+
+
+if __name__ == '__main__':
+    do_newtons_method(0.2, f, verbose=1)
+    do_newtons_method(0.8, f, verbose=1)
+    do_newtons_method(1.2, f, verbose=1)
+    do_newtons_method(1.8, f, verbose=1)
+    do_newtons_method(2.2, f, verbose=1)

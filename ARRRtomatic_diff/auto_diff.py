@@ -157,26 +157,21 @@ class AutoDiff:
 
     def __update_binary_autodiff(self, other, update_vals,
                                  update_deriv):
-        """Combines two autodiff objects depending on the binary operation used
+        """Combines two autodiff objects depending on the supplied val and
+           derivative update rule. Not to be used externally.
             INPUTS
             =======
             other: AutoDiff, the other AutoDiff object whose value and
-                      gradient 
-            update_vals: function, optional, default value is 2
-               Coefficient of linear term
-            update_deriv: function, optional, default value is 0
-               Constant term
+                      gradient will be combined
+            update_vals: function, how to combine the values of the two
+                                   auto diff object
+            update_deriv: function, how to combine the gradients of the two
+                             auto diff objects
 
             RETURNS
             ========
-            roots: 2-tuple of complex floats
-               Has the form (root1, root2) unless a = 0 
-               in which case a ValueError exception is raised
+            an AutoDiff object with the combined values and gradients
 
-            EXAMPLES
-            =========
-            >>> quad_roots(1.0, 1.0, -12.0)
-            ((3+0j), (-4+0j))
         """
         other_named_variables = other.get_named_variables()
         named_variables = self.get_named_variables()
@@ -194,9 +189,7 @@ class AutoDiff:
         if np.isnan(updated_val):
             raise ValueError
 
-        combined_trace = {
-            'val': updated_val
-        }
+        combined_trace = {'val': updated_val}
 
         for var in combined_named_variables:
             try:
@@ -220,31 +213,48 @@ class AutoDiff:
                         trace=combined_trace)
 
     def __update_binary_numeric(self, num, update_val, update_deriv):
-         named_variables = self.get_named_variables()
-         trace = self.get_trace()
-         updated_trace = {}
-         updated_trace.update(trace)
+        """Returns an updated AutoDiff object assuming the current one
+                is being used in a binary operation with a numeric.
+                Not to be used externally.
 
-         val = updated_trace['val']
+            INPUTS
+            =======
+            num: numeric, a numeric value that will be used to update the
+                           value and gradient of the AutoDiff object
+            update_vals: function, how to combine the AutoDiff object's val
+                                   with the numeric variable
+            update_deriv: function, how to combine the AutoDiff object's
+                            gradient with the numeric variable
 
-         updated_val = update_val(val, num)
+            RETURNS
+            ========
+            an AutoDiff object with the updated values and gradients
+          """
+        named_variables = self.get_named_variables()
+        trace = self.get_trace()
+        updated_trace = {}
+        updated_trace.update(trace)
 
-         if np.isnan(updated_val):
-             raise ValueErrr
+        val = updated_trace['val']
+         
+        updated_val = update_val(val, num)
 
-         updated_trace['val'] = updated_val
-         for var in named_variables:
-             updated_deriv = update_deriv(val,
-                                          num,
-                                          updated_trace[f'd_{var}'],
-                                          0)
+        if np.isnan(updated_val):
+            raise ValueErrr
+         
+        updated_trace['val'] = updated_val
+        for var in named_variables:
+            updated_deriv = update_deriv(val,
+                                         num,
+                                         updated_trace[f'd_{var}'],
+                                         0)
 
-             if np.isnan(updated_deriv):
-                 raise ValueError
+            if np.isnan(updated_deriv):
+                raise ValueError
 
-             updated_trace[f'd_{var}'] = updated_deriv
+            updated_trace[f'd_{var}'] = updated_deriv
 
-         return AutoDiff(name=named_variables,
+        return AutoDiff(name=named_variables,
                             trace=updated_trace)
 
     @staticmethod
@@ -309,24 +319,12 @@ class AutoDiff:
             return self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
 
     def __radd__(self, other):
-        """__radd__ is only called if the left object does not have an __add__
-        method, or that method does not know how to add the two objects (which
-        it flags by returning NotImplemented). Both classes have an __add__
-        method, which do not return NotImplemented. Therefore the __radd__
-        method would never be called.
-        """
-        return self.__add__(other)
+        return self + other
 
     def __sub__(self, other):
-        """
-        obj - other
-        """
         return self + -other
 
     def __rsub__(self, other):
-        """
-        other - obj
-        """
         return other + -self
 
     def __mul__(self, other):
@@ -339,44 +337,24 @@ class AutoDiff:
         return self * other
 
     def __pow__(self, other):
-        """
-        obj**other
-        """
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__lpow, AutoDiff.__dlpow)
         except AttributeError:
             return self.__update_binary_numeric(other, AutoDiff.__lpow, AutoDiff.__dlpow)
           
     def __rpow__(self, other):
-        """
-        other**obj
-        """
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__rpow, AutoDiff.__drpow)
         except AttributeError:
             return self.__update_binary_numeric(other, AutoDiff.__rpow, AutoDiff.__drpow)
 
     def __truediv__(self, other):
-        """
-        obj/other
-
-        f(x) = g(x)/h(x)
-
-        f'(x) = (g'(x)h(x) - g(x)h'(x)) / h(x)**2
-        """
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
         except AttributeError:
             return self.__update_binary_numeric(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
 
     def __rtruediv__(self, other):
-        """
-        other / obj
-
-        f(x) = g(x)/h(x)
-
-        f'(x) = (g'(x)h(x) - g(x)h'(x)) / h(x)**2
-        """
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
         except AttributeError:
@@ -486,7 +464,6 @@ class AutoDiff:
 
     def __float__(self):
         return float(self.get_trace()['val'])
-
 
     def __lt__(self, other):
         try:
