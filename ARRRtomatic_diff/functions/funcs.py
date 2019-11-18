@@ -48,6 +48,9 @@ def log(x):
     return __update_unary(x, np.log, dlog)
 
 def dsqrt(x):
+    if x <= 0:
+        raise ValueError
+    
     return 1/2 * 1/np.sqrt(x)
 
 def sqrt(x):
