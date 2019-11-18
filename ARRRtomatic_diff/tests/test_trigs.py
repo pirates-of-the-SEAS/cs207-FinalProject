@@ -26,12 +26,18 @@ def test_csc():
     # y = AutoDiff(name='y', val=np.pi)
     # print(ad.csc(np.pi))
 
-#
-# def test_sec():
-#
+def test_sec():
+    x = AutoDiff(name='x', val=0)
+    assert ad.sec(x) == 1, "Secant failed"
+
 # def test_cot():
-#
-# def test_asin():
+    # x = AutoDiff(name='x', val=np.pi/4)
+    # assert np.allclose(ad.cot(x), 1, atol=1e-12), "Cotangent failed"
+
+def test_asin():
+    x = AutoDiff(name='x', val=0)
+    assert ad.asin(x) == 0, "Arcsin failed"
+
 #
 # def test_acos():
 #     x = AutoDiff(name='x', val=0)
