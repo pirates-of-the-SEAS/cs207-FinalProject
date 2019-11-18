@@ -33,8 +33,14 @@ def test_empty_instantiation():
         print("Caught error as expected")
 
 
-def test_double_instantiaiton():
+def test_double_instantiation():
     try:
         x = AutoDiff(name='x', val=3, trace=3)
+    except ValueError:
+        print("Caught error as expected")
+
+def test_nameless_instantiation():
+    try:
+        x = AutoDiff(val=3)
     except ValueError:
         print("Caught error as expected")
