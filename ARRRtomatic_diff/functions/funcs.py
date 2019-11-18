@@ -2,8 +2,7 @@ import numpy as np
 
 from .. import AutoDiff
 
-
-def update_unary(self, x, operation, doperation):
+def update_unary(x, operation, doperation):
     try:
         named_variables = x.get_named_variables()
         trace = x.get_trace()
@@ -22,7 +21,6 @@ def update_unary(self, x, operation, doperation):
                         trace=updated_trace)
     except:
         return operation(x)
-
 
 def exp(x):
     return update_unary(x, np.exp, np.exp)
@@ -173,11 +171,6 @@ def acoth(x):
 
 def arccoth(x):
     return atanh(1/x)
-
-
-
-
-
 
 
 

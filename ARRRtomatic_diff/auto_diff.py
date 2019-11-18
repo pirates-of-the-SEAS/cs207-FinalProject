@@ -133,7 +133,6 @@ class AutoDiff:
          return AutoDiff(name=named_variables,
                             trace=updated_trace)
 
-
     @staticmethod
     def __add(x, y):
         return x + y
@@ -171,7 +170,7 @@ class AutoDiff:
         return x / y
 
     @staticmethod
-    def __dldiv(x, y):
+    def __dldiv(x, y, dx, dy):
         return (dx*y - x*dy)/y**2
 
     @staticmethod
@@ -179,15 +178,15 @@ class AutoDiff:
         return y / x
 
     @staticmethod
-    def __drdiv(x, y):
+    def __drdiv(x, y, dx, dy):
         return (dy*x - y*dx)/x**2
 
 
     def __add__(self, other):
         try:
-            return self.__update_binary_autodiff(other, __add, __dadd)
+            return self.__update_binary_autodiff(other, AutoDiff.__add, AutoDiff.__dadd)
         except AttributeError:
-            return self.__update_binary_numeric(other, __add, __dadd)
+            return self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
 
     def __radd__(self, other):
         """__radd__ is only called if the left object does not have an __add__
@@ -197,7 +196,6 @@ class AutoDiff:
         method would never be called.
         """
         return self.__add__(other)
-
 
     def __sub__(self, other):
         """
@@ -213,9 +211,9 @@ class AutoDiff:
 
     def __mul__(self, other):
         try:
-            return self.__update_binary_autodiff(other, __mul, __dmul)
+            return self.__update_binary_autodiff(other, AutoDiff.__mul, AutoDiff.__dmul)
         except AttributeError:
-            return self.__update_binary_numeric(other, __mul, __dmul)
+            return self.__update_binary_numeric(other, AutoDiff.__mul, AutoDiff.__dmul)
 
     def __rmul__(self, other):
         return self * other
@@ -225,18 +223,18 @@ class AutoDiff:
         obj**other
         """
         try:
-            return self.__update_binary_autodiff(other, __lpow, __dlpow)
+            return self.__update_binary_autodiff(other, AutoDiff.__lpow, AutoDiff.__dlpow)
         except AttributeError:
-            return self.__update_binary_numeric(other, __lpow, __dlpow)
+            return self.__update_binary_numeric(other, AutoDiff.__lpow, AutoDiff.__dlpow)
           
     def __rpow__(self, other):
         """
         other**obj
         """
         try:
-            return self.__update_binary_autodiff(other, __rpow, __drpow)
+            return self.__update_binary_autodiff(other, AutoDiff.__rpow, AutoDiff.__drpow)
         except AttributeError:
-            return self.__update_binary_numeric(other, __rpow, __drpow)
+            return self.__update_binary_numeric(other, AutoDiff.__rpow, AutoDiff.__drpow)
 
     def __truediv__(self, other):
         """
@@ -247,9 +245,9 @@ class AutoDiff:
         f'(x) = (g'(x)h(x) - g(x)h'(x)) / h(x)**2
         """
         try:
-            return self.__update_binary_autodiff(other, __ldiv, __dldiv)
+            return self.__update_binary_autodiff(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
         except AttributeError:
-            return self.__update_binary_numeric(other, __ldiv, __dldiv)
+            return self.__update_binary_numeric(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
 
     def __rtruediv__(self, other):
         """
@@ -260,9 +258,9 @@ class AutoDiff:
         f'(x) = (g'(x)h(x) - g(x)h'(x)) / h(x)**2
         """
         try:
-            return self.__update_binary_autodiff(other, __rdiv, __drdiv)
+            return self.__update_binary_autodiff(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
         except AttributeError:
-            return self.__update_binary_numeric(other, __rdiv, __drdiv)
+            return self.__update_binary_numeric(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
 
     def __neg__(self):
         return -1 * self
