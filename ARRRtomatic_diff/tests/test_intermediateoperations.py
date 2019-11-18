@@ -38,18 +38,8 @@ def test_log():
     z = AutoDiff(name='z', val=-2)
     assert np.allclose(ad.log(x).trace['val'], np.log(4), atol=1e-12) == True, 'Log failed'
     assert ad.log(x).trace['d_x'] == 1 / 4, 'Log failed'
-    # ad.log(z)
+    try:
+        ad.log(z)
+    except TypeError:
+        print("Caught error as expected")
 
-    # Doesn't throw error, but I can't catch RuntimeWarning"
-    # with warnings.catch_warnings():
-    #     warnings.filterwarnings(action='error', message="RuntimeWarning")
-    #     try:
-    #         ad.log(z).trace['val']
-    #     except Warning as e:
-    #         print("Caught error as expected")
-
-    # Won't catch RuntimeWarning
-    # try:
-    #     ad.log(z)
-    # except RuntimeWarning:
-    #     print("Caught Warning as expected")

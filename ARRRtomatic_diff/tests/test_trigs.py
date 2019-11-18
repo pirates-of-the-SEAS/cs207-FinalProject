@@ -39,8 +39,7 @@ def test_tan():
     q = AutoDiff(name='q', val="string")
     assert ad.tan(x) == np.tan(np.pi), "Tan failed"
     assert np.allclose(ad.tan(x).trace['d_x'], (1 / np.cos(np.pi)) ** 2, atol=1e-12) is True, "Tan failed"
-    # assert np.allclose(ad.tan(y).trace['val'], np.inf, atol=1e-12) is True, "Tan failed"
-    # assert np.allclose(ad.tan(y).trace['val'], 1.633123935319537e+16), "Tan failed"
+    assert ad.tan(y).trace['val'] == np.tan(np.pi/2), "Tan failed"
     try:
         ad.tan(q)
     except TypeError:

@@ -352,6 +352,10 @@ def test_get_gradient():
     assert x.gradient == {'d_x': 1}, "Get gradient property failed"
 
 
+def test_contains():
+   x = AutoDiff(name='x', val=2)
+   assert x in [2], "Contains failed"
+
 # How to do rshift for scalars?
 # How to do lshfit for scalars?
 
@@ -361,6 +365,8 @@ def test_get_gradient():
 #     x = AutoDiff(name='x', val=13)
 #     assert _getitem_(x, 'd_x') == 1, "Get item failed"
 
+def test_neg():
+    x = AutoDiff(name='x', val=2)
 
 # Couldn't test neg b/c "NameError: name 'neg' is not defined"
 # def test_neg():
@@ -374,11 +380,6 @@ def test_get_gradient():
 #    except AssertionError:
 #       print("Caught error as expected")
 
-
-# Didn't know how to test contains
-# def test_contains():
-#    x = AutoDiff(name='x', val=2)
-#    assert contains(x) == 2, "Contains failed"
 
 # Didn't know how to implement invert for scalar inputs
 # def test_invert():
