@@ -236,7 +236,10 @@ class AutoDiff:
 
     @staticmethod
     def __dlpow(x, y, dx, dy):
-        return x**(y-1) * (y*dx + x * np.log(x) * dy)
+        if dy == 0:
+            return x**(y-1) * (y*dx)
+        else:
+            return x**(y-1) * (y*dx + x * np.log(x) * dy)
 
     @staticmethod
     def __rpow(x, y):
@@ -244,7 +247,10 @@ class AutoDiff:
 
     @staticmethod
     def __drpow(x, y, dx, dy):
-        return y*(x-1)*(y*dx + np.log(y) + x*dy)
+        if dy == 0:
+            return y**x * np.log(y) * dx
+        else:
+            return y**(x-1)*(x*dy + y * np.log(y) * dx)
 
     @staticmethod
     def __ldiv(x, y):
