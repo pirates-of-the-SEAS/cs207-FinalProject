@@ -9,8 +9,8 @@ x1 = AutoDiff(name='x', val=0)
 x2 = AutoDiff(name='x', val=3)
 y = AutoDiff(name='y', val=4)
 
-log(y)
-
+print(5 >= y)
+print(y >= 5)
 
 
 print(x2 + x2 + x1)
