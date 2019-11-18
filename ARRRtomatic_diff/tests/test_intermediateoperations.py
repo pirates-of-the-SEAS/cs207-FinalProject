@@ -7,7 +7,7 @@ def test_sqrt():
     x = AutoDiff(name='x', val=16)
     assert ad.sqrt(x) == 4, "Square root failed"
     assert ad.sqrt(x).trace['d_x'] == 1 / (2 * np.sqrt(16)), "Square root failed"
-    
+
 def test_Euler():
     x = AutoDiff(name='x', val=3)
     assert ad.exp(x) == np.exp(3), "Euler's number failed"
