@@ -71,8 +71,24 @@ def test_divide():
 
 def test_exponentiation():
     x = AutoDiff(name='x', val=3)
-    y = AutoDiff(name='')
-    assert (x**2) == 9, "Exponentiation failed"
-    assert (x**0) == 1, "Exponentiation failed"
-    assert (x**-2) == (1/9), "Exponentiation failed"
+    y = AutoDiff(name='y', val=0)
+    z = AutoDiff(name='z', val=-2)
+    assert (x ** 2) == 9, "Exponentiation failed"
+    assert (x ** 2).trace['d_x'] == 6, "Exponentiation failed"
+    assert (x ** 0) == 1, "Exponentiation failed"
+    assert (x ** 0).trace['d_x'] == 0, "Exponentiation failed"
+    assert (x ** -2) == (1/9), "Exponentiation failed"
+    assert (x ** -2).trace['d_x'] == -2/(3**3), "Exponentiation failed"
+    #assert (z**2) == 4, "Exponentiation failed"
+    #assert (z**3) == -8, "Exponentiation failed"
+    #assert (y**2) == 0, "Exponentiation failed"
 
+def test_abs():
+   x = AutoDiff(name='x', val=-3)
+   y = AutoDiff(name='y', val=3)
+   z = AutoDiff(name='z', val=0)
+   q = AutoDiff(name='q', val=-30.23)
+   assert abs(x) == 3, "Abs val failed"
+   assert abs(y) == 3, "Abs val failed"
+   assert abs(z) == 0, 'Abs val failed'
+   assert abs(q) == 30.23, "Abs val failed"
