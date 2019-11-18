@@ -39,7 +39,12 @@ def test_log():
     assert np.allclose(ad.log(x).trace['val'], np.log(4), atol=1e-12) == True, 'Log failed'
     assert ad.log(x).trace['d_x'] == 1 / 4, 'Log failed'
     try:
+        ad.log(y).trace['d_y']
+    except TypeError:
+        print("Caught error as expected")
+    try:
         ad.log(z)
     except TypeError:
         print("Caught error as expected")
+
 
