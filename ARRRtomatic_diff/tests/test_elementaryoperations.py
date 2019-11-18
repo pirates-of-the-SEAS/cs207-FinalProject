@@ -1,4 +1,5 @@
 from ARRRtomatic_diff import AutoDiff
+import math
 
 def test_add():
    x = AutoDiff(name='x', val=2)
@@ -180,3 +181,101 @@ def test_ne():
    assert x != 11, "Not equal failed"
    assert 11 != x, "Not equal failed"
    assert x != y, "Not equal failed"
+
+def test_modulo():
+   x = AutoDiff(name='x', val=15)
+   y = AutoDiff(name='y', val=12)
+   z = AutoDiff(name='z', val=4)
+   assert x % 2 == 1, "Modulo failed"
+   assert y % 2 == 0, "Modulo failed"
+   assert y % z == 0, "Modulo failed"
+   assert x % z == 3, "Modulo failed"
+
+# How to do rshift for scalars?
+# How to do lshfit for scalars?
+
+def test_or():
+   x = AutoDiff(name='x', val=10)
+   y = AutoDiff(name='y', val=100)
+   z = AutoDiff(name='z', val=10)
+   assert x == 10 or y == 14, "Or failed"
+   assert x == 14 or y == 100, "Or failed"
+   assert x == 10 or y == 100, "Or failed"
+   assert z == x or y == z, "Or failed"
+   try:
+      assert x == 12 or y == 12
+   except AssertionError:
+      print("Caught error as expected")
+
+def test_xor():
+   x = AutoDiff(name='x', val=0)
+   y = AutoDiff(name='y', val=1)
+   assert (x ^ y) == 1, "Xor failed"
+   assert (x ^ 1) == 1, "Xor failed"
+   assert (1 ^ x) == 1, "Xor failed"
+   try:
+      assert x ^ x == 1
+   except AssertionError:
+      print("Caught Error as expected")
+
+def test_and():
+   x = AutoDiff(name='x', val=10)
+   y = AutoDiff(name='y', val=100)
+   z = AutoDiff(name='z', val=10)
+   q = AutoDiff(name='q', val=10)
+   assert x and 10 and y == 100, "Or failed"
+   assert z == x and q == z, "Or failed"
+   try:
+      assert x == 12 and y == 12
+   except AssertionError:
+      print("Caught error as expected")
+   try:
+      assert x == 10 and y == 12
+   except AssertionError:
+      print("Caught error as expected")
+   try:
+      assert x == 12 and y == 100
+   except AssertionError:
+      print("Caught error as expected")
+
+def test_round():
+   x = AutoDiff(name='x', val=5.7)
+   y = AutoDiff(name='y', val=-4.6)
+   z = AutoDiff(name='z', val=0)
+   assert round(x) == 6, "Round failed"
+   assert -5 == round(y), "Round failed"
+   assert 0 == round(z), "Round failed"
+
+def test_ceil():
+   x = AutoDiff(name='x', val=10.1)
+   assert 11 == math.ceil(x), "Ceil failed"
+   assert math.ceil(x) == 11, "Ceil failed"
+
+def test_floor():
+   x = AutoDiff(name='x', val=10.9)
+   assert 10 == math.floor(x), "Floor failed"
+   assert math.floor(x) == 10, "Floor failed"
+
+def test_trunc():
+   x = AutoDiff(name='x', val=-4.343)
+   assert -4 == math.trunc(x), "Truncate failed"
+   assert math.trunc(x) == -4, "Truncate failed"
+
+def test_len():
+   x = AutoDiff(name='x', val=133)
+   assert len(x) == 2, "Len failed"
+   assert 2 == len(x), "Len failed"
+
+def test_str():
+   x = AutoDiff(name='x', val=2)
+   assert str(x) == "{'val': 2, 'd_x': 1}", "Str failed"
+
+#Didn't know how to test contains
+# def test_contains():
+#    x = AutoDiff(name='x', val=2)
+#    assert contains(x) == 2, "Contains failed"
+
+# Didn't know how to implement invert for scalar inputs
+# def test_invert():
+#    x = AutoDiff(name='x', val=3)
+#    assert 1/3 = ~x, "Invert failed"
