@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=master)](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=master)
 
-[![codecov](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject/branch/master/graph/badge.svg)](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject)
-
+[![codecov](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject/branch/ws-dev2/graph/badge.svg)](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject)
+  
 # Group 16
 
 + Cameron Hickert
@@ -214,4 +214,4 @@
 
 # Goal
 https://harvard-iacs.github.io/2019-CS207/pages/project.html
->>>>>>> 1e468afbea8e57a52587d388dd478e855080b949
+
