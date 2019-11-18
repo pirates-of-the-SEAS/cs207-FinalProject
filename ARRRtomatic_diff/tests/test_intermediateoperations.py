@@ -36,7 +36,7 @@ def test_log():
     x = AutoDiff(name='x', val=4)
     y = AutoDiff(name='y', val=0)
     z = AutoDiff(name='z', val=-2)
-    assert np.allclose((ad.log(x)).trace['val'], np.log(4), atol=1e-12) == True, 'Log failed'
+    assert np.allclose(ad.log(x).trace['val'], np.log(4), atol=1e-12) == True, 'Log failed'
     assert ad.log(x).trace['d_x'] == 1 / 4, 'Log failed'
     # ad.log(z)
 
