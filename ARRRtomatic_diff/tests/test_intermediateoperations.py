@@ -3,6 +3,7 @@ from ARRRtomatic_diff import functions as ad
 import numpy as np
 import warnings
 
+
 def test_sqrt():
     x = AutoDiff(name='x', val=16)
     y = AutoDiff(name='y', val=0)
@@ -14,6 +15,7 @@ def test_sqrt():
 
     # Should give 'nan' or handle imaginary, but outputs nan that does not equate to np.nan
     # assert ad.sqrt(z).trace['val'] == np.nan, "Square root failed"
+
 
 def test_Euler():
     x = AutoDiff(name='x', val=3)
@@ -33,9 +35,9 @@ def test_log():
     y = AutoDiff(name='y', val=0)
     z = AutoDiff(name='z', val=-2)
     assert np.allclose((ad.log(x)).trace['val'], np.log(4), atol=1e-12) == True, 'Log failed'
-    assert ad.log(x).trace['d_x'] == 1/4, 'Log failed'
+    assert ad.log(x).trace['d_x'] == 1 / 4, 'Log failed'
 
-    # Doesn't throw error, but can't catch RuntimeWarning"
+    # Doesn't throw error, but I can't catch RuntimeWarning"
     # with warnings.catch_warnings():
     #     warnings.filterwarnings(action='error', message="RuntimeWarning")
     #     try:
@@ -48,7 +50,3 @@ def test_log():
     #     ad.log(z)
     # except RuntimeWarning:
     #     print("Caught Warning as expected")
-
-
-
-
