@@ -32,9 +32,4 @@ def test_empty_instantiation():
     except ValueError:
         print("Caught error as expected")
 
-# SyntaxError won't catch
-# def test_overfull_instantiation():
-#     try:
-#         x = AutoDiff(name="b0", val=3, val=5)
-#     except SyntaxError:
-#         print("Caught error as expected")
+
