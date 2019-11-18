@@ -29,6 +29,7 @@ def test_csc():
 def test_sec():
     x = AutoDiff(name='x', val=0)
     assert np.allclose(ad.sec(x).trace['val'], 1, atol=1e-12) is True, "Secant failed"
+    # assert np.allclose(ad.sec(x).trace['d_x'], 1, atol=1e-12) is True, "Secant failed"
 
 # def test_cot():
     # x = AutoDiff(name='x', val=np.pi/4)
@@ -73,20 +74,47 @@ def test_tanh():
     assert np.allclose(ad.tanh(x).trace['val'], 0.462117, atol=1e-12) is True, "Tanh failed"
     assert np.allclose(ad.tanh(x).trace['d_x'], 0.786448, atol=1e-12) is True, "Tanh failed"
 
-# def test_csch():
-#
-# def test_sech():
-#
-# def test_coth():
-#
-# def test_asinh():
-#
-# def test_acosh():
-#
-# def test_atanh():
-#
-# def test_acsch():
-#
-# def test_asech():
-#
-# def test_acoth():
+def test_csch():
+    x = AutoDiff(name='x', val=1)
+    assert np.allclose(ad.csch(x).trace['val'], 0.8509181282393215451, atol=1e-12) is True, "Csch failed"
+    assert np.allclose(ad.csch(x).trace['d_x'], -1.117285527449274171482, atol=1e-12) is True, "Csch failed"
+
+def test_sech():
+    x = AutoDiff(name='x', val=0)
+    assert np.allclose(ad.sech(x).trace['val'], 1, atol=1e-12) is True, "Sech failed"
+    assert np.allclose(ad.sech(x).trace['d_x'], 0, atol=1e-12) is True, "Sech failed"
+
+def test_coth():
+    x = AutoDiff(name='x', val=2)
+    assert np.allclose(ad.coth(x).trace['val'], 1.0373147207275480958778, atol=1e-12) is True, "Coth failed"
+    assert np.allclose(ad.coth(x).trace['d_x'], -0.07602182983807109925337, atol=1e-12) is True, "Coth failed"
+
+def test_asinh():
+    x = AutoDiff(name='x', val=np.pi/2)
+    assert np.allclose(ad.asinh(x).trace['val'], 1.2334031175112170570, atol=1e-12) is True, "Asinh failed"
+    assert np.allclose(ad.asinh(x).trace['d_x'], 0.5370292721463150768, atol=1e-12) is True, "Asinh failed"
+
+def test_acosh():
+    x = AutoDiff(name='x', val=2)
+    assert np.allclose(ad.acosh(x).trace['val'], 1.316957896924816, atol=1e-12) is True, "Acosh failed"
+    assert np.allclose(ad.acosh(x).trace['d_x'], 1/np.sqrt(3), atol=1e-12) is True, "Acosh failed"
+
+def test_atanh():
+    x = AutoDiff(name='x', val=0)
+    assert np.allclose(ad.atanh(x).trace['val'], 0, atol=1e-12) is True, "Atanh failed"
+    assert np.allclose(ad.atanh(x).trace['d_x'], 1, atol=1e-12) is True, "Atanh failed"
+
+def test_acsch():
+    x = AutoDiff(name='x', val=1)
+    assert np.allclose(ad.acsch(x).trace['val'], 0.881373587019543025232, atol=1e-12) is True, "Acsch failed"
+    assert np.allclose(ad.acsch(x).trace['d_x'], -1/np.sqrt(2), atol=1e-12) is True, "Acsch failed"
+
+def test_asech():
+    x = AutoDiff(name='x', val=0.2)
+    assert np.allclose(ad.asech(x).trace['val'], 2.29243, atol=1e-12) is True, "Asech failed"
+    assert np.allclose(ad.asech(x).trace['d_x'], -5.10310, atol=1e-12) is True, "Asech failed"
+
+def test_acoth():
+    x = AutoDiff(name='x', val=2)
+    assert np.allclose(ad.acoth(x).trace['val'], 0.5493061443340, atol=1e-12) is True, "Acoth failed"
+    assert np.allclose(ad.acoth(x).trace['d_x'], -1/3, atol=1e-12) is True, "Acoth failed"
