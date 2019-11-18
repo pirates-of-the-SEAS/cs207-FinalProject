@@ -407,6 +407,7 @@ def test_complex():
     x = AutoDiff(name='x', val=2)
     assert complex(x) == (2+0j), "Complex failed"
 
+
 def test_floordiv():
     x = AutoDiff(name='x', val=13)
     assert x // 3 == 4, 'Floordiv failed'

@@ -1,7 +1,6 @@
 from ARRRtomatic_diff import AutoDiff
 from ARRRtomatic_diff import functions as ad
 import numpy as np
-import warnings
 
 
 def test_sqrt():
@@ -48,3 +47,13 @@ def test_log():
         print("Caught error as expected")
 
 
+def test_composition():
+    x = AutoDiff(name='x', val=4)
+    assert np.allclose(ad.sin(ad.exp(x) ** 2).trace['val'], 0.4017629715192812,
+                       atol=1e-12) is True, "Composition failed"
+    assert np.allclose(ad.sin(ad.exp(x) ** 2).trace['d_x'], -5459.586962682745,
+                       atol=1e-12) is True, "Composition failed"
+    assert np.allclose(ad.exp(ad.sin(x) ** 2).trace['val'], 1.7731365081918968985940,
+                       atol=1e-12) is True, "Composition failed"
+    assert np.allclose(ad.exp(ad.sin(x) ** 2).trace['d_x'], 1.75426722676864073577,
+                       atol=1e-12) is True, "Composition failed"
