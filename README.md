@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=ws-dev2)](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=ws-dev2)
-
-<!-- [![Coverage Status](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject/branch/ws-dev2/graph/badge.svg)](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject) -->
+[![Build Status](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=master)](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=master)
 
 [![codecov](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject/branch/ws-dev2/graph/badge.svg)](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject)
   
@@ -13,6 +11,7 @@
 
 
 # Milestone 2 todos
+
 
 
 
@@ -35,10 +34,10 @@
 
 
 + [ ] Working forward mode implementation on scalar values and scalar input functions
-    + [ ] Deal with circular imports
-    + [ ] Combine functions into a single file
-    + [ ] Improve numerical stability of pow operation
-    + [ ] Raise exceptions for invalid operations for reals (i.e. division by zero, sqrt of negative, etc.)
+    + [x] Deal with circular imports
+    + [x] Combine functions into a single file
+    + [x] Improve numerical stability of pow operation
+    + [x] Raise exceptions for invalid operations for reals (i.e. division by zero, sqrt of negative, etc.)
 
     + [ ] Make software available for download from GitHub org
 
@@ -52,23 +51,24 @@
     + [x] Overload division
     + [x] Overload power
     + [x] Overload negation
-    + [ ] Double check for other binary / unary operations
+    + [x] Double check for other binary / unary operations
     + [x] implement exponential
     + [x] implement sine
     + [x] implement cosine
     + [x] implement tangent
     
 
-    + [ ] (optional?) implement cosecant
-    + [ ] (optional?) implement secant
-    + [ ] (optional?) implement cotangent
-    + [ ] (optional?) implement tanh
-    + [ ] (optional?) implement sinh
-    + [ ] (optional?) implement cosh 
+    + [x] (optional?) implement cosecant
+    + [x] (optional?) implement secant
+    + [x] (optional?) implement cotangent
+    + [x] (optional?) implement tanh
+    + [x] (optional?) implement sinh
+    + [x] (optional?) implement cosh
+    
     
     + [ ] (optional?) doc strings?
     
-    + [ ] (Optional) Remove code redundancy
+    + [x] (Optional) Remove code redundancy
     + [ ] (Optional) set it up for release on PyPi
 
     + [ ] (optional) Create wrapper classes for vector valued functions (i.e. broadcasted operations, accessing Jacobian, etc.)
@@ -97,7 +97,7 @@
     + [ ] Test suite using pytest 
     + [x] integration with travis ci
     + [ ] make sure code is passing all tests
-    + [ ] codecov integration
+    + [x] codecov integration
     + [ ] make sure codecov is showing at least 90% code coverage
 + [ ] Updated / extended documentation
     + [ ] Separate milestone 2 documentation into its own file
@@ -214,3 +214,4 @@
 
 # Goal
 https://harvard-iacs.github.io/2019-CS207/pages/project.html
+
