@@ -97,7 +97,7 @@
     + [ ] Test suite using pytest 
     + [x] integration with travis ci
     + [ ] make sure code is passing all tests
-    + [ ] codecov integration
+    + [x] codecov integration
     + [ ] make sure codecov is showing at least 90% code coverage
 + [ ] Updated / extended documentation
     + [ ] Separate milestone 2 documentation into its own file
