@@ -353,35 +353,30 @@ def test_get_gradient():
 
 
 def test_contains():
-   x = AutoDiff(name='x', val=2)
-   assert x in [2], "Contains failed"
-
-# How to do rshift for scalars?
-# How to do lshfit for scalars?
+    x = AutoDiff(name='x', val=2)
+    assert x in [2], "Contains failed"
 
 
-# can't call getitem in order to test it
-# def test_getitem():
-#     x = AutoDiff(name='x', val=13)
-#     assert _getitem_(x, 'd_x') == 1, "Get item failed"
+def test_shift():
+    x = AutoDiff(name='x', val=5)
+    assert x >> 2 == 1, "Shift failed"
+    assert x << 10 == 5120, "Shift failed"
+    assert 2 >> x == 0, "Shift failed"
+    assert 2 << x == 64, "Shift failed"
+
+
+def test_getitem():
+    x = AutoDiff(name='x', val=13)
+    assert x['val'] == 13, "Get item failed"
+    assert x['d_x'] == 1, "Get item failed"
+
 
 def test_neg():
     x = AutoDiff(name='x', val=2)
-
-# Couldn't test neg b/c "NameError: name 'neg' is not defined"
-# def test_neg():
-#    x = AutoDiff(name='x', val=2)
-#    y = AutoDiff(name='y', val=-2)
-#    z = AutoDiff(name='z', val=0)
-#    assert neg(x) == y, "Neg failed"
-#    assert neg(y) == -2, "Neg failed"
-#    try:
-#       assert neg(x) == 0
-#    except AssertionError:
-#       print("Caught error as expected")
+    assert -x == -2, "Neg failed"
+    assert -x.trace['d_x'] == -1, "Neg failed"
 
 
-# Didn't know how to implement invert for scalar inputs
-# def test_invert():
-#    x = AutoDiff(name='x', val=3)
-#    assert 1/3 = ~x, "Invert failed"
+def test_invert():
+    x = AutoDiff(name='x', val=2)
+    assert ~x == -3, "Invert failed"
