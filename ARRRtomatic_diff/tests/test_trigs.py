@@ -4,4 +4,4 @@ import numpy as np
 
 def test_cos():
     x = AutoDiff(name='x', val=np.pi)
-    assert (ad.cos(x)) == -1, "New cosine failed"
+    assert (ad.cos(x)) == -1, "Cosine failed"
