@@ -270,6 +270,25 @@ def test_str():
    x = AutoDiff(name='x', val=2)
    assert str(x) == "{'val': 2, 'd_x': 1}", "Str failed"
 
+def test_bool():
+   x = AutoDiff(name='x', val=13)
+   y = AutoDiff(name='x', val=0)
+   assert bool(x) == True, "Bool failed"
+   assert bool(y) == False, "Bool failed"
+
+#Couldn't test neg b/c "NameError: name 'neg' is not defined"
+# def test_neg():
+#    x = AutoDiff(name='x', val=2)
+#    y = AutoDiff(name='y', val=-2)
+#    z = AutoDiff(name='z', val=0)
+#    assert neg(x) == y, "Neg failed"
+#    assert neg(y) == -2, "Neg failed"
+#    try:
+#       assert neg(x) == 0
+#    except AssertionError:
+#       print("Caught error as expected")
+
+
 #Didn't know how to test contains
 # def test_contains():
 #    x = AutoDiff(name='x', val=2)
