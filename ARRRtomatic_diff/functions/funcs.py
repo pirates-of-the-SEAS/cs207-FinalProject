@@ -29,7 +29,7 @@ def __update_unary(x, operation, doperation):
         updated_trace.update(trace)
 
         updated_val = operation(val)
-        if np.isnan(updated_deriv):
+        if np.isnan(updated_val):
                 raise ValueError
 
         updated_trace['val'] = updated_val
