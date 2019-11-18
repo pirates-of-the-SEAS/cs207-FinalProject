@@ -12,7 +12,7 @@ def update_unary(x, operation, doperation):
         updated_trace = {}
         updated_trace.update(trace)
 
-        updated_trace['val'] = np.exp(val)
+        updated_trace['val'] = operation(val)
 
         for var in named_variables:
             updated_trace[f'd_{var}'] = doperation(val) * updated_trace[f'd_{var}']
