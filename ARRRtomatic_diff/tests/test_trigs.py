@@ -44,11 +44,11 @@ def test_acos():
 
 def test_atan():
     x = AutoDiff(name='x', val=np.pi/2)
-    assert np.allclose(ad.atan(x), 1.00388482185388721414842, atol=1e-12) is True, "Arctan failed"
+    assert np.allclose(ad.atan(x).trace['val'], 1.00388482185388721414842, atol=1e-12) is True, "Arctan failed"
 
 def test_acsc():
     x = AutoDiff(name='x', val=np.pi/2)
-    assert np.allclose(ad.acsc(x), 0.69010709137453995200437, atol=1e-12) is True, "Arccosecant failed"
+    assert np.allclose(ad.acsc(x).trace['val'], 0.69010709137453995200437, atol=1e-12) is True, "Arccosecant failed"
 
 def test_asec():
     x = AutoDiff(name='x', val=2)
@@ -69,7 +69,9 @@ def test_cosh():
     assert np.allclose(ad.cosh(x).trace['d_x'], 11.54873935725774837797733, atol=1e-12) is True, "Cosh failed"
 
 # def test_tanh():
-#
+#     x = AutoDiff(name='x', val=0.5)
+#     assert np.allclose(ad.tanh(x).trace['val'], 0.462117, atol=1e-12) is True, "Tanh failed"
+
 # def test_csch():
 #
 # def test_sech():
