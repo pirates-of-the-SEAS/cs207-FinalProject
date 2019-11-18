@@ -62,46 +62,132 @@ class AutoDiff:
     def get_gradient(self):
         return {f'd_{var}':self.trace[f'd_{var}'] for var in self.named_variables}
 
-    def __add__(self, other):
-        try:
-            other_named_variables = other.get_named_variables()
-            named_variables = self.get_named_variables()
+    def __update_binary_autodiff(self, other, update_vals,
+                                 update_deriv):
+        other_named_variables = other.get_named_variables()
+        named_variables = self.get_named_variables()
 
-            other_trace = other.get_trace()
-            trace = self.get_trace()
+        other_trace = other.get_trace()
+        trace = self.get_trace()
 
-            combined_named_variables = named_variables | other_named_variables
+        combined_named_variables = named_variables | other_named_variables
 
-            combined_trace = {
-                'val': trace['val'] + other_trace['val']
-            }
+        val = trace['val'] 
+        other_val = other_trace['val']
 
-            for var in combined_named_variables:
-                try:
-                    d1 = trace[f'd_{var}']
-                except KeyError:
-                    d1 = 0
+        updated_val = update_vals(val, other_val)
 
-                try:
-                    d2 = other_trace[f'd_{var}']
-                except KeyError:
-                    d2 = 0 
+        if np.isnan(updated_val):
+            raise ValueError
 
-                combined_trace[f'd_{var}'] = d1 + d2
+        combined_trace = {
+            'val': updated_val
+        }
 
-            return AutoDiff(name=combined_named_variables,
-                            trace=combined_trace)
-        except AttributeError:
-            named_variables = self.get_named_variables()
-            trace = self.get_trace()
-            updated_trace = {}
-            updated_trace.update(trace)
+        for var in combined_named_variables:
+            try:
+                d1 = trace[f'd_{var}']
+            except KeyError:
+                d1 = 0
+                
+            try:
+                d2 = other_trace[f'd_{var}']
+            except KeyError:
+                d2 = 0
 
-            updated_trace['val'] = updated_trace['val'] + other
-            
-            return AutoDiff(name=named_variables,
+            updated_deriv = update_deriv(val, other_val, d1, d2)
+
+            if np.isnan(upadted_deriv):
+                raise ValueError
+
+            combined_trace[f'd_{var}'] = updated_deriv
+                
+        return AutoDiff(name=combined_named_variables,
+                        trace=combined_trace)
+
+    def __update_binary_numeric(self, num, update_val, update_deriv):
+         named_variables = self.get_named_variables()
+         trace = self.get_trace()
+         updated_trace = {}
+         updated_trace.update(trace)
+
+         val = updated_trace['val']
+
+         updated_val = update_val(val, num)
+
+         if np.isnan(updated_val):
+             raise ValueErrr
+
+         updated_trace['val'] = updated_val
+         for var in named_variables:
+             updated_deriv = update_deriv(val,
+                                          num,
+                                          updated_trace[f'd_{var}'],
+                                          0)
+
+             if np.isnan(updated_deriv):
+                 raise ValueError
+
+             updated_trace[f'd_{var}'] = updated_deriv
+
+         return AutoDiff(name=named_variables,
                             trace=updated_trace)
 
+
+    @staticmethod
+    def __add(x, y):
+        return x + y
+
+    @staticmethod
+    def __dadd(x, y, dx, dy):
+        return dx + dy
+
+    @staticmethod
+    def __mul(x, y):
+        return x * y
+
+    @staticmethod
+    def __dmul(x, y, dx, dy):
+        return dx*y + x*dy
+
+    @staticmethod
+    def __lpow(x, y):
+        return x**y
+
+    @staticmethod
+    def __dlpow(x, y, dx, dy):
+        return x**(y-1) * (y*dx + x * np.log(x) * dy)
+
+    @staticmethod
+    def __rpow(x, y):
+        return y**x
+
+    @staticmethod
+    def __drpow(x, y, dx, dy):
+        return y*(x-1)*(y*dx + np.log(y) + x*dy)
+
+    @staticmethod
+    def __ldiv(x, y):
+        return x / y
+
+    @staticmethod
+    def __dldiv(x, y):
+        return (dx*y - x*dy)/y**2
+
+    @staticmethod
+    def __rdiv(x, y):
+        return y / x
+
+    @staticmethod
+    def __drdiv(x, y):
+        return (dy*x - y*dx)/x**2
+
+
+    def __add__(self, other):
+        try:
+            return self.__update_binary_autodiff(other, __add, __dadd)
+        except AttributeError:
+            return self.__update_binary_numeric(other, __add, __dadd)
 
     def __radd__(self, other):
         """__radd__ is only called if the left object does not have an __add__
@@ -117,201 +203,40 @@ class AutoDiff:
         """
         obj - other
         """
-        return self.__add__(other*-1)
+        return self + -other
 
     def __rsub__(self, other):
         """
         other - obj
         """
-        return other + self.__mul__(-1) 
+        return other + -self
 
     def __mul__(self, other):
-         try:
-            other_named_variables = other.get_named_variables()
-            named_variables = self.get_named_variables()
-
-            other_trace = other.get_trace()
-            trace = self.get_trace()
-
-            combined_named_variables = named_variables | other_named_variables
-
-            val1 = trace['val']
-            val2 = other_trace['val']
-
-            combined_trace = {
-                'val': val1*val2
-            }
-
-            for var in combined_named_variables:
-                try:
-                    d1 = trace[f'd_{var}']
-                except KeyError:
-                    d1 = 0
-
-                try:
-                    d2 = other_trace[f'd_{var}']
-                except KeyError:
-                    d2 = 0 
-
-                combined_trace[f'd_{var}'] = d1*val2 + val1*d2
-
-            return AutoDiff(name=combined_named_variables,
-                            trace=combined_trace)
-         except AttributeError:
-            named_variables = self.get_named_variables()
-            trace = self.get_trace()
-            updated_trace = {}
-            updated_trace.update(trace)
-
-            updated_trace['val'] = trace['val']*other
-            for var in named_variables:
-                updated_trace[f'd_{var}'] = updated_trace[f'd_{var}']*other
-            
-            return AutoDiff(name=named_variables,
-                            trace=updated_trace)
-
-
+        try:
+            return self.__update_binary_autodiff(other, __mul, __dmul)
+        except AttributeError:
+            return self.__update_binary_numeric(other, __mul, __dmul)
 
     def __rmul__(self, other):
-        return self.__mul__(other)
-
-
-    def __eq__(self, other):
-        raise NotImplementedError
-
-    def __req__(self, other):
-        return self.__eq__(other)
-
-    def __lt__(self, other):
-        raise NotImplementedError
-
-    def __gt__(self, other):
-        raise NotImplementedError
+        return self * other
 
     def __pow__(self, other):
         """
         obj**other
         """
-    
         try:
-            other_named_variables = other.get_named_variables()
-            named_variables = self.get_named_variables()
-
-            other_trace = other.get_trace()
-            trace = self.get_trace()
-
-            combined_named_variables = named_variables | other_named_variables
-
-            val1 = trace['val']
-            val2 = other_trace['val']
-
-            combined_trace = {
-                'val': val1**val2
-            }
-
-            for var in combined_named_variables:
-                try:
-                    d1 = trace[f'd_{var}']
-                except KeyError:
-                    d1 = 0
-
-                try:
-                    d2 = other_trace[f'd_{var}']
-                except KeyError:
-                    d2 = 0 
-
-                term1 = val1**(val2 - 1)
-                term2 = val2 * d1 
-                term3 = val1 * np.log(val1) * d2
-
-                total = term1*(term2 + term3)
-
-                if np.isnan(total):
-                    raise ValueError
-                 
-                combined_trace[f'd_{var}'] = total
-
-            return AutoDiff(name=combined_named_variables,
-                                trace=combined_trace)
-          
+            return self.__update_binary_autodiff(other, __lpow, __dlpow)
         except AttributeError:
-            named_variables = self.get_named_variables()
-            trace = self.get_trace()
-            updated_trace = {}
-            updated_trace.update(trace)
-
-            updated_trace['val'] = trace['val']**other
-            for var in named_variables:
-                updated_trace[f'd_{var}'] = other * (trace['val'])**(other-1) * updated_trace[f'd_{var}']
-            
-            return AutoDiff(name=named_variables,
-                            trace=updated_trace)
-
+            return self.__update_binary_numeric(other, __lpow, __dlpow)
+          
     def __rpow__(self, other):
         """
         other**obj
         """
         try:
-            other_named_variables = other.get_named_variables()
-            named_variables = self.get_named_variables()
-
-            other_trace = other.get_trace()
-            trace = self.get_trace()
-
-            combined_named_variables = named_variables | other_named_variables
-
-            val1 = trace['val']
-            val2 = other_trace['val']
-
-            combined_trace = {
-                'val': val1**val2
-            }
-
-            for var in combined_named_variables:
-                try:
-                    d1 = trace[f'd_{var}']
-                except KeyError:
-                    d1 = 0
-
-                try:
-                    d2 = other_trace[f'd_{var}']
-                except KeyError:
-                    d2 = 0 
-
-                term1 = val2**(val1 - 1)
-                term2 = val2 * d1 * np.log(val2)
-                term3 = val1 * d2
-
-                total = term1*(term2 + term3)
-
-                if np.isnan(total):
-                    raise ValueError
- 
-                combined_trace[f'd_{var}'] = total
-        
-
-            return AutoDiff(name=combined_named_variables,
-                                trace=combined_trace)
-          
+            return self.__update_binary_autodiff(other, __rpow, __drpow)
         except AttributeError:
-            named_variables = self.get_named_variables()
-            trace = self.get_trace()
-            updated_trace = {}
-            updated_trace.update(trace)
-
-            updated_trace['val'] = other**trace['val']
-            for var in named_variables:
-
-                
-                val = other**trace['val'] * np.log(other) * updated_trace[f'd_{var}']
-
-                if np.isnan(val):
-                    raise ValueError
-
-                updated_trace[f'd_{var}'] = val
-            
-            return AutoDiff(name=named_variables,
-                            trace=updated_trace)
+            return self.__update_binary_numeric(other, __rpow, __drpow)
 
     def __truediv__(self, other):
         """
@@ -322,48 +247,9 @@ class AutoDiff:
         f'(x) = (g'(x)h(x) - g(x)h'(x)) / h(x)**2
         """
         try:
-            other_named_variables = other.get_named_variables()
-            named_variables = self.get_named_variables()
-
-            other_trace = other.get_trace()
-            trace = self.get_trace()
-
-            combined_named_variables = named_variables | other_named_variables
-
-            val1 = trace['val']
-            val2 = other_trace['val']
-
-            combined_trace = {
-                'val': val1/val2
-            }
-
-            for var in combined_named_variables:
-                try:
-                    d1 = trace[f'd_{var}']
-                except KeyError:
-                    d1 = 0
-
-                try:
-                    d2 = other_trace[f'd_{var}']
-                except KeyError:
-                    d2 = 0 
-
-                combined_trace[f'd_{var}'] = (d1*val2 - val1*d2)/val2**2
-
-            return AutoDiff(name=combined_named_variables,
-                            trace=combined_trace)
+            return self.__update_binary_autodiff(other, __ldiv, __dldiv)
         except AttributeError:
-            named_variables = self.get_named_variables()
-            trace = self.get_trace()
-            updated_trace = {}
-            updated_trace.update(trace)
-
-            updated_trace['val'] = trace['val']/other
-            for var in named_variables:
-                updated_trace[f'd_{var}'] = updated_trace[f'd_{var}']/other
-            
-            return AutoDiff(name=named_variables,
-                            trace=updated_trace)
+            return self.__update_binary_numeric(other, __ldiv, __dldiv)
 
     def __rtruediv__(self, other):
         """
@@ -374,55 +260,15 @@ class AutoDiff:
         f'(x) = (g'(x)h(x) - g(x)h'(x)) / h(x)**2
         """
         try:
-            other_named_variables = other.get_named_variables()
-            named_variables = self.get_named_variables()
-
-            other_trace = other.get_trace()
-            trace = self.get_trace()
-
-            combined_named_variables = named_variables | other_named_variables
-
-            val1 = trace['val']
-            val2 = other_trace['val']
-
-            combined_trace = {
-                'val': val1/val2
-            }
-
-            for var in combined_named_variables:
-                try:
-                    d1 = trace[f'd_{var}']
-                except KeyError:
-                    d1 = 0
-
-                try:
-                    d2 = other_trace[f'd_{var}']
-                except KeyError:
-                    d2 = 0 
-
-                combined_trace[f'd_{var}'] = (d2*val1 - val2*d1)/val1**2
-
-            return AutoDiff(name=combined_named_variables,
-                            trace=combined_trace)
+            return self.__update_binary_autodiff(other, __rdiv, __drdiv)
         except AttributeError:
-            named_variables = self.get_named_variables()
-            trace = self.get_trace()
-            updated_trace = {}
-            updated_trace.update(trace)
-
-            updated_trace['val'] = other/trace['val']
-            for var in named_variables:
-                updated_trace[f'd_{var}'] = -1 * other * updated_trace[f'd_{var}'] / trace['val']**2
-            
-            return AutoDiff(name=named_variables,
-                            trace=updated_trace)
+            return self.__update_binary_numeric(other, __rdiv, __drdiv)
 
     def __neg__(self):
         return -1 * self
 
     def __bool__(self):
         return bool(self.get_trace()['val'])
-
 
     def __repr__(self):
         return """AutoDiff(name={}, trace={})""".format(
