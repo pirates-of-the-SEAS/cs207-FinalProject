@@ -1,5 +1,6 @@
 from ARRRtomatic_diff import AutoDiff
 import math
+import numpy as np
 
 
 def test_add():
@@ -103,6 +104,8 @@ def test_exponentiation():
     r = AutoDiff(name='r', val=5)
     assert (x ** 2) == 9, "Exponentiation failed"
     assert (x ** 2).trace['d_x'] == 6, "Exponentiation failed"
+    assert (2 ** x) == 8, "Exponentiation failed"
+    assert np.allclose((2 ** x).trace['d_x'], 5.545177444479562, atol=1e-12) is True, "Exponentiation failed"
     assert (x ** 0) == 1, "Exponentiation failed"
     assert (x ** 0).trace['d_x'] == 0, "Exponentiation failed"
     assert (x ** -2) == (1 / 9), "Exponentiation failed"
