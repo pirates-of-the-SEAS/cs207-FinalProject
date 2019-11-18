@@ -38,27 +38,36 @@ def test_asin():
     x = AutoDiff(name='x', val=0)
     assert ad.asin(x) == 0, "Arcsin failed"
 
-#
-# def test_acos():
-#     x = AutoDiff(name='x', val=0)
-#     assert ad.arccos(x) == np.pi/2, 'Arccos failed'
-#
-# def test_atan():
-#
-# def test_acsc():
-#
-# def test_asec():
-#
-# def test_acot():
-#
-# def test_sinh():
-#     x = AutoDiff(name='x', val=0)
-#     y = AutoDiff(name='y', val=np.pi/2)
-#     assert ad.sinh(x) == 0, 'Sinh failed'
-#     assert np.allclose((ad.sinh(y)).trace['val'], 2.30129890230729487346, atol=1e-12) == True, 'Sinh failed'
-#
-# def test_cosh():
-#
+def test_acos():
+    x = AutoDiff(name='x', val=0)
+    assert ad.arccos(x) == np.pi/2, 'Arccos failed'
+
+def test_atan():
+    x = AutoDiff(name='x', val=np.pi/2)
+    assert np.allclose(ad.atan(x), 1.00388482185388721414842, atol=1e-12) is True, "Arctan failed"
+
+def test_acsc():
+    x = AutoDiff(name='x', val=np.pi/2)
+    assert np.allclose(ad.acsc(x), 0.69010709137453995200437, atol=1e-12) is True, "Arccosecant failed"
+
+def test_asec():
+    x = AutoDiff(name='x', val=2)
+    assert ad.asec(x) == np.pi/3, "Arcsecant failed"
+
+def test_acot():
+    x = AutoDiff(name='x', val=1)
+    assert ad.acot(x) == np.pi/4, "Arccotangent failed"
+
+def test_sinh():
+    x = AutoDiff(name='x', val=-1)
+    assert np.allclose(ad.sinh(x).trace['val'], -1.17520119364380145688, atol=1e-12) is True, 'Sinh failed'
+    assert np.allclose(ad.sinh(x).trace['d_x'], 1.543080634815243778477905, atol=1e-12) is True, "Sinh failed"
+
+def test_cosh():
+    x = AutoDiff(name='x', val=np.pi)
+    assert np.allclose(ad.cosh(x).trace['val'], 11.591953275521520627751, atol=1e-12) is True, "Cosh failed"
+    assert np.allclose(ad.cosh(x).trace['d_x'], 11.54873935725774837797733, atol=1e-12) is True, "Cosh failed"
+
 # def test_tanh():
 #
 # def test_csch():
