@@ -143,10 +143,40 @@ def test_req():
 
 def test_gt():
    x = AutoDiff(name='x', val=10)
+   y = AutoDiff(name='y', val=100)
    assert x > 2, "Greater than failed"
    assert 20 > x, "Greater than failed"
+   assert y > x, "Greater than failed"
+
+
+def test_ge():
+   x = AutoDiff(name='x', val=10)
+   y = AutoDiff(name='y', val=100)
+   assert x >= 2, "Greater than or equal to failed"
+   assert x >= 10, "Greater than or equal to failed"
+   assert 20 >= x, "Greater than or equal to failed"
+   assert 10 >= x, "Greater than or equal to failed"
+   assert y >= x, "Greater than or equal to failed"
 
 def test_lt():
    x = AutoDiff(name='x', val=10)
+   y = AutoDiff(name='y', val=100)
    assert 2 < x, "Less than failed"
    assert x < 20, "Less than failed"
+   assert x < y, "Less than failed"
+
+def test_le():
+   x = AutoDiff(name='x', val=10)
+   y = AutoDiff(name='y', val=100)
+   assert 2 <= x, "Less than or equal to failed"
+   assert 10 <= x, "Less than or equal to failed"
+   assert x <= 20, "Less than or equal to failed"
+   assert x <= 10, 'Less than or equal to failed'
+   assert x <= y, "Less than or equal to failed"
+
+def test_ne():
+   x = AutoDiff(name='x', val=10)
+   y = AutoDiff(name='y', val=100)
+   assert x != 11, "Not equal failed"
+   assert 11 != x, "Not equal failed"
+   assert x != y, "Not equal failed"
