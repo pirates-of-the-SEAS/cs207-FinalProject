@@ -1,31 +1,46 @@
-
-#Put in a few different general files (elementary operations, trig, etc.), with no meta-structure below.
-
-#Test regular with standard approach
-#Test edge cases with standard approach
-#Test TypeErrors with try/catch statements
-
-# from arrrtodiff import AutoDiffVariable
 from ARRRtomatic_diff import AutoDiff
-# from auto_diff import AutoDiff
 
-# import arrrtodiff.functions as adfuncs
 
 def test_instantiation_neg():
-    x = AutoDiff(name='b0', val=-3)
-    assert x.trace['val'] == -3,'negative instantiation failed'
+    x = AutoDiff(name='x', val=-3)
+    assert x.trace['val'] == -3, 'Negative instantiation failed'
+    assert x.trace['d_x'] == 1, 'Negative instantiation failed'
+
 
 def test_instantiation_pos():
-    x = AutoDiff(name='b0', val=3)
-    assert x.trace['val'] == 3,'positive instantiation failed'
+    x = AutoDiff(name='x', val=3.5)
+    assert x.trace['val'] == 3.5, 'Positive instantiation failed'
+    assert x.trace['d_x'] == 1, 'Positive instantiation failed'
+
 
 def test_instantiation_zero():
-    x = AutoDiff(name='b0', val=0)
-    assert x.trace['val'] == 0,'zero instantiation failed'
+    x = AutoDiff(name='x', val=0)
+    assert x.trace['val'] == 0, 'Zero instantiation failed'
+    assert x.trace['d_x'] == 1, 'Zero instantiation failed'
 
-# def test_string_instantiation():
-#     try:
-#         x = AutoDiff(name='b0', val="string")
-#     except TypeError as e:
-#         print("Caught TypeError as expected.")
 
+def test_bogus_instantiation():
+    try:
+        x = AutoDiff("gobbledgook")
+    except TypeError:
+        print("Caught error as expected")
+
+
+def test_empty_instantiation():
+    try:
+        x = AutoDiff()
+    except ValueError:
+        print("Caught error as expected")
+
+
+def test_double_instantiation():
+    try:
+        x = AutoDiff(name='x', val=3, trace=3)
+    except ValueError:
+        print("Caught error as expected")
+
+def test_nameless_instantiation():
+    try:
+        x = AutoDiff(val=3)
+    except ValueError:
+        print("Caught error as expected")

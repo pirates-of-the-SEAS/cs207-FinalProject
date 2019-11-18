@@ -161,10 +161,6 @@ class AutoDiff:
     def gradient(self):
         return self.get_gradient()
 
-    @staticmethod
-    def __verify_same_name_same_value(trace1, trace2):
-        pass
-
     def __update_binary_autodiff(self, other, update_vals,
                                  update_deriv):
         """Combines two autodiff objects depending on the supplied val and
@@ -517,40 +513,3 @@ class AutoDiff:
             return self.get_trace()['val'] > other.get_trace()['val']
         except:
             return self.get_trace()['val'] > other
-
-    def __rlt__(self, other):
-        try:
-            return other.get_trace()['val'] < self.get_trace()['val']
-        except:
-            return other < self.get_trace()['val']
-
-    def __rle__(self, other):
-        try:
-            return other.get_trace()['val'] <= self.get_trace()['val']
-        except:
-            return other <= self.get_trace()['val']
-
-    def __req__(self, other):
-        try:
-            return other.get_trace()['val'] == self.get_trace()['val'] 
-        except:
-            return other == self.get_trace()['val']
-
-    def __rne__(self, other):
-        try:
-            return other.get_trace()['val'] != self.get_trace()['val'] 
-        except:
-            return other != self.get_trace()['val'] 
-
-    def __rge__(self, other):
-        try:
-            return other.get_trace()['val'] >= self.get_trace()['val']
-        except:
-            return other >= self.get_trace()['val']
-
-    def __rgt__(self, other):
-        try:
-            return other.get_trace()['val'] > self.get_trace()['val']
-        except:
-            return other > self.get_trace()['val']
-

@@ -9,7 +9,7 @@ before_install:
     - pip install codecov
 
 script:
-    - pytest --cov=./
+    - pytest --cov=./ --cov-report term-missing
 
 after_success:
     - codecov
