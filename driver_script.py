@@ -6,6 +6,6 @@ from ARRRtomatic_diff.functions import *
 
 x = AutoDiff(name='x', val=np.pi)
 
-print(cos(x))
+print(cos(x) == -1)
 
 

@@ -97,7 +97,7 @@ class AutoDiff:
 
             updated_deriv = update_deriv(val, other_val, d1, d2)
 
-            if np.isnan(upadted_deriv):
+            if np.isnan(updated_deriv):
                 raise ValueError
 
             combined_trace[f'd_{var}'] = updated_deriv
