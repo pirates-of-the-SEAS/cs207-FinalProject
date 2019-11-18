@@ -4,6 +4,8 @@ import numpy as np
 from ARRRtomatic_diff import AutoDiff
 from ARRRtomatic_diff.functions import sin, exp
 
-x = AutoDiff(trace={'val': 3, 'd_x': 4, 'd_y': 2}, name=set(('x', 'y')))
-
-print(x)
+y = AutoDiff(name='y', val=0)
+z = AutoDiff(name='z', val=-2)
+assert (z**2) == 4, "Exponentiation failed"
+assert (z**3) == -8, "Exponentiation failed"
+assert (y**2) == 0, "Exponentiation failed"
