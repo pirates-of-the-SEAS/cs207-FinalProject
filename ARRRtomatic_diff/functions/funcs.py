@@ -28,10 +28,20 @@ def __update_unary(x, operation, doperation):
         updated_trace = {}
         updated_trace.update(trace)
 
-        updated_trace['val'] = operation(val)
+        updated_val = operation(val)
+        if np.isnan(updated_deriv):
+                raise ValueError
+
+        updated_trace['val'] = updated_val
+        
 
         for var in named_variables:
-            updated_trace[f'd_{var}'] = doperation(val) * updated_trace[f'd_{var}']
+            updated_deriv = doperation(val) * updated_trace[f'd_{var}']
+
+            if np.isnan(updated_deriv):
+                raise ValueError
+
+            updated_trace[f'd_{var}'] =  updated_deriv 
 
         return AutoDiff(name=named_variables,
                         trace=updated_trace)
