@@ -43,7 +43,7 @@ setup(
     # For a discussion on single-sourcing the version across setup.py and the
     # project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.0',  # Required
+    version='1.0.7',  # Required
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
@@ -92,28 +92,29 @@ setup(
     # Classifiers help users find your project by categorizing it.
     #
     # For a list of valid classifiers, see https://pypi.org/classifiers/
-    classifiers=[  # Optional
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
-        'Development Status :: 1 - Alpha',
 
-        # Indicate who your project is intended for
-        'Intended Audience :: CS207 TFs',
-        'Topic :: Software Development :: Final Project',
-
-        # Pick your license as you wish
-        'License :: OSI Approved :: MIT License',
-
-        # Specify the Python versions you support here. In particular, ensure
-        # that you indicate whether you support Python 2, Python 3 or both.
-        # These classifiers are *not* checked by 'pip install'. See instead
-        # 'python_requires' below.
-
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-    ],
+    # classifiers=[  # Optional
+    #     # How mature is this project? Common values are
+    #     #   3 - Alpha
+    #     #   4 - Beta
+    #     #   5 - Production/Stable
+    #     'Development Status :: 1 - Alpha',
+    #
+    #     # Indicate who your project is intended for
+    #     'Intended Audience :: CS207 TFs',
+    #     'Topic :: Software Development :: Final Project',
+    #
+    #     # Pick your license as you wish
+    #     'License :: OSI Approved :: MIT License',
+    #
+    #     # Specify the Python versions you support here. In particular, ensure
+    #     # that you indicate whether you support Python 2, Python 3 or both.
+    #     # These classifiers are *not* checked by 'pip install'. See instead
+    #     # 'python_requires' below.
+    #
+    #     'Programming Language :: Python :: 3.6',
+    #     'Programming Language :: Python :: 3.7',
+    # ],
 
     # This field adds keywords for your project which will appear on the
     # project page. What does your project relate to?
@@ -150,13 +151,12 @@ setup(
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'certifi==2019.9.11',
-        'freeze==1.0.10',
-        'mkl-fft==1.0.15',
-        'mkl-random==1.1.0',
-        'mkl-service==2.3.0',
-        'numpy==1.17.3',
-        'six==1.13.0'
+        # 'certifi==2019.9.11',
+        # 'mkl-service==2.3.0',
+        # 'mkl_fft==1.0.15',
+        # 'mkl_random==1.1.0',
+        'pip==19.3.1',
+        'numpy'   # DO NOT SPECIFY THE EXACT VERSIONS HERE IF YOU USED CONDA ENV TO EXPORT (conda export )
     ],  # Optional
 
     # List additional groups of dependencies here (e.g. development
