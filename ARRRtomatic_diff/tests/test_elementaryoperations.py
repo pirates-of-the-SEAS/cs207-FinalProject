@@ -371,6 +371,19 @@ def test_getitem():
     assert x['d_x'] == 1, "Get item failed"
 
 
+def test_setitem():
+    x = AutoDiff(name='x', val=13)
+    x['val'] = 2
+    assert x['val'] == 2, "Set item failed"
+    x['d_x'] = 24.7
+    assert x['d_x'] == 24.7, "Set item failed"
+
+
+def test_repr():
+    x = AutoDiff(name='x', val=13)
+    assert repr(x) == """AutoDiff(name={\'x\'}, trace="{\'val\': 13, \'d_x\': 1}")""", "Repr failed"
+
+
 def test_neg():
     x = AutoDiff(name='x', val=2)
     assert -x == -2, "Neg failed"
@@ -390,3 +403,8 @@ def test_invert():
 def test_complex():
     x = AutoDiff(name='x', val=2)
     assert complex(x) == (2+0j), "Complex failed"
+
+def test_floordiv():
+    x = AutoDiff(name='x', val=13)
+    assert x // 3 == 4, 'Floordiv failed'
+    assert 160 // x == 12, "Floordiv failed"
