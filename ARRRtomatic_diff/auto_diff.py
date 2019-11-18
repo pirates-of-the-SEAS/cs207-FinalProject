@@ -1,10 +1,39 @@
 """
-This is a rough implementation of forward mode automatic differentiation for
-elementary functions. 
+This library implements forward mode automatic differentiation for compositions of
+elementary operations. It works by defining an "Auto Diff Variable" class, AutoDiff,
+that can be used to construct a computational graph corresponding to a
+composition of functions that has produces both the value of the composite function
+and also all of the partial derivatives with respect to its input variables.
 
-Documentation goes here
+We implement forward mode automatic differentiation through operator overloading
+and defining functions corresponding to the elementary mathematical operations
+that operate on our AutoDIff objects.
 
-https://docs.python.org/2/reference/datamodel.html#emulating-numeric-types
+For example, in order to obtain the derivative of x^2 we wouls use the libarary
+like so:
+
+>>> from ARRRtomatic_diff import AutoDiff
+>>> from ARRRtomatic_diff.functions import sin, exp
+
+>>> x = AutoDiff(name='x', val=3)
+
+>>> print(x**2)
+{'val': 9, 'd_x': 6.0}
+
+We see that the derivative is maintained along side the value.
+
+Function compositions can be created similarly:
+
+>>> print(sin(x**2))
+{'val': 0.4121184852417566, 'd_x': -5.466781571308061}
+
+For vector input functions, we maintain the gradient with respects to the inputs:
+
+>>> y = AutoDiff(name='y', val=2)
+>>> z = AutoDiff(name='z', val=-3)
+
+>>> print(sin(x**2)/y + exp(z))
+{'val': 0.2558463109887422, 'd_y': -0.10302962131043915, 'd_z': 0.049787068367863944, 'd_x': -2.7333907856540307}
 """
 
 import math
@@ -12,11 +41,65 @@ import math
 import numpy as np
 
 class AutoDiff:
+    """AutoDiff class implementing forward mode automatic differentiation through
+    operator overloading and explicit construction of the computational graph through
+    function composition.
+
+    Assumes that the AutoDiff object will be initialized in one of two contexts,
+    and the argument to the constructor will change depending on the context
+    in which the AutoDiff object is created. The user should only ever
+    interact with the first context.
+
+    The contexts are: 
+
+    1. A user creating an AutoDiff object for the first time in which case the
+        arguments 'name' and 'val' are passed
+       (see example)
+    2. A call from inside a function corresponding to an elementary operation,
+        in which case the trace is assumed to have been pre-computed and
+        the arguments are 'trace' and 'name'. 'name' in this case is a
+        set of variable names.
+
+    Different AutoDiff objects can be combined through binary operations and
+    the gradients are intelligently combined and updated, as long as the
+    variables are named appropriately.
+    
+        INPUTS CONTEXT 1:
+        =======
+        name: string, the name of the AutoDiff variable
+        val: numeric, the value of the AutoDiff variable
+
+        INPUTS CONTEXT 2:
+        =======
+        name: set, the set of the names of the variables that are the input
+              of the AutoDiff object
+        trace: dictionary, a dicitonary containing the value and gradient of
+              the composite function
+        
+        RETURNS
+        ========
+        An AutoDiff object that maintains the current value of the composite
+        function as well as its gradient with respect to the inputs.
+    
+        EXAMPLES CONTEXT 1:
+        =========
+        >>> x = AutoDiff(name='x', val=2)
+        >>> print(x)
+        {'val': 2, 'd_x': 1}
+        >>>print(5*x)
+        {'val': 12, 'd_x': 6}
+
+        EXAMPLES CONTEXT 2:
+        =========
+        >>> x = AutoDiff(trace={'val': 3, 'd_x': 4, 'd_y': 2}, name=set(('x', 'y')))
+        >>> print(x)
+        {'val': 3, 'd_x': 4, 'd_y': 2}
+        """
+
     def __init__(self, **kwargs):
         """
-        name:
-        val:
-        trace:
+        See the class docstring for an explanation of how this constructor
+        method should be called
         """
 
         # no parameters specified
@@ -24,21 +107,11 @@ class AutoDiff:
             raise ValueError("No parameters given")
 
         # too many parameters specified
-
         if 'trace' in kwargs and 'val' in kwargs:
             raise ValueError("Both value and trace specified")
  
-        # case 1: construct object assuming trace has been pre-computed
-        if 'trace' in kwargs:
-            self.trace = kwargs['trace']
-
-            if 'name' in kwargs:
-                self.named_variables = kwargs['name']
-            else:
-                raise ValueError("named variables not specified")
-
-        # case 2: handle initial construction of an auto diff toy object 
-        elif 'val' in kwargs:
+        # context 1: handle initial construction of an auto diff toy object 
+        if 'val' in kwargs:
             self.trace = {
                 'val': kwargs['val']
             }
@@ -49,6 +122,14 @@ class AutoDiff:
             else:
                 raise ValueError("variable name not specified")
 
+        # context 2: construct object assuming trace has been pre-computed
+        elif 'trace' in kwargs:
+            self.trace = kwargs['trace']
+
+            if 'name' in kwargs:
+                self.named_variables = kwargs['name']
+            else:
+                raise ValueError("named variables not specified")
 
     def get_trace(self):
         return self.trace

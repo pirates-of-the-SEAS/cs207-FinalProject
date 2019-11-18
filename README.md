@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=master)](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=master)
 
-[![codecov](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject/branch/master/graph/badge.svg)](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject)
-
+[![codecov](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject/branch/ws-dev2/graph/badge.svg)](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject)
+  
 # Group 16
 
 + Cameron Hickert
@@ -97,7 +97,7 @@
     + [ ] Test suite using pytest 
     + [x] integration with travis ci
     + [ ] make sure code is passing all tests
-    + [ ] codecov integration
+    + [x] codecov integration
     + [ ] make sure codecov is showing at least 90% code coverage
 + [ ] Updated / extended documentation
     + [ ] Separate milestone 2 documentation into its own file
@@ -214,4 +214,4 @@
 
 # Goal
 https://harvard-iacs.github.io/2019-CS207/pages/project.html
->>>>>>> 1e468afbea8e57a52587d388dd478e855080b949
+
