@@ -10,7 +10,7 @@
 + Victor(Wisoo) Song
 
 # About
-ARRRtomatic diff is an automatic differentiation library that implements forward mode automatic differentiation. See the docs folder for more detail.
+ARRRtomatic diff is an automatic differentiation library that implements forward mode automatic differentiation. See the docs folder for more detail on how install, setup, and use.
  
 
 # Deadlines
