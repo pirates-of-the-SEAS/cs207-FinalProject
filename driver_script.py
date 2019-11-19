@@ -5,15 +5,6 @@ Example driver script using Newton's Method to find the roots of sin
 from ARRRtomatic_diff import AutoDiff
 from ARRRtomatic_diff.functions import sin, exp, sqrt, log
 
-x1 = AutoDiff(name='x', val=0)
-x2 = AutoDiff(name='x', val=3)
-y = AutoDiff(name='y', val=4)
-
-print(5 >= y)
-print(y >= 5)
-
-
-print(x2 + x2 + x1)
 
 def f(x):
     x = AutoDiff(name='x', val=x)

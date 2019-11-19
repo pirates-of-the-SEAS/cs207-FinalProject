@@ -63,7 +63,7 @@ print(x.partial)
 
 In the above code, the multiplication of x and y keeps track of the forward pass evaluations and immediate partials and also specifies z as a child node of x and y in the dependency graph. Each AutoDiffRev variable will keep track of the operations that it's used in. Unlike our forward mode implementation, dz/dx and dz/dy are maintained in the x and y variables, so they must be kept around. The computation of the partial derivatives of the output with respect to the input is performed recursively. 
 
-The primary challenges to implementing reverse mode will be making the API elegant for the vector-valued case, working with a different mental model for automatic differentiation, and making our reverse mode implementation work with our optimization routines. Our implementation of reverse mode will require adding two additioanl classes, AutoDiffRev and AutoDiffVectorRev to auto_diff.py. We do not expect to add any new modules 
+The primary challenges to implementing reverse mode will be making the API elegant for the vector-valued case, working with a different mental model for automatic differentiation, and making our reverse mode implementation work with our optimization routines. Our implementation of reverse mode will require adding two additioanl classes, AutoDiffRev and AutoDiffVectorRev to auto_diff.py. We do not expect to add any new modules. 
 
 
 # Checks to ensure that variables of the same name have the same initial value

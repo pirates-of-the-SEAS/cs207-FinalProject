@@ -2,14 +2,14 @@
 This library implements forward mode automatic differentiation for compositions of
 elementary operations. It works by defining an "Auto Diff Variable" class, AutoDiff,
 that can be used to construct a computational graph corresponding to a
-composition of functions that has produces both the value of the composite function
+composition of functions that produces both the value of the composite function
 and also all of the partial derivatives with respect to its input variables.
 
 We implement forward mode automatic differentiation through operator overloading
 and defining functions corresponding to the elementary mathematical operations
 that operate on our AutoDIff objects.
 
-For example, in order to obtain the derivative of x^2 we wouls use the libarary
+For example, in order to obtain the derivative of x^2 one would use the libarary
 like so:
 
 >>> from ARRRtomatic_diff import AutoDiff
