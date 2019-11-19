@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=master)](https://travis-ci.org/pirates-of-the-SEAS/cs207-FinalProject.svg?branch=master)
 
 [![codecov](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject/branch/master/graph/badge.svg)](https://codecov.io/gh/pirates-of-the-SEAS/cs207-FinalProject)
-
+  
 # Group 16
 
 + Cameron Hickert
@@ -9,12 +9,9 @@
 + Michael Downs
 + Victor(Wisoo) Song
 
-
-# Todos
-
-+ [ ] Register group via google form once we have decided on a name: https://docs.google.com/forms/d/e/1FAIpQLSe1pI1Cy0T-ln4niL8O4paK75yFdDiy9B7t8Ze8U3l-t6iyIQ/viewform
-
-+ [ ] Make final presentation video, due on Tuesday December 10th. This presentation will be a demo of your entire library. The final deliverable will be in the form of documentation of your library, including instructions on how to install, run the tests and examples for new users.
+# About
+ARRRtomatic diff is an automatic differentiation library that implements forward mode automatic differentiation. See the docs folder for more detail.
+ 
 
 # Deadlines
 
@@ -27,3 +24,4 @@
 
 # Goal
 https://harvard-iacs.github.io/2019-CS207/pages/project.html
+
