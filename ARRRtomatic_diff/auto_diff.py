@@ -71,9 +71,10 @@ class AutoDiff:
 
         INPUTS CONTEXT 2:
         =======
-        name: set, the set of the names of the variables that are the input
-              of the AutoDiff object
-        trace: dictionary, a dicitonary containing the value and gradient of
+        names_init_vals: dictionary, a dictionary mapping the names of the variables that
+           are the input of the AutoDiff object to their initial values. Initial
+           values are maintained to enforce consistency.
+        trace: dictionary, a dictionary containing the value and gradient of
               the composite function
         
         RETURNS
@@ -112,42 +113,56 @@ class AutoDiff:
  
         # context 1: handle initial construction of an auto diff toy object 
         if 'val' in kwargs:
-            self.init_variable = True
-
-
             self.trace = {
                 'val': kwargs['val']
             }
 
             if 'name' in kwargs:
-                self.named_variables = set((kwargs['name'],))
+                self.names_init_vals = {
+                    kwargs['name']: kwargs['val']
+                }
+
                 self.trace['d_{}'.format(kwargs['name'])] = 1
             else:
                 raise ValueError("variable name not specified")
 
         # context 2: construct object assuming trace has been pre-computed
         elif 'trace' in kwargs:
-            self.init_variable = False
-
-
             self.trace = kwargs['trace']
 
-            if 'name' in kwargs:
-                self.named_variables = kwargs['name']
+            if 'names_init_vals' in kwargs:
+                self.names_init_vals = kwargs['names_init_vals']
             else:
                 raise ValueError("named variables not specified")
+
+    @staticmethod
+    def __merge_names_init_vals(d1, d2):
+        intersection = d1.keys() & d2
+
+        for name in intersection:
+            val1 = d1[name]
+            val2 = d2[name]
+            if val1 != val2:
+                raise Exception("Variable '{}' appears with different values {} and {}".format(
+                    name, val1, val2))
+
+        return dict(d1, **d2)
+
 
     def get_trace(self):
         return self.trace
 
+    def get_names_init_vals(self):
+        return self.names_init_vals
+
     def get_named_variables(self):
-        return self.named_variables
+        return set(self.names_init_vals.keys())
 
     def get_value(self):
         return self.trace['val']
 
     def get_gradient(self):
-        return {f'd_{var}':self.trace[f'd_{var}'] for var in self.named_variables}
+        return {f'd_{var}':self.trace[f'd_{var}'] for var in self.names_init_vals}
 
     @property
     def variables(self):
@@ -179,23 +194,18 @@ class AutoDiff:
             an AutoDiff object with the combined values and gradients
 
         """
-        other_named_variables = other.get_named_variables()
-        named_variables = self.get_named_variables()
+
+        names_init_vals = self.get_names_init_vals()
+        other_names_init_vals = other.get_names_init_vals()
 
         other_trace = other.get_trace()
         trace = self.get_trace()
 
-        combined_named_variables = named_variables | other_named_variables
+        combined_names_init_vals = AutoDiff.__merge_names_init_vals(
+            names_init_vals, other_names_init_vals)
 
         val = trace['val'] 
         other_val = other_trace['val']
-
-        # check to see that if we're combining two initial variables
-        # of the same name that they have the same value
-        if self.init_variable and other.init_variable:
-            if (self.named_variables == other.named_variables) and \
-               (val != other_val):
-                raise Exception("Variables of same name have different values")
 
         updated_val = update_vals(val, other_val)
 
@@ -204,7 +214,7 @@ class AutoDiff:
 
         combined_trace = {'val': updated_val}
 
-        for var in combined_named_variables:
+        for var in combined_names_init_vals.keys():
             try:
                 d1 = trace[f'd_{var}']
             except KeyError:
@@ -222,7 +232,7 @@ class AutoDiff:
 
             combined_trace[f'd_{var}'] = updated_deriv
                 
-        return AutoDiff(name=combined_named_variables,
+        return AutoDiff(names_init_vals=combined_names_init_vals,
                         trace=combined_trace)
 
     def __update_binary_numeric(self, num, update_val, update_deriv):
@@ -243,7 +253,7 @@ class AutoDiff:
             ========
             an AutoDiff object with the updated values and gradients
           """
-        named_variables = self.get_named_variables()
+        names_init_vals = self.get_names_init_vals()
         trace = self.get_trace()
         updated_trace = {}
         updated_trace.update(trace)
@@ -256,7 +266,7 @@ class AutoDiff:
             raise ValueErrr
          
         updated_trace['val'] = updated_val
-        for var in named_variables:
+        for var in names_init_vals:
             updated_deriv = update_deriv(val,
                                          num,
                                          updated_trace[f'd_{var}'],
@@ -267,7 +277,7 @@ class AutoDiff:
 
             updated_trace[f'd_{var}'] = updated_deriv
 
-        return AutoDiff(name=named_variables,
+        return AutoDiff(names_init_vals=names_init_vals,
                             trace=updated_trace)
 
     @staticmethod
@@ -380,8 +390,8 @@ class AutoDiff:
         return bool(self.get_trace()['val'])
 
     def __repr__(self):
-        return """AutoDiff(name={}, trace={})""".format(
-                                repr(self.named_variables),
+        return """AutoDiff(names_init_vals={}, trace={})""".format(
+                                repr(self.names_init_vals),
                                 repr(repr(self.trace).strip('"'))
                             )
 

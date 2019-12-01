@@ -39,8 +39,37 @@ def do_newtons_method(x, f, tol=1e-6, verbose=0):
 
 
 if __name__ == '__main__':
-    do_newtons_method(0.2, f, verbose=1)
-    do_newtons_method(0.8, f, verbose=1)
-    do_newtons_method(1.2, f, verbose=1)
-    do_newtons_method(1.8, f, verbose=1)
-    do_newtons_method(2.2, f, verbose=1)
+    # do_newtons_method(0.2, f, verbose=1)
+    # do_newtons_method(0.8, f, verbose=1)
+    # do_newtons_method(1.2, f, verbose=1)
+    # do_newtons_method(1.8, f, verbose=1)
+    # do_newtons_method(2.2, f, verbose=1)
+
+    x1 = AutoDiff(name='x', val=1)
+    x2 = AutoDiff(name='x', val=1)
+    x3 = AutoDiff(name='x', val=2)
+    y = AutoDiff(name='y', val=2)
+
+    print(x1)
+    print(y)
+    z1 = x1 + y
+    z2 = x1 + x2
+    print(z1)
+    print(x1 + x2)
+
+    try:
+        z3 = x1 + x3
+    except:
+        print("Caught expected exception")
+
+    try:
+        z3 = z1 + x3
+    except:
+        print("Caught expected exception")
+
+    print(z1 + x2)
+
+    print(z1)
+
+    print(z1.get_named_variables())
+

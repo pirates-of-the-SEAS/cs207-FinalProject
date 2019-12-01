@@ -384,7 +384,7 @@ def test_setitem():
 
 def test_repr():
     x = AutoDiff(name='x', val=13)
-    assert repr(x) == """AutoDiff(name={\'x\'}, trace="{\'val\': 13, \'d_x\': 1}")""", "Repr failed"
+    assert repr(x) == """AutoDiff(names_init_vals={\'x\': 13}, trace="{\'val\': 13, \'d_x\': 1}")""", "Repr failed"
 
 
 def test_neg():

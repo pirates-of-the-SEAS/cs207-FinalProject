@@ -20,6 +20,17 @@ ARRRtomatic diff is an automatic differentiation library that implements forward
 + Final: Tuesday, December 10th 2019 at 12:00 PM (noon)
 + Showcase: Thursday, December 12th 2019. Location and time TBD 
 
+# CHECKLIST LIST FOR FINAL DELIVERABLE
++ [ ] Working forward mode implementation
++ [ ] Test suite
++ [ ] Updated / extended documentation
++ [ ] New features
+
+    
+
+
+
+
 
 
 # Goal

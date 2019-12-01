@@ -20,6 +20,7 @@ def __update_unary(x, operation, doperation):
      unary operation
     """
     try:
+        names_init_vals = x.get_names_init_vals()
         named_variables = x.get_named_variables()
         trace = x.get_trace()
 
@@ -43,7 +44,7 @@ def __update_unary(x, operation, doperation):
 
             updated_trace[f'd_{var}'] =  updated_deriv 
 
-        return AutoDiff(name=named_variables,
+        return AutoDiff(names_init_vals=names_init_vals,
                         trace=updated_trace)
     except:
         return operation(x)
