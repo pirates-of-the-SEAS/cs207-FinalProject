@@ -2,8 +2,9 @@
 Example driver script using Newton's Method to find the roots of sin
 """
 
-from ARRRtomatic_diff import AutoDiff
+from ARRRtomatic_diff import AutoDiff, AutoDiffVector
 from ARRRtomatic_diff.functions import sin, exp, sqrt, log
+
 
 
 def f(x):
@@ -39,37 +40,47 @@ def do_newtons_method(x, f, tol=1e-6, verbose=0):
 
 
 if __name__ == '__main__':
-    # do_newtons_method(0.2, f, verbose=1)
-    # do_newtons_method(0.8, f, verbose=1)
-    # do_newtons_method(1.2, f, verbose=1)
-    # do_newtons_method(1.8, f, verbose=1)
-    # do_newtons_method(2.2, f, verbose=1)
+    x = AutoDiff(name='x', val=1)
+    y = AutoDiff(name='y', val=3)
+    z = AutoDiff(name='z', val=20)
 
-    x1 = AutoDiff(name='x', val=1)
-    x2 = AutoDiff(name='x', val=1)
-    x3 = AutoDiff(name='x', val=2)
-    y = AutoDiff(name='y', val=2)
+    u = AutoDiffVector((
+        x,
+        y
+    ))
 
-    print(x1)
-    print(y)
-    z1 = x1 + y
-    z2 = x1 + x2
-    print(z1)
-    print(x1 + x2)
+    v = AutoDiffVector((
+        z,
+        z
+    ))
 
-    try:
-        z3 = x1 + x3
-    except:
-        print("Caught expected exception")
+    print(u)
+    print(x.get_gradient())
+    print(y.get_gradient())
 
-    try:
-        z3 = z1 + x3
-    except:
-        print("Caught expected exception")
+    print(u.get_values())
+    print(u.get_jacobian())
+    print(u.dot(u))
 
-    print(z1 + x2)
+    a = u + v
 
-    print(z1)
+    
+    print(a.get_values())
 
-    print(z1.get_named_variables())
+    # # # performs vector addition, scalar multiplication, and broadcasts the 
+    # # # unary operator sin element-wise
+    # z = sin(5*(u + v))
+
+    # # # a numpy array representnug the Jacobian of the vector-valued function
+    # # # f1 = x - y
+    # # # f2 = y + x
+    # J = z.get_jacobian()
+
+    # z2 = z*x
+
+    # J2 = z2.get_jacobian()
+
+    # print(J)
+    # print(J2)
+
 
