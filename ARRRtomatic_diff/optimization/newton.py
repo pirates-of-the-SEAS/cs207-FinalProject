@@ -75,7 +75,7 @@ def __determine_scalar_or_vector(x0, f):
     return x, ad, is_vector_func, order
 
 
-def do_newtons_method(x0, f, tol=1e-8, verbose=0):
+def do_newtons_method(x0, f, tol=1e-8, max_iter=2000, verbose=0):
     """
     x: initial guess (numpy array)
     f: function that returns value and derivative of f at x
@@ -89,17 +89,24 @@ def do_newtons_method(x0, f, tol=1e-8, verbose=0):
 
     num_iters = 1
     while True:
+        if num_iters == max_iter:
+            print(f"Did not converge after {max_iter} iterations")
+            break
+
         if is_vector_func:
             val, J, step = __newton_step_multivariate(ad, order)
 
             if np.linalg.norm(val, 2) <= tol:
+                if verbose > 0:
+                    print(f"Converged to {x} after {num_iters} iterations")
+
                 break
 
             if verbose > 0:
                 print(f"Start of Iteration {num_iters}")
                 print("x: {}".format(x))
                 print("f(x): {}".format(val))
-                print("J: {}".format(J))
+                print("J: \n{}".format(J))
 
             x = x + step
 
@@ -109,6 +116,9 @@ def do_newtons_method(x0, f, tol=1e-8, verbose=0):
             val, deriv, step = __newton_step_scalar(ad)
 
             if np.abs(val) <= tol:
+                if verbose > 0:
+                    print(f"Converged to {x} xafter {num_iters} iterations")
+
                 break
 
             if verbose > 0:
@@ -120,8 +130,10 @@ def do_newtons_method(x0, f, tol=1e-8, verbose=0):
 
         num_iters += 1
 
-    if verbose > 0:
-        print(f"Converged to {x} after {num_iters} iterations")
+        
+
+
+    
 
     return x
 
