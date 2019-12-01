@@ -164,16 +164,17 @@ class AutoDiff:
     def get_value(self):
         return self.trace['val']
 
-    def get_gradient(self):
+    def get_gradient(self, order=None):
+
         g = np.zeros(len(self.names_init_vals))
 
-        varnames = sorted(self.get_named_variables())
+        if order is None:
+            order = sorted(self.get_named_variables())
 
-        for i, var in enumerate(varnames):
+        for i, var in enumerate(order):
             g[i] = self.trace[f'd_{var}']
 
-
-        return g, varnames
+        return g, order
 
     @property
     def variables(self):
@@ -602,28 +603,29 @@ class AutoDiffVector:
         """
         return np.array([ad.trace['val'] for ad in self.__auto_diff_variables] )
 
-    def get_jacobian(self):
+    def get_jacobian(self, order=None):
         num_vars = len(self.named_variables)
 
         if num_vars == 0:
             num_vars = 1
-        else:
-            varnames = sorted(self.named_variables)
+        elif order is None:
+            order = sorted(self.named_variables)
+
 
         J = np.zeros((self.num_funcs, num_vars))
 
         
         for i, ad in enumerate(self.__auto_diff_variables):
-            for j, var in enumerate(varnames):
+            for j, var in enumerate(order):
                 try:
                     J[i, j] = ad.get_trace()[f'd_{var}']
                 except:
                     pass
 
         if num_vars == 0:
-            varnames = ['x']
+            order = ['x']
 
-        return J, varnames
+        return J, order
 
     def copy(self):
         return AutoDiffVector(self.__auto_diff_variables)
@@ -879,3 +881,4 @@ class AutoDiffVector:
 
     def __gt__(self, other):
         return all(AutoDiffVector.combine(self, other, lambda x,y: x > y).get_values())
+
