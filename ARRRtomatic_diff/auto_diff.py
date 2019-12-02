@@ -349,8 +349,11 @@ class AutoDiff:
 
 
     def __add__(self, other):
-        if isinstance(other, AutoDiffVector):
+        try:
+            iter(other)
             return AutoDiffVector.combine(self, other, lambda x,y:x+y)
+        except:
+            pass
 
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__add, AutoDiff.__dadd)
@@ -367,8 +370,11 @@ class AutoDiff:
         return other + -self
 
     def __mul__(self, other):
-        if isinstance(other, AutoDiffVector):
+        try:
+            iter(other)
             return AutoDiffVector.combine(self, other, lambda x,y:x*y)
+        except:
+            pass
 
 
         try:
@@ -380,8 +386,11 @@ class AutoDiff:
         return self * other
 
     def __pow__(self, other):
-        if isinstance(other, AutoDiffVector):
+        try:
+            iter(other)
             return AutoDiffVector.combine(self, other, lambda x,y:x**y)
+        except:
+            pass
 
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__lpow, AutoDiff.__dlpow)
@@ -395,8 +404,11 @@ class AutoDiff:
             return self.__update_binary_numeric(other, AutoDiff.__rpow, AutoDiff.__drpow)
 
     def __truediv__(self, other):
-        if isinstance(other, AutoDiffVector):
+        try:
+            iter(other)
             return AutoDiffVector.combine(self, other, lambda x,y:x/y)
+        except:
+            pass
 
         try:
             return self.__update_binary_autodiff(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
@@ -983,6 +995,20 @@ class AutoDiffMatrix:
 
     def copy(self):
         return AutoDiffVector(self.__auto_diff_variables)
+
+    def sum(self):
+        result = 0
+        for var in self.__auto_diff_variables:
+            result += var
+
+        return result
+
+    def mean(self):
+        result = 0
+        for var in self.__auto_diff_variables:
+            result += var
+
+        return result/self.num_funcs
 
     @property
     def variables(self):
