@@ -22,7 +22,7 @@ def rosenbrock(w):
 def parabola(w):
     x = AutoDiff(name='x', val=w[0])
 
-    return x**2, ['x']
+    return x**2
 
 
 def do_bfgs(w0, f, tol=1e-8, max_iter=2000, verbose=0):
@@ -35,7 +35,11 @@ def do_bfgs(w0, f, tol=1e-8, max_iter=2000, verbose=0):
 
     B = np.eye(num_params)
 
-    ad, order = f(w)
+    try:
+        ad, order = f(w)
+    except:
+        ad = f(w)
+        order = None
 
     for i in range(max_iter):
         g = ad.get_gradient(order)[0].reshape(-1, 1)
@@ -48,7 +52,10 @@ def do_bfgs(w0, f, tol=1e-8, max_iter=2000, verbose=0):
 
         w = w + update
 
-        ad, _ = f(w)
+        try:
+            ad, _ = f(w)
+        except:
+            ad = f(w)
 
         y = ad.get_gradient(order)[0].reshape(-1, 1) - g
         s = update.reshape(-1, 1)

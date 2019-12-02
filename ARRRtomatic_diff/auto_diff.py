@@ -275,7 +275,8 @@ class AutoDiff:
         updated_val = update_val(val, num)
 
         if np.isnan(updated_val):
-            raise ValueErrr
+            raise ValueError
+
          
         updated_trace['val'] = updated_val
         for var in names_init_vals:

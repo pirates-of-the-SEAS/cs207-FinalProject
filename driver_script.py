@@ -9,23 +9,26 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
                                            example_multivariate,
                                            do_bfgs,
                                            rosenbrock,
-                                           parabola)
+                                           parabola,
+                                           do_gradient_descent)
 
 
 
 if __name__ == '__main__':
-    do_newtons_method(0.2, example_scalar, tol=1e-8, verbose=1)
-    do_newtons_method([2, 5.2], example_multivariate, tol=1e-8, verbose=1)
+    ans = do_gradient_descent([0,1],
+                              rosenbrock,
+                              use_line_search=False,
+                              step_size=0.01,
+                              use_momentum=False,
+                              use_adagrad=False,
+                              use_rmsprop=False,
+                              use_adam=True,
+                              max_iter=10000)
 
-    ans = do_bfgs([-1,1], rosenbrock)
-    print(ans)
-    ans = do_bfgs([0,1], rosenbrock)
-    print(ans)
-    ans = do_bfgs([2,1], rosenbrock)
     print(ans)
 
-    ans = do_bfgs(5, parabola)
-    print(ans)
+    # ans = do_gradient_descent(5, parabola, use_line_search=True)
+    # print(ans)
    
 
 
