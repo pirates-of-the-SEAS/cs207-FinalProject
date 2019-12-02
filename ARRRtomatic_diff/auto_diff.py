@@ -883,3 +883,355 @@ class AutoDiffVector:
     def __gt__(self, other):
         return all(AutoDiffVector.combine(self, other, lambda x,y: x > y).get_values())
 
+
+
+class AutoDiffMatrix:
+    """
+    convenience class for j
+    """
+    def __init__(self, auto_diff_variables):
+        """
+        Use the column vector convention
+
+        assumes input is collection of auto diff variables and scalars
+
+        use numpy input style which assumes input is a collection
+
+        edge cases:
+
+        jacobian for when all ipnuts are numeric primitives
+
+        scalar auto diff variable provided
+        empty list provided
+=
+        scalar operations
+        vector operations
+        hadamard
+
+        implement iterable
+        """
+
+        # maintain variable names
+        try:
+            self.num_funcs = len(auto_diff_variables)
+
+            if self.num_funcs == 0:
+                raise Exception("AutoDiffVector cannot be empty")
+
+            self.__auto_diff_variables = list(auto_diff_variables)
+
+            self.named_variables = set({})
+            for ad in auto_diff_variables:
+                try:
+                    
+                    self.named_variables |= ad.get_named_variables()
+                except:
+                    continue
+
+        except:
+            raise Exception("AutoDiffVector requires an iterable as input")
+
+        self.idx = 0
+
+
+    def __len__(self):
+        return self.num_funcs
+
+    def __iter__(self):
+        return self.copy()
+
+    def __next__(self):
+        if self.idx < self.num_funcs:
+            result = self.__auto_diff_variables[self.idx]
+            self.idx += 1
+            return result
+        else:
+            raise StopIteration
+
+    def get_named_variables(self):
+        return self.named_variables
+
+    def get_values(self):
+        """
+        gets val for each
+        """
+        return np.array([ad.trace['val'] for ad in self.__auto_diff_variables] )
+
+    def get_jacobian(self, order=None):
+        num_vars = len(self.named_variables)
+
+        if num_vars == 0:
+            num_vars = 1
+        elif order is None:
+            order = sorted(self.named_variables)
+
+
+        J = np.zeros((self.num_funcs, num_vars))
+
+        
+        for i, ad in enumerate(self.__auto_diff_variables):
+            for j, var in enumerate(order):
+                try:
+                    J[i, j] = ad.get_trace()[f'd_{var}']
+                except:
+                    pass
+
+        if num_vars == 0:
+            order = ['x']
+
+        return J, order
+
+    def copy(self):
+        return AutoDiffVector(self.__auto_diff_variables)
+
+    @property
+    def variables(self):
+        return self.get_named_variables()
+
+    @property
+    def val(self):
+        return self.get_values()
+
+    @property
+    def jacobian(self):
+        return self.get_jacobian()
+
+    @staticmethod
+    def combine(first, other, operation):
+        result = []
+        # both are iterables of the same length
+        try:
+            if len(first) != len(other):
+                raise Exception("Dimentionality mismatch: {} vs {}".format(
+                    len(first), len(other)))
+
+            for var1, var2 in zip(first, other):
+
+                result.append(operation(var1, var2))
+
+            return AutoDiffVector(result)
+
+        except TypeError:
+            pass
+
+        # first is an iterable and other is a scalar
+        try:
+            for var in first:
+                result.append(operation(var, other))
+
+            return AutoDiffVector(result)
+        except TypeError:
+            pass
+
+        # second is an iterable and first is a scalar
+
+        try:
+            for var in other:
+                result.append(operation(first, var))
+
+            return AutoDiffVector(result)
+        except TypeError:
+            pass
+
+        # both are scalars
+        try:
+            result.append(operation(first, other))
+
+            return AutoDiffVector(result)
+        except TypeError:
+            pass
+
+        raise ValueError
+
+    def apply_to_vals(self, operation):
+        result = []
+
+        try:
+            for v in self.__auto_diff_variables:
+                result.append(operation(v))
+
+            return result
+
+        except:
+            raise ValueError
+
+
+    def dot(self, other):
+        if len(self) != len(other):
+                raise Exception("Dimentionality mismatch: {} vs {}".format(
+                    len(self), len(other)))
+
+        result = 0
+        for var1, var2 in zip(self, other):
+            result += var1*var2
+
+        return result
+
+    def sq_norm(self):
+        return self.dot(self)
+
+    def __add__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x+y)
+
+    def __radd__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x+y)
+
+    def __sub__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x-y)
+
+    def __rsub__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x-y)
+
+    def __mul__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x*y)
+
+    def __rmul__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x*y)
+
+    def __pow__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x**y)
+          
+    def __rpow__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x**y)
+
+    def __truediv__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x/y)
+
+    def __rtruediv__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x/y)
+
+    def __neg__(self):
+        return -1 * self
+
+    def __bool__(self):
+        return self.apply_to_vals(bool)
+
+    def __repr__(self):
+        repr_str = "["
+        for var in self.__auto_diff_variables:
+            repr_str += repr(var)
+            repr_str += ','
+
+        repr_str = repr_str[:-1]
+
+        repr_str += ']'
+
+        return """AutoDiffVector(names_init_vals={}""".format(
+                                repr_str
+                            )
+
+    def __getitem__(self, idx):
+        return self.__auto_diff_variables[idx].copy()
+
+    # current design choice is for AutoDiffVector to not be mutable
+    def __setitem__(self, key, value):
+        raise NotImplementedError
+
+    # current design choice is for AutoDiffVector to not be mutable
+    def __delitem__(self, key):
+        raise NotImplementedError
+
+    def __contains__(self, item):
+        raise NotImplementedError
+
+    def __str__(self):
+        vec_str = "["
+
+        for var in self.__auto_diff_variables:
+            vec_str += str(var.get_trace())
+            vec_str += ','
+
+        vec_str = vec_str[:-1]
+
+        vec_str += ']'
+        return vec_str
+
+    def __floordiv__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x // y).get_values()
+
+    def __mod__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x & y).get_values()
+
+    def __lshift__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x << y).get_values()
+
+    def __rshift__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x << y).get_values()
+
+    def __and__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x & y).get_values()
+
+    def __xor__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x ^ y).get_values()
+
+    def __or__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x | y).get_values()
+
+    def __rfloordiv__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x // y).get_values()
+
+    def __rmod__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x & y).get_values()
+
+    def __rlshift__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x << y).get_values()
+
+    def __rrshift__(self, other):
+        return AutoDiffVector.combine(self, other, lambda x,y: x << y).get_values()
+
+    def __rand__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x & y).get_values()
+
+    def __rxor__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x ^ y).get_values()
+
+    def __ror__(self, other):
+        return AutoDiffVector.combine(other, self, lambda x,y: x | y).get_values()
+
+    def __pos__(self):
+        return self
+
+    def __abs__(self):
+        return self.apply_to_vals(abs)
+
+    def __round__(self):
+        return self.apply_to_vals(round)
+
+    def __floor__(self):
+        return self.apply_to_vals(math.floor)
+
+    def __ceil__(self):
+        return self.apply_to_vals(math.ceil)
+
+    def __trunc__(self):
+        return self.apply_to_vals(math.trunc)
+
+    def __invert__(self):
+        return self.apply_to_vals(lambda x: ~x)
+
+    def __complex__(self):
+        return self.apply_to_vals(complex)
+
+    def __int__(self):
+        return self.apply_to_vals(int)
+
+    def __float__(self):
+        return self.apply_to_vals(float)
+
+    def __lt__(self, other):
+        return all(AutoDiffVector.combine(self, other, lambda x,y: x < y).get_values())
+
+    def __le__(self, other):
+        return all(AutoDiffVector.combine(self, other, lambda x,y: x <= y).get_values())
+
+    def __eq__(self, other):
+        return all(AutoDiffVector.combine(self, other, lambda x,y: x == y).get_values())
+
+    def __ne__(self, other):
+        return all(AutoDiffVector.combine(self, other, lambda x,y: x != y).get_values())
+
+    def __ge__(self, other):
+        return all(AutoDiffVector.combine(self, other, lambda x,y: x >= y).get_values())
+
+    def __gt__(self, other):
+        return all(AutoDiffVector.combine(self, other, lambda x,y: x > y).get_values())

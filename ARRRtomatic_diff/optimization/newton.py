@@ -83,8 +83,6 @@ def do_newtons_method(x0, f, tol=1e-8, max_iter=2000, verbose=0):
 
     infers dimensionality of problem based on values returned from f
     """
-
-
     x, ad, is_vector_func, order = __determine_scalar_or_vector(x0, f)
 
     num_iters = 1

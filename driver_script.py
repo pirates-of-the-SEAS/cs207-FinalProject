@@ -2,6 +2,8 @@
 Example driver script using Newton's Method to find the roots of sin
 """
 
+import numpy as np
+
 from ARRRtomatic_diff import AutoDiff, AutoDiffVector
 from ARRRtomatic_diff.functions import sin, exp, sqrt, log
 from ARRRtomatic_diff.optimization import (do_newtons_method,
@@ -10,25 +12,31 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
                                            do_bfgs,
                                            rosenbrock,
                                            parabola,
-                                           do_gradient_descent)
+                                           do_gradient_descent,
+                                           generate_nonlinear_lsq_data,
+                                           beacon_resids,
+                                           beacon_dist,
+                                           do_levenberg_marquardt
+)
 
 
 
 if __name__ == '__main__':
-    ans = do_gradient_descent([0,1],
-                              rosenbrock,
-                              use_line_search=False,
-                              step_size=0.01,
-                              use_momentum=False,
-                              use_adagrad=False,
-                              use_rmsprop=False,
-                              use_adam=True,
-                              max_iter=10000)
+    X, y = generate_nonlinear_lsq_data()
 
-    print(ans)
 
-    # ans = do_gradient_descent(5, parabola, use_line_search=True)
-    # print(ans)
+    b = do_levenberg_marquardt(np.array([0.4,0.9]),
+                           beacon_resids,
+                           X,
+                           y,
+                           mu=None,
+                           S=None,
+                           tol=1e-8,
+                           max_iter=2000,
+                           verbose=0)
+
    
+
+    print(b)
 
 
