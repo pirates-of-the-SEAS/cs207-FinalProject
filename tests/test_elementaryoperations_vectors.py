@@ -65,6 +65,24 @@ def test_vec_multiply():
     np.testing.assert_array_equal(J, [[-3, 1], [3, -1]]), 'Multiplication failed'
 
 
+def test_vec_divide():
+    f1 = AutoDiff(name='x', val=-1)
+    f2 = AutoDiff(name='y', val=3)
+    u = AutoDiffVector((f1, f2))
+    v = AutoDiffVector((-f2, f1))
+    q = [2, 1]
+    t = [4, 4]
+    np.testing.assert_array_equal((u / 3).val, [-(1/3), 1]), 'Multiplication failed'
+    J, order = (u / 3).get_jacobian()
+    np.testing.assert_array_equal(J, [[(1/3), 0], [0, (1/3)]]), "Multiplication failed"
+    np.testing.assert_array_equal((-4 / u).val, [4, -(4/3)]), 'Multiplication failed'
+    np.testing.assert_array_equal((u / q).val, [-0.5, 3]), 'Multiplication failed'
+    np.testing.assert_array_equal((q / u).val, [-2, (1/3)]), 'Multiplication failed'
+    J, order = (u / t).get_jacobian()
+    np.testing.assert_array_equal(J, [[(1/4), 0], [0, (1/4)]]), "Multiplication failed"
+    J, order = (u / v).get_jacobian()
+    np.testing.assert_array_equal(J, [[-(1/3), -(1/9)], [-3, -1]]), 'Multiplication failed'
+
 
 
 
