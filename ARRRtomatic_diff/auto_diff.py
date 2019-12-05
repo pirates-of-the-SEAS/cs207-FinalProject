@@ -7,7 +7,7 @@ and also all of the partial derivatives with respect to its input variables.
 
 We implement forward mode automatic differentiation through operator overloading
 and defining functions corresponding to the elementary mathematical operations
-that operate on our AutoDIff objects.
+that operate on our AutoDiff objects.
 
 For example, in order to obtain the derivative of x^2 one would use the libarary
 like so:
@@ -109,6 +109,15 @@ class AutoDiff:
         # too many parameters specified
         if 'trace' in kwargs and 'val' in kwargs:
             raise ValueError("Both value and trace specified")
+
+        # check if reverse mode indicated, default forward mode
+        if 'reverse' in kwargs:
+            self.reverse = kwargs['reverse']
+            if self.reverse:
+                self.interm_vals = []
+                self.grad_val = None
+        else:
+            self.reverse = False
  
         # context 1: handle initial construction of an auto diff toy object 
         if 'val' in kwargs:
@@ -147,7 +156,13 @@ class AutoDiff:
         return self.trace['val']
 
     def get_gradient(self):
-        return {f'd_{var}':self.trace[f'd_{var}'] for var in self.named_variables}
+        if self.reverse:
+            if self.grad_val == None:
+                self.grad_val = sum(w*ad.get_gradient() for w, v in self.interm_vals)
+            r = self.grad_val
+        else:
+            r = {f'd_{var}':self.trace[f'd_{var}'] for var in self.named_variables}
+        return r
 
     @property
     def variables(self):
@@ -327,9 +342,14 @@ class AutoDiff:
 
     def __add__(self, other):
         try:
-            return self.__update_binary_autodiff(other, AutoDiff.__add, AutoDiff.__dadd)
+            r = self.__update_binary_autodiff(other, AutoDiff.__add, AutoDiff.__dadd)
+            if self.reverse:
+                other.interm_vals.append((1., r))
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
+            r = self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
+        if self.reverse:
+            self.interm_vals.append((1.,r))
+        return r
 
     def __radd__(self, other):
         return self + other
@@ -342,9 +362,13 @@ class AutoDiff:
 
     def __mul__(self, other):
         try:
-            return self.__update_binary_autodiff(other, AutoDiff.__mul, AutoDiff.__dmul)
+            r = self.__update_binary_autodiff(other, AutoDiff.__mul, AutoDiff.__dmul)
+            if self.reverse:
+                self.interm_vals.append((other.get_value(), r))
+                other.interm_vals.append((self.get_value(), r))
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__mul, AutoDiff.__dmul)
+            r = self.__update_binary_numeric(other, AutoDiff.__mul, AutoDiff.__dmul)
+        return r
 
     def __rmul__(self, other):
         return self * other
