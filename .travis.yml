@@ -9,7 +9,7 @@ before_install:
     - pip install codecov
 
 install:
-  - conda install --yes python='3.6' atlas numpy scipy matplotlib nose dateutil pandas statsmodels
+  - conda install --yes python=3.6 atlas numpy scipy matplotlib nose dateutil pandas statsmodels
 #  - python setup.py install
 
 script:
