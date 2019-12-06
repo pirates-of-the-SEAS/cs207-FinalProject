@@ -6,8 +6,10 @@ before_install:
     #remove requirements because .travis.yml automatically runs eval pip install -r requirements  if it exists in the root folder
     #and version dependency can mass up .travis
     - rm ./requirements.txt
-    - sudo apt-get install -qq python-numpy python-scipy
     - pip install codecov
+
+install:
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose dateutil pandas statsmodels
 
 script:
     - pytest --cov=./ --cov-report term-missing
