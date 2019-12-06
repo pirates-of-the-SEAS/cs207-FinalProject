@@ -1,6 +1,7 @@
 import numpy as np
 
 from .. import AutoDiff
+from .. import AutoDiffRev
 
 def __update_unary(x, operation, doperation):
     """Updates an AutoDiff object with a unary operation or simply
@@ -34,17 +35,21 @@ def __update_unary(x, operation, doperation):
 
         updated_trace['val'] = updated_val
         
+        # differentiate reverse and forward mode calculations
+        if isinstance(x, AutoDiffRev):
+            r = AutoDiffRev(name=named_variables, trace=updated_trace)
+            updated_deriv = doperation(val)
+            x.interm_vals.append((updated_deriv, r))
+        else:
+            for var in named_variables:
+                updated_deriv = doperation(val) * updated_trace[f'd_{var}']
 
-        for var in named_variables:
-            updated_deriv = doperation(val) * updated_trace[f'd_{var}']
+                if np.isnan(updated_deriv):
+                    raise ValueError
 
-            if np.isnan(updated_deriv):
-                raise ValueError
-
-            updated_trace[f'd_{var}'] =  updated_deriv 
-
-        return AutoDiff(name=named_variables,
-                        trace=updated_trace)
+                updated_trace[f'd_{var}'] =  updated_deriv 
+            r = AutoDiff(name=named_variables, trace=updated_trace)
+        return r 
     except:
         return operation(x)
 
