@@ -315,7 +315,7 @@ def do_stochastic_gradient_descent(w0,
             w = w + dw
 
     else:
-        print(f"Did not converge after {max_iter} steps")
+        print(f"Did not converge after {num_epochs} epochs")
         
     return w
 
