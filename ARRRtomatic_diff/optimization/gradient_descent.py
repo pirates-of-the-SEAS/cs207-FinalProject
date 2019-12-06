@@ -5,6 +5,7 @@ takes as input a function that returns a computational graph
 """
 
 import numpy as np
+import scipy
 import scipy.optimize
 from scipy.optimize import line_search
 
