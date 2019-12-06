@@ -50,7 +50,8 @@ def __verify_valid_args(use_line_search,
                         adam_b2):
 
     """
-    A method to handle the possible set of cases where the inputs to an optimization method may not be valid
+    A method to handle the possible set of cases where the inputs to an optimization method may not be valid.
+    if inputs are invalid, raises Error.
 
      INPUTS
     =======
@@ -61,7 +62,8 @@ def __verify_valid_args(use_line_search,
     :param momentum: the momentum applied to each update
     :param adam_b1: float(scalar), Beta1, which is the momentum decay applied to the first moment estimates
     :param adam_b2: float(scalar, Beta2, which is the exponential decay rate for second moment estimates
-    :return:
+
+
     """
 
     if momentum < 0:
@@ -78,6 +80,21 @@ def __verify_valid_args(use_line_search,
 
 
 def __do_line_search_update(get_val, get_gradient, w, direction):
+    """
+    Performs Armijo line search along the specified "direction"
+    starting at point f(w)
+    INPUTS
+    =======
+
+    :param get_val: callable function f
+    :param get_gradient: callable function that calculates grad f
+    :param w: initial searching point
+    :param direction: line searching direction
+
+    RETURNS
+    ========
+    optimal step size * direction
+    """
     line_search_results = line_search(get_val,
                                       get_gradient,
                                       w,
@@ -86,27 +103,6 @@ def __do_line_search_update(get_val, get_gradient, w, direction):
     step_size = line_search_results[0]
 
     return step_size * direction
-
-def armijo_search(f, grad, x0, dir, epsilon_factor=0.8, initial_lambda=1.0, verbose=False):
-    ep = np.ones(len(x0)) * epsilon_factor
-    sig = 2.0 # sigma divider for lambda
-    lambda_0 = initial_lambda
-    while True:
-        h  = f(x0+lambda_0*dir)
-        h_ = f(x0)+lambda_0*np.dot(ep,np.array(grad))
-        if verbose: print(f"h: {h}")
-        if h <= h_:
-            break
-        if h > h_:
-            lambda_0 *= (1 / sig)
-            if verbose: print(f"lambda : {lambda_0}")
-
-        # Note that this is not Strong Wolfe condition, but just Wolfe condition 1~2
-
-    return lambda_0 * dir
-
-
-
 
 def __do_momentum_update(dw, momentum, step_size, direction):
     dw = momentum * dw + step_size * direction
