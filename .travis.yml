@@ -1,6 +1,8 @@
 language: python
+
 python:
     - "3.6"
+
 before_install:
     - pip install pytest pytest-cov
     #remove requirements because .travis.yml automatically runs eval pip install -r requirements  if it exists in the root folder
@@ -8,7 +10,6 @@ before_install:
     - rm ./requirements.txt
     - pip install codecov
     - pip install scipy
-
 
 script:
     - pytest --cov=./ --cov-report term-missing
