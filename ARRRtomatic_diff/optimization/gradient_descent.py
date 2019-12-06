@@ -11,6 +11,19 @@ from .. import AutoDiff, AutoDiffVector
 from ..functions import sin, exp
 
 def rosenbrock(w):
+    """
+    This function serves as a performance test for optimization algorithms.
+    The global minimum of Rosenbrock's valley is achieved at (1, 1), where f(x,y) = 0.
+    Rosenbrock function is:  f(x,y) = (1 -x)^2 + 100*(y-x^2)^2
+    INPUTS
+    =======
+    w: the initial starting point vector, x0 = w[0], y0 = w[1]
+
+    RETURNS
+    ========
+    1. f (w)
+    2. ordered list of variables x, y
+    """
     x = AutoDiff(name='x', val=w[0])
     y = AutoDiff(name='y', val=w[1])
 
@@ -34,6 +47,21 @@ def __verify_valid_args(use_line_search,
                         adam_b1,
                         adam_b2):
 
+    """
+    A method to handle the possible set of cases where the inputs to an optimization method may not be valid
+
+     INPUTS
+    =======
+    :param use_line_search: boolean, True or False (whether to use line search)
+    :param use_momentum: boolean, True or False
+    :param use_adagrad: boolean, True or False (whether to use Adaptive gradient descent)
+    :param use_adam: boolean, True or False (whether to use Adaptive momentum estimation)
+    :param momentum: the momentum applied to each update
+    :param adam_b1: float(scalar), Beta1, which is the momentum decay applied to the first moment estimates
+    :param adam_b2: float(scalar, Beta2, which is the exponential decay rate for second moment estimates
+    :return:
+    """
+
     if momentum < 0:
         raise ValueError
 
@@ -56,6 +84,27 @@ def __do_line_search_update(get_val, get_gradient, w, direction):
     step_size = line_search_results[0]
 
     return step_size * direction
+
+def armijo_search(f, grad, x0, dir, epsilon_factor=0.8, initial_lambda=1.0, verbose=False):
+    ep = np.ones(len(x0)) * epsilon_factor
+    sig = 2.0 # sigma divider for lambda
+    lambda_0 = initial_lambda
+    while True:
+        h  = f(x0+lambda_0*dir)
+        h_ = f(x0)+lambda_0*np.dot(ep,np.array(grad))
+        if verbose: print(f"h: {h}")
+        if h <= h_:
+            break
+        if h > h_:
+            lambda_0 *= (1 / sig)
+            if verbose: print(f"lambda : {lambda_0}")
+
+        # Note that this is not Strong Wolfe condition, but just Wolfe condition 1~2
+
+    return lambda_0 * dir
+
+
+
 
 def __do_momentum_update(dw, momentum, step_size, direction):
     dw = momentum * dw + step_size * direction

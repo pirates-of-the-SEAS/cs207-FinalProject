@@ -159,7 +159,7 @@ setup(
         'numpy',   # DO NOT SPECIFY THE EXACT VERSIONS HERE IF YOU USED CONDA ENV TO EXPORT (conda export )
     ],  # Optional
     setup_requires=['pytest-runner'],
-    tests_require = ['pytest'],
+    tests_require = ['pytest', 'scipy', 'pandas'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
