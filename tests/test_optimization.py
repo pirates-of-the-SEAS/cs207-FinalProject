@@ -3,6 +3,7 @@ from ARRRtomatic_diff import optimization as opt
 import math
 import numpy as np
 import scipy
+import pandas as pd
 
 def test_rosenbrock():
     w = np.array([-1, 1])
@@ -16,12 +17,11 @@ def test_gradientdescent():
     output = opt.do_gradient_descent(w0, opt.rosenbrock, use_momentum=True, max_iter=2000, step_size=0.001)
     np.testing.assert_almost_equal(output, [1, 1], decimal=3), 'Gradient descent with momentum failed'
 
-def test_sgd():
-    w0 = np.array([-1, 1])
-    output = opt.do_stochastic_gradient_descent(w0, opt.rosenbrock, tol-1e-6,
-                                                use_momentum=True,
-                                                max_iter=1000,
-                                                step_size=0.001)
-    np.testing.assert_almost_equal(output, [1, 1], decimal=3), 'Gradient descent failed'
-
-# def test_
+# def test_sgd():
+#     w0 = np.array([-1, 1])
+#     output = opt.do_stochastic_gradient_descent(w0, opt.rosenbrock, tol=1e-6,
+#                                                 use_momentum=True,
+#                                                 step_size=0.001)
+#     np.testing.assert_almost_equal(output, [1, 1], decimal=3), 'Gradient descent failed'
+#
+# # def test_
