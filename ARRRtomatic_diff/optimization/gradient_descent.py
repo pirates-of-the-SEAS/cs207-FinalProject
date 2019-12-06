@@ -5,6 +5,8 @@ takes as input a function that returns a computational graph
 """
 
 import numpy as np
+import scipy
+import scipy.optimize
 from scipy.optimize import line_search
 
 from .. import AutoDiff, AutoDiffVector
@@ -223,7 +225,7 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
         if not any([use_line_search, use_momentum, use_adagrad,
                     use_adam]):
             dw = step_size * direction
-
+        # print(w)
         w = w + dw
     else:
         print(f"Did not converge after {max_iter} steps")
@@ -362,7 +364,7 @@ def do_stochastic_gradient_descent(w0,
             w = w + dw
 
     else:
-        print(f"Did not converge after {max_iter} steps")
+        print(f"Did not converge after {num_epochs} epochs")
         
     return w
 
