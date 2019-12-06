@@ -10,6 +10,7 @@ before_install:
     - rm ./requirements.txt
     - pip install codecov
     - pip install scipy
+    - pip install pandas
 
 script:
     - pytest --cov=./ --cov-report term-missing
