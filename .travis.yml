@@ -7,10 +7,8 @@ before_install:
     #and version dependency can mass up .travis
     - rm ./requirements.txt
     - pip install codecov
+    - pip install scipy
 
-install:
-  - conda install --yes scipy
-#  - python setup.py install
 
 script:
     - pytest --cov=./ --cov-report term-missing
