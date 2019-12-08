@@ -2,8 +2,7 @@ import math
 
 import numpy as np
 
-
-from .. import AutoDiff, AutoDiffRev, AutoDiffVector
+from ARRRtomatic_diff import AutoDiff, AutoDiffRev, AutoDiffVector
 
 
 def __update_unary(x, operation, doperation):
