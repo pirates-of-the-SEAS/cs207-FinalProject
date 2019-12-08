@@ -1,46 +1,59 @@
 """
 Example driver script using Newton's Method to find the roots of sin
+
+Note + iterable + autodiff yields collection of autodiffs.
+have to make autodiffvector
+
 """
 
-from ARRRtomatic_diff import AutoDiff
+import pandas as pd
+import numpy as np
+
+from ARRRtomatic_diff import AutoDiff, AutoDiffVector
 from ARRRtomatic_diff.functions import sin, exp, sqrt, log
+from ARRRtomatic_diff.optimization import (do_newtons_method,
+                                           example_scalar,
+                                           example_multivariate,
+                                           do_bfgs,
+                                           rosenbrock,
+                                           parabola,
+                                           do_gradient_descent,
+                                           generate_nonlinear_lsq_data,
+                                           beacon_resids,
+                                           beacon_dist,
+                                           do_levenberg_marquardt,
+                                           example_loss,
+                                           do_stochastic_gradient_descent
 
+)
 
-def f(x):
-    x = AutoDiff(name='x', val=x)
-
-    auto_diff_results = sin(x)
-
-    return auto_diff_results['val'], auto_diff_results['d_x']
-
-def do_newtons_method(x, f, tol=1e-6, verbose=0):
-    """
-    x: initial guess
-    f: function that returns value and derivative of f at x
-    tol: terminate when the absolute value of f at x is less than or equal to the tol
-    """
-    num_iters = 1
-    while abs(f(x)[0]) > tol:
-        val, deriv = f(x)
-
-        if verbose > 0:
-            print(f"Iteration {num_iters} | x: {x:2f} | f(x): {val:2f} | deriv: {deriv:2f}")
-
-        x = x - val/deriv
-
-        
-
-        num_iters += 1
-
-    if verbose > 0:
-        print(f"Converged to {x} after {num_iters} iterations")
-
-    return x
 
 
 if __name__ == '__main__':
-    do_newtons_method(0.2, f, verbose=1)
-    do_newtons_method(0.8, f, verbose=1)
-    do_newtons_method(1.2, f, verbose=1)
-    do_newtons_method(1.8, f, verbose=1)
-    do_newtons_method(2.2, f, verbose=1)
+    df = pd.read_csv('./data/sgd_example.csv', header=None).T
+    df.columns = ['x', 'y']
+    assert(np.allclose(df['y']**2 - df['x']**2, -0.1))
+
+    lambda1 = 2
+    lambda2 = 1
+
+    X = df.values
+
+    do_stochastic_gradient_descent(np.array([lambda1, lambda2]),
+                                   example_loss,
+                                   X,
+                                   y=None,
+                                   num_epochs=100,
+                                   batch_size=64,
+                                   step_size=0.1,
+                                   verbose=1,
+                                   use_momentum=False,
+                                   use_adagrad=False,
+                                   use_adam=True)
+
+    
+
+
+
+  
+
