@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 
-from .. import AutoDiff, AutoDiffRev, AutoDiff, AutoDiffVector
+from .. import AutoDiff, AutoDiffRev, AutoDiffVector
 
 
 def __update_unary(x, operation, doperation):
