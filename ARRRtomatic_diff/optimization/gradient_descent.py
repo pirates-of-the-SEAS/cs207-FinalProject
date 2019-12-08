@@ -13,6 +13,19 @@ from .. import AutoDiff, AutoDiffVector
 from ..functions import sin, exp
 
 def rosenbrock(w):
+    """
+    This function serves as a performance test for optimization algorithms.
+    The global minimum of Rosenbrock's valley is achieved at (1, 1), where f(x,y) = 0.
+    Rosenbrock function is:  f(x,y) = (1 -x)^2 + 100*(y-x^2)^2
+    INPUTS
+    =======
+    w: the initial starting point vector, x0 = w[0], y0 = w[1]
+
+    RETURNS
+    ========
+    1. f (w)
+    2. ordered list of variables x, y
+    """
     x = AutoDiff(name='x', val=w[0])
     y = AutoDiff(name='y', val=w[1])
 
@@ -36,6 +49,23 @@ def __verify_valid_args(use_line_search,
                         adam_b1,
                         adam_b2):
 
+    """
+    A method to handle the possible set of cases where the inputs to an optimization method may not be valid.
+    if inputs are invalid, raises Error.
+
+     INPUTS
+    =======
+    :param use_line_search: boolean, True or False (whether to use line search)
+    :param use_momentum: boolean, True or False
+    :param use_adagrad: boolean, True or False (whether to use Adaptive gradient descent)
+    :param use_adam: boolean, True or False (whether to use Adaptive momentum estimation)
+    :param momentum: the momentum applied to each update
+    :param adam_b1: float(scalar), Beta1, which is the momentum decay applied to the first moment estimates
+    :param adam_b2: float(scalar, Beta2, which is the exponential decay rate for second moment estimates
+
+
+    """
+
     if momentum < 0:
         raise ValueError
 
@@ -50,6 +80,21 @@ def __verify_valid_args(use_line_search,
 
 
 def __do_line_search_update(get_val, get_gradient, w, direction):
+    """
+    Performs Armijo line search along the specified "direction"
+    starting at point f(w)
+    INPUTS
+    =======
+
+    :param get_val: callable function f
+    :param get_gradient: callable function that calculates grad f
+    :param w: initial searching point
+    :param direction: line searching direction
+
+    RETURNS
+    ========
+    optimal step size * direction
+    """
     line_search_results = line_search(get_val,
                                       get_gradient,
                                       w,
@@ -61,7 +106,6 @@ def __do_line_search_update(get_val, get_gradient, w, direction):
 
 def __do_momentum_update(dw, momentum, step_size, direction):
     dw = momentum * dw + step_size * direction
-
     return dw
 
 def __do_adagrad_update(G, step_size, grad):
@@ -101,7 +145,9 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
                         momentum=0.9,
                         adam_b1=0.9,
                         adam_b2=0.999,
-                        adam_eps=0.0001):
+                        adam_eps=0.0001,
+                        show=False # plz don't erase
+                        ):
 
     __verify_valid_args(use_line_search,
                         use_momentum,
@@ -111,12 +157,16 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
                         adam_b1,
                         adam_b2)
 
+
     try:
         num_params = len(w0)
         w = w0
     except:
         num_params = 1
         w = np.array([w0])
+    if show:
+        w_path = []
+        w_path.append(w)
 
     def get_val(w):
         try:
@@ -178,9 +228,14 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
             dw = step_size * direction
         # print(w)
         w = w + dw
+        if show:
+            w_path.append(w)
     else:
         print(f"Did not converge after {max_iter} steps")
-        
+
+    if show:
+        return w_path
+
     return w
 
 def example_loss(params, X_data, y_data):
