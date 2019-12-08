@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 
-from .. import AutoDiff, AutoDiffVector
+from .. import AutoDiff, AutoDiffRev, AutoDiffVector
 
 def __update_unary(x, operation, doperation):
     """Updates an AutoDiff object with a unary operation or simply
@@ -49,6 +49,7 @@ def __update_unary(x, operation, doperation):
         updated_trace['val'] = updated_val
         
 
+<<<<<<< HEAD
         for var in named_variables:
             updated_deriv = doperation(val) * updated_trace[f'd_{var}']
 
@@ -59,8 +60,27 @@ def __update_unary(x, operation, doperation):
 
         return AutoDiff(names_init_vals=names_init_vals,
                         trace=updated_trace)
+=======
+        # differentiate reverse and forward mode calculations
+        if isinstance(x, AutoDiffRev):
+            r = AutoDiffRev(name=named_variables, trace=updated_trace)
+            updated_deriv = doperation(val)
+            x.interm_vals.append((updated_deriv, r))
+        else:
+            for var in named_variables:
+                updated_deriv = doperation(val) * updated_trace[f'd_{var}']
+
+                if np.isnan(updated_deriv):
+                    raise ValueError
+
+                updated_trace[f'd_{var}'] =  updated_deriv 
+            r = AutoDiff(names_init_vals=names_init_vals,
+                        trace=updated_trace)
+        return r 
+>>>>>>> 1ea34d0f65ad320662f01e075c48775442ba1cd7
     except AttributeError:
         return operation(x)
+
 
 def _exp(base):
     def f(x):
