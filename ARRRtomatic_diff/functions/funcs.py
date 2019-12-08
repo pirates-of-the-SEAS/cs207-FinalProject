@@ -49,16 +49,6 @@ def __update_unary(x, operation, doperation):
         updated_trace['val'] = updated_val
         
 
-        for var in named_variables:
-            updated_deriv = doperation(val) * updated_trace[f'd_{var}']
-
-            if np.isnan(updated_deriv):
-                raise ValueError
-
-            updated_trace[f'd_{var}'] =  updated_deriv 
-
-        return AutoDiff(names_init_vals=names_init_vals,
-                        trace=updated_trace)
         # differentiate reverse and forward mode calculations
         if isinstance(x, AutoDiffRev):
             r = AutoDiffRev(name=named_variables, trace=updated_trace)
