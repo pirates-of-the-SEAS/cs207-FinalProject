@@ -106,7 +106,6 @@ def __do_line_search_update(get_val, get_gradient, w, direction):
 
 def __do_momentum_update(dw, momentum, step_size, direction):
     dw = momentum * dw + step_size * direction
-
     return dw
 
 def __do_adagrad_update(G, step_size, grad):
@@ -146,7 +145,9 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
                         momentum=0.9,
                         adam_b1=0.9,
                         adam_b2=0.999,
-                        adam_eps=0.0001):
+                        adam_eps=0.0001,
+                        show=False # plz don't erase
+                        ):
 
     __verify_valid_args(use_line_search,
                         use_momentum,
@@ -156,12 +157,16 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
                         adam_b1,
                         adam_b2)
 
+
     try:
         num_params = len(w0)
         w = w0
     except:
         num_params = 1
         w = np.array([w0])
+    if show:
+        w_path = []
+        w_path.append(w)
 
     def get_val(w):
         try:
@@ -223,9 +228,14 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
             dw = step_size * direction
         # print(w)
         w = w + dw
+        if show:
+            w_path.append(w)
     else:
         print(f"Did not converge after {max_iter} steps")
-        
+
+    if show:
+        return w_path
+
     return w
 
 def example_loss(params, X_data, y_data):
