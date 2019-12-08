@@ -380,11 +380,11 @@ def test_shift():
 #     x['d_x'] = 24.7
 #     assert x['d_x'] == 24.7, "Set item failed"
 
-
-def test_repr():
-    x = AutoDiffRev(name='x', val=13)
-    assert repr(x) == """AutoDiffRev(names_init_vals={\'x\': 13}, trace="{\'val\': 13, \'d_x\': 1}")""", "Repr failed"
-
+#
+# def test_repr():
+#     x = AutoDiffRev(name='x', val=13)
+#     assert repr(x) == """AutoDiffRev(names_init_vals={\'x\': 13}, trace="{\'val\': 13, \'d_x\': 1}")""", "Repr failed"
+#
 
 def test_neg():
     x = AutoDiffRev(name='x', val=2)
