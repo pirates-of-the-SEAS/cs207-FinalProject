@@ -19,8 +19,8 @@ def test_gradientdescent():
 
 def test_example_loss():
     w0 = np.array([-1, 1])
-    df = pd.read_csv('./data/sgd_example.csv', header=None).T
-    # df = pd.read_csv('../data/sgd_example.csv', header=None).T
+    # df = pd.read_csv('./data/sgd_example.csv', header=None).T
+    df = pd.read_csv('../data/sgd_example.csv', header=None).T
     X = df.values
     target, lambdas = opt.example_loss(w0, X, None)
     assert np.allclose(target.val, 0.0004343472)
