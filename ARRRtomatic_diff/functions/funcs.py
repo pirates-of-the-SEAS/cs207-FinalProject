@@ -2,8 +2,7 @@ import math
 
 import numpy as np
 
-
-from .. import AutoDiff, AutoDiffRev, AutoDiff, AutoDiffVector
+from ARRRtomatic_diff import AutoDiff, AutoDiffRev, AutoDiffVector
 
 
 def __update_unary(x, operation, doperation):
@@ -64,10 +63,12 @@ def __update_unary(x, operation, doperation):
                     raise ValueError
 
                 updated_trace[f'd_{var}'] =  updated_deriv 
-            r = AutoDiff(name=named_variables, trace=updated_trace)
+            r = AutoDiff(names_init_vals=names_init_vals,
+                        trace=updated_trace)
         return r 
-    except:
+    except AttributeError:
         return operation(x)
+
 
 def _exp(base):
     def f(x):
