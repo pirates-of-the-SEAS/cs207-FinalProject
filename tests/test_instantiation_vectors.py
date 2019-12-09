@@ -7,12 +7,14 @@ def test_instantiation_pos():
     f2 = AutoDiff(name='y', val=3)
     u = AutoDiffVector((f1, f2))
     v = AutoDiffVector([2, 2])
+    z = AutoDiffVector((f1, 9))
     np.testing.assert_array_equal(u.val, [1,3]), "Positive instantiation failed"
     J, order = u.get_jacobian()
     np.testing.assert_array_equal(J, [[1, 0], [0, 1]]), "Positive instantiation failed"
     np.testing.assert_almost_equal(v.val, [2, 2]), "Positive instantiation failed"
     J, order = v.get_jacobian()
     np.testing.assert_array_equal(J, [[0], [0]]), "Positive instantiation failed"
+    np.testing.assert_array_equal(z.val, [1, 9]), "Positive instantiation failed"
 
 
 def test_instantiation_neg():
