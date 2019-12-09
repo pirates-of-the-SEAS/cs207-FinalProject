@@ -899,7 +899,10 @@ class AutoDiffVector:
         vec_str = "["
 
         for var in self.__auto_diff_variables:
-            vec_str += str(var.get_trace())
+            try:
+                vec_str += str(var.get_trace())
+            except AttributeError:
+                vec_str += str(var)
             vec_str += ','
 
         vec_str = vec_str[:-1]

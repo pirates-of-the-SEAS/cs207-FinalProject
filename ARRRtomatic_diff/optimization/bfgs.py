@@ -41,7 +41,7 @@ def parabola(w):
             ========
             f: an AutoDiff object representing the optimization objective
             order: a list containing the order of the variable names
-        """g
+        """
     x = AutoDiff(name='x', val=w[0])
 
     return x**2
