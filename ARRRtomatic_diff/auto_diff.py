@@ -1,9 +1,12 @@
 """
-This library implements forward mode automatic differentiation for compositions of
-elementary operations. It works by defining an "Auto Diff Variable" class, AutoDiff,
+This library implements forward and reverse mode automatic differentiation
+for compositions of elementary operations.
+It works by defining an "Auto Diff Variable" class, AutoDiff,
 that can be used to construct a computational graph corresponding to a
 composition of functions that produces both the value of the composite function
 and also all of the partial derivatives with respect to its input variables.
+
+There is also an AutoDiffVector class which 
 
 We implement forward mode automatic differentiation through operator overloading
 and defining functions corresponding to the elementary mathematical operations
