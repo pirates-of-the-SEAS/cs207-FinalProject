@@ -57,18 +57,18 @@ def test_example_loss():
     target, lambdas = opt.example_loss(w0, X, None)
     assert np.allclose(target.val, 0.0004343472)
 
-# def test_sgd():
-#     w0 = np.array([0, 1])
-#     df = pd.read_csv('./data/sgd_example.csv', header=None).T
-#     # df = pd.read_csv('../data/sgd_example.csv', header=None).T
-#     X = df.values
-#     output = opt.do_stochastic_gradient_descent(w0, opt.example_loss, X, num_epochs=25, tol=1e-6,
-#                                                 use_momentum=True,
-#                                                 use_adagrad=False,
-#                                                 use_adam=False,
-#                                                 step_size=0.28) #0.2 works and 40 epochs
-#     np.testing.assert_almost_equal(output, [2.054, 0.04], decimal=2), 'Stochastic gradient descent failed'
-#
+def test_sgd():
+    w0 = np.array([0, 1])
+    df = pd.read_csv('./data/sgd_example.csv', header=None).T
+    # df = pd.read_csv('../data/sgd_example.csv', header=None).T
+    X = df.values
+    output = opt.do_stochastic_gradient_descent(w0, opt.example_loss, X, num_epochs=25, tol=1e-6,
+                                                use_momentum=True,
+                                                use_adagrad=False,
+                                                use_adam=False,
+                                                step_size=0.28) #0.2 works and 40 epochs
+    np.testing.assert_almost_equal(output, [2.054, 0.04], decimal=2), 'Stochastic gradient descent failed'
+
 
 ### IS THE DESCRIPTION OF THIS FUNCTION CORRECT IN THE optimization FOLDER????
 ### SEEMS THAT F MAY NOT RETURN VALUE AND &&&& AND &&& DERIVATIVE ???
