@@ -34,7 +34,7 @@ def test_euler():
     np.testing.assert_array_almost_equal(J, [[1, 0], [0, 20.085537]]), "Euler's number failed"
     np.testing.assert_array_almost_equal(ad.exp(v), [1, 0.04978706836786395]), "Euler's number failed"
     J, order = (ad.exp(v)).get_jacobian()
-    np.testing.assert_array_equal(J, [[-1, 0], [0, -0.049787]]), "Euler's number failed"
+    np.testing.assert_array_almost_equal(J, [[-1, 0], [0, -0.049787]]), "Euler's number failed"
 
 
 def test_log():
