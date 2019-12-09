@@ -78,11 +78,26 @@ def test_bfgs_vector():
     bfgs_output = opt.do_bfgs(w0, opt.rosenbrock)
     np.testing.assert_almost_equal(bfgs_output, [1, 1]), 'BFGS vector failed'
 
-### LARGE VARIANCE IN OUTPUT
 def test_levenberg_marquardt():
     X, y = opt.generate_nonlinear_lsq_data()
     b0 = np.array([0.5, 0.5])
     r = opt.beacon_resids(b0, X, y)
-    result_lm = opt.do_levenberg_marquardt(b0, r, X, y)
+    result_lm = opt.do_levenberg_marquardt(b0, r, X, y, tol=1e-10, max_iter=6000)
+    np.testing.assert_almost_equal(result_lm, [0.7, 0.4], decimal=1), 'Levenberg-Marquardt failed'
+
+def test_levenberg_marquardt_verbose():
+    X, y = opt.generate_nonlinear_lsq_data()
+    b0 = np.array([0.5, 0.5])
+    r = opt.beacon_resids(b0, X, y)
+    result_lm = opt.do_levenberg_marquardt(b0, r, X, y, tol=1e-10, max_iter=6000, verbose=1)
     np.testing.assert_almost_equal(result_lm, [0.744902, 0.362923], decimal=1), 'Levenberg-Marquardt failed'
 
+def test_levenberg_marquardt_junk():
+    X, y = opt.generate_nonlinear_lsq_data()
+    b0 = np.array(["dfsd", 0.5])
+    try:
+        r = opt.beacon_resids(b0, X, y)
+        result_lm = opt.do_levenberg_marquardt(b0, r, X, y, tol=1e-10, max_iter=6000, verbose=1)
+        np.testing.assert_almost_equal(result_lm, [0.744902, 0.362923], decimal=1), 'Levenberg-Marquardt failed'
+    except TypeError:
+        print("Caught error as expected")
