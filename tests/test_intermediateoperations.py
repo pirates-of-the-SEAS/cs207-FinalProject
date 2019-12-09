@@ -19,7 +19,7 @@ def test_sqrt():
         print("Caught error as expected")
 
 
-def test_Euler():
+def test_euler():
     x = AutoDiff(name='x', val=3)
     y = AutoDiff(name='y', val=0)
     z = AutoDiff(name='z', val=-0.34020)
