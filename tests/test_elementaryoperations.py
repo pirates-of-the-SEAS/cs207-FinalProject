@@ -96,6 +96,22 @@ def test_divide():
         print("Caught error as expected")
 
 
+def test_composition():
+    x = AutoDiff(name='x', val=2)
+    y = AutoDiff(name='y', val=-5)
+    z = AutoDiff(name='z', val=0)
+    q = AutoDiff(name='b0', val="string")
+    assert ((y + x) * y).trace['val'] == 15, 'Composition failed'
+    assert ((y + x) * y * y).trace['d_x'] == 25, 'Composition failed'
+    assert ((y + x) * y * y).trace['d_y'] == 55, 'Composition failed'
+    assert ((y - x) * y).trace['val'] == 35, 'Composition failed'
+    assert ((y - x) * y * y).trace['d_x'] == -25, 'Composition failed'
+    assert ((y - x) * y * y).trace['d_y'] == 95, 'Composition failed'
+    try:
+        assert ((y - x) * y * y)/z == 0
+    except ZeroDivisionError:
+        print("Caught Zero Division Error")
+
 def test_exponentiation():
     x = AutoDiff(name='x', val=3)
     y = AutoDiff(name='y', val=0)
