@@ -7,6 +7,7 @@ composition of functions that produces both the value of the composite function
 and also all of the partial derivatives with respect to its input variables.
 
 There is also an AutoDiffVector class which is a collection of AutoDiff
+variables and the analagous AutoDiffRev and AutoDiffVector. 
 
 We implement forward mode automatic differentiation through operator overloading
 and defining functions corresponding to the elementary mathematical operations
@@ -37,6 +38,16 @@ For vector input functions, we maintain the gradient with respects to the inputs
 
 >>> print(sin(x**2)/y + exp(z))
 {'val': 0.2558463109887422, 'd_y': -0.10302962131043915, 'd_z': 0.049787068367863944, 'd_x': -2.7333907856540307}
+
+AutoDiffVector objects can be created like sorted
+>>> x = AutoDiff(name='x', val=1)
+>>> y = AutoDiff(name='y', val=3)
+>>> x
+AutoDiff(names_init_vals={'x': 1}, trace="{'val': 1, 'd_x': 1}")
+>>> y
+AutoDiff(names_init_vals={'y': 3}, trace="{'val': 3, 'd_y': 1}")
+>>> u = AutoDiffVector([y, -x])
+>>> v = AutoDiffVector([x**2, y])
 """
 
 import math
@@ -61,7 +72,7 @@ class AutoDiff:
     2. A call from inside a function corresponding to an elementary operation,
         in which case the trace is assumed to have been pre-computed and
         the arguments are 'trace' and 'name'. 'name' in this case is a
-        set of variable names.
+        dictionary mapping variable name to initial values
 
     Different AutoDiff objects can be combined through binary operations and
     the gradients are intelligently combined and updated, as long as the
@@ -95,7 +106,7 @@ class AutoDiff:
 
         EXAMPLES CONTEXT 2:
         =========
-        >>> x = AutoDiff(trace={'val': 3, 'd_x': 4, 'd_y': 2}, name=set(('x', 'y')))
+        >>> x = AutoDiff(trace={'val': 3, 'd_x': 4, 'd_y': 2}, name={'x': 1, 'y': 2})
         >>> print(x)
         {'val': 3, 'd_x': 4, 'd_y': 2}
         """
@@ -140,8 +151,21 @@ class AutoDiff:
 
     @staticmethod
     def __merge_names_init_vals(d1, d2):
+        """Combines two dictionaries mapping variable names to initial values
+        and raises an exception if an inconsistency is found. 
+            INPUTS
+            =======
+            d1: the first dictionary
+            d2: the second dictionary
+
+            RETURNS
+            ========
+            a combined dictionary if all initial values are consistent. 
+
+        """
         intersection = d1.keys() & d2
 
+        # verify that the values for keys appearing in both dictionaries are the same
         for name in intersection:
             val1 = d1[name]
             val2 = d2[name]
@@ -149,6 +173,7 @@ class AutoDiff:
                 raise Exception("Variable '{}' appears with different values {} and {}".format(
                     name, val1, val2))
 
+        # if they are, return a combined dictionary
         return dict(d1, **d2)
 
     def copy(self):
@@ -156,18 +181,35 @@ class AutoDiff:
                         trace=self.trace)
 
     def get_trace(self):
+        """Returns the AutoDiff's trace dictionary"""
         return self.trace
 
     def get_names_init_vals(self):
+        """Returns the dictionary containing the names and initial values of
+        all of the variables used in the AutoDiff object"""
         return self.names_init_vals
 
     def get_named_variables(self):
+        """returns a set containing all of the named variables used in the AutoDiff object"""
         return set(self.names_init_vals.keys())
 
     def get_value(self):
+        """returns the current value of the function"""
         return self.trace['val']
 
     def get_gradient(self, order=None):
+        """Returns a 1D numpy array containing the gradient values as well as the order
+        of the variables
+            INPUTS
+            =======
+            order: the order in which the gradient values should be returned
+
+            RETURNS
+            ========
+            g: a 1D numpy array containing the gradinet values
+            order: a list containing the variable order. defaults to alphabetical order.
+
+        """
 
         g = np.zeros(len(self.names_init_vals))
 
@@ -207,7 +249,6 @@ class AutoDiff:
             RETURNS
             ========
             an AutoDiff object with the combined values and gradients
-
         """
 
         names_init_vals = self.get_names_init_vals()
@@ -216,19 +257,24 @@ class AutoDiff:
         other_trace = other.get_trace()
         trace = self.get_trace()
 
+        # enforce consistency among the initial values
         combined_names_init_vals = AutoDiff.__merge_names_init_vals(
             names_init_vals, other_names_init_vals)
 
         val = trace['val'] 
         other_val = other_trace['val']
 
+        # compute the updated value based on the binary operation
         updated_val = update_vals(val, other_val)
 
+        # is typically thrown when an imaginary number appears or there's a
+        # division by 0
         if np.isnan(updated_val):
             raise ValueError
 
         combined_trace = {'val': updated_val}
 
+        # update each partial derivative
         for var in combined_names_init_vals.keys():
             try:
                 d1 = trace[f'd_{var}']
@@ -274,7 +320,8 @@ class AutoDiff:
         updated_trace.update(trace)
 
         val = updated_trace['val']
-         
+
+        # compute the updated value based on the binary operation
         updated_val = update_val(val, num)
 
         if np.isnan(updated_val):
@@ -282,6 +329,7 @@ class AutoDiff:
 
          
         updated_trace['val'] = updated_val
+        # update each partial derivative
         for var in names_init_vals:
             updated_deriv = update_deriv(val,
                                          num,
@@ -549,28 +597,23 @@ class AutoDiff:
 
 
 class AutoDiffVector:
-    """
+    """AutoDiffVector class that takes as input an iterable of AutoDiff objects
+  or numeric primitives and keeps track of all named variables. Is largely a
+  convenience interface for defining vector valued functions, performing
+  bradcasting operations on vector valued functions, and computing the
+  Jacobian. In the current implementation, it is not intended for the user
+  to be able to change the number of elements in the vector. 
+
     """
     def __init__(self, auto_diff_variables):
-        """
-        Use the column vector convention
+        """Constructor for AutoDiffVector. 
 
-        assumes input is collection of auto diff variables and scalars
+            INPUTS
+            =======
+            num: auto_diff_variables, an iterable of AutoDiff objects and
+                  numeric primitives
 
-        use numpy input style which assumes input is a collection
-
-        edge cases:
-
-        jacobian for when all ipnuts are numeric primitives
-
-        scalar auto diff variable provided
-        empty list provided
-=
-        scalar operations
-        vector operations
-        hadamard
-
-        implement iterable
+            
         """
 
         # maintain variable names
@@ -582,6 +625,8 @@ class AutoDiffVector:
 
             self.__auto_diff_variables = list(auto_diff_variables)
 
+
+            # get all of the variable names for each AutoDiff object
             self.named_variables = set({})
             for ad in auto_diff_variables:
                 try:
@@ -635,11 +680,16 @@ class AutoDiffVector:
 
         
         for i, ad in enumerate(self.__auto_diff_variables):
-            for j, var in enumerate(order):
-                try:
-                    J[i, j] = ad.get_trace()[f'd_{var}']
-                except:
-                    pass
+            print(i, ad)
+            try:
+                for j, var in enumerate(order):
+                    try:
+                        J[i, j] = ad.get_trace()[f'd_{var}']
+                    except:
+                        pass
+            except:
+                pass
+
 
         if num_vars == 0:
             order = ['x']
