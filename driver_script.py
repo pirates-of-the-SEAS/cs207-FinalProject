@@ -32,7 +32,7 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
 if __name__ == '__main__':
     u = AutoDiffVector([2, 2])
 
-    print(u.get_jacobian())
+    print(u.get_values())
 
 
     # df = pd.read_csv('./data/sgd_example.csv', header=None).T

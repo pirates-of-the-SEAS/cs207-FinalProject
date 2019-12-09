@@ -612,7 +612,6 @@ class AutoDiffVector:
             =======
             num: auto_diff_variables, an iterable of AutoDiff objects and
                   numeric primitives
-
             
         """
 
@@ -622,6 +621,7 @@ class AutoDiffVector:
 
             if self.num_funcs == 0:
                 raise Exception("AutoDiffVector cannot be empty")
+
 
             self.__auto_diff_variables = list(auto_diff_variables)
 
@@ -648,6 +648,7 @@ class AutoDiffVector:
         return self.copy()
 
     def __next__(self):
+        """iterable with respect to auto diff variables"""
         if self.idx < self.num_funcs:
             result = self.__auto_diff_variables[self.idx]
             self.idx += 1
@@ -656,16 +657,24 @@ class AutoDiffVector:
             raise StopIteration
 
     def get_named_variables(self):
+        """return set of all named variables in all AutoDiff objects making up the
+        AutoDiffVector"""
         return self.named_variables
 
     def get_values(self):
         """
-        gets val for each
+        returns a 1D numpy array containing all values of all AutoDiff objects
+
         """
-        try:
-            return np.array([ad.trace['val'] for ad in self.__auto_diff_variables] )
-        except AttributeError:
-            return np.array(self.__auto_diff_variables)
+        results = []
+
+        for ad in self.__auto_diff_variables:
+            try:
+                results.append(ad.trace['val'])
+            except  AttributeError:
+                results.append(ad)
+
+        return np.array(results)
 
     def get_jacobian(self, order=None):
         num_vars = len(self.named_variables)
