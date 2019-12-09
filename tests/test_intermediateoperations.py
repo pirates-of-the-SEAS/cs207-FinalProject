@@ -58,3 +58,16 @@ def test_composition():
                        atol=1e-12) is True, "Composition failed"
     assert np.allclose(ad.exp(ad.sin(x) ** 2).trace['d_x'], 1.75426722676864073577,
                        atol=1e-12) is True, "Composition failed"
+
+
+def test_root():
+    x = AutoDiff(name='x', val=144)
+    result = ad.root(x, 4)
+    assert np.allclose(result.trace['val'], 144**(1/4)) is True, "Root failed"
+    assert np.allclose(result.trace['d_x'], 0.006014065304058602) is True, "Root failed"
+
+
+def test_logistic():
+    x = AutoDiff(name='x', val=3)
+    assert np.allclose(ad.logistic(x).trace['val'], 1/(1 + np.exp(-3))) is True, "Logistic failed"
+    assert np.allclose(ad.logistic(x).trace['d_x'], 0.045176659730912144) is True, "Logistic failed"
