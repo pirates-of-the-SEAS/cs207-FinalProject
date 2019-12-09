@@ -30,11 +30,15 @@ def test_gradientdescent_scalar():
     except ValueError:
         print("Caught error as expected")
     try:
+        opt.do_gradient_descent(w0, pb, momentum=-3, max_iter=2000, step_size=0.001)
+    except ValueError:
+        print("Caught error as expected")
+    try:
         opt.do_gradient_descent(w0, pb, adam_b1=50, max_iter=2000, step_size=0.001)
     except ValueError:
         print("Caught error as expected")
     try:
-        opt.do_gradient_descent(w0, pb, adam_b1=0, max_iter=2000, step_size=0.001)
+        opt.do_gradient_descent(w0, pb, adam_b2=0, max_iter=2000, step_size=0.001)
     except ValueError:
         print("Caught error as expected")
     try:
