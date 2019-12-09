@@ -1,9 +1,12 @@
 """
-This library implements forward mode automatic differentiation for compositions of
-elementary operations. It works by defining an "Auto Diff Variable" class, AutoDiff,
+This library implements forward and reverse mode automatic differentiation
+for compositions of elementary operations.
+It works by defining an "Auto Diff Variable" class, AutoDiff,
 that can be used to construct a computational graph corresponding to a
 composition of functions that produces both the value of the composite function
 and also all of the partial derivatives with respect to its input variables.
+
+There is also an AutoDiffVector class which is a collection of AutoDiff
 
 We implement forward mode automatic differentiation through operator overloading
 and defining functions corresponding to the elementary mathematical operations
@@ -614,7 +617,10 @@ class AutoDiffVector:
         """
         gets val for each
         """
-        return np.array([ad.trace['val'] for ad in self.__auto_diff_variables] )
+        try:
+            return np.array([ad.trace['val'] for ad in self.__auto_diff_variables] )
+        except AttributeError:
+            return np.array(self.__auto_diff_variables)
 
     def get_jacobian(self, order=None):
         num_vars = len(self.named_variables)
@@ -1115,7 +1121,7 @@ class AutoDiffRev:
         updated_val = update_val(val, num)
 
         if np.isnan(updated_val):
-            raise ValueErrr
+            raise ValueError
          
         updated_trace['val'] = updated_val
         for var in named_variables:
