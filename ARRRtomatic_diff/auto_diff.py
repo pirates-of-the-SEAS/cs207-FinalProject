@@ -972,36 +972,54 @@ class AutoDiffRev:
  
         # context 1: handle initial construction of an auto diff toy object 
         if 'val' in kwargs:
-            self.init_variable = True
-
-
             self.trace = {
                 'val': kwargs['val']
             }
 
             if 'name' in kwargs:
-                self.named_variables = set((kwargs['name'],))
+                self.names_init_vals = {
+                    kwargs['name']: kwargs['val']
+                }
+                self.name = kwargs['name']
+
                 self.trace['d_{}'.format(kwargs['name'])] = 1
             else:
                 raise ValueError("variable name not specified")
 
         # context 2: construct object assuming trace has been pre-computed
         elif 'trace' in kwargs:
-            self.init_variable = False
-
-
             self.trace = kwargs['trace']
 
-            if 'name' in kwargs:
-                self.named_variables = kwargs['name']
+            if 'names_init_vals' in kwargs:
+                self.names_init_vals = kwargs['names_init_vals']
             else:
                 raise ValueError("named variables not specified")
+
+    @staticmethod
+    def __merge_names_init_vals(d1, d2):
+        intersection = d1.keys() & d2
+
+        for name in intersection:
+            val1 = d1[name]
+            val2 = d2[name]
+            if val1 != val2:
+                raise Exception("Variable '{}' appears with different values {} and {}".format(
+                    name, val1, val2))
+
+        return dict(d1, **d2)
+
+    def copy(self):
+        return AutoDiff(names_init_vals=self.names_init_vals,
+                        trace=self.trace)
+
+    def get_names_init_vals(self):
+        return self.names_init_vals
 
     def get_trace(self):
         return self.trace
 
     def get_named_variables(self):
-        return self.named_variables
+        return set(self.names_init_vals.keys())
 
     def get_value(self):
         return self.trace['val']
@@ -1248,8 +1266,8 @@ class AutoDiffRev:
         return bool(self.get_trace()['val'])
 
     def __repr__(self):
-        return """AutoDiffRev(name={}, trace={})""".format(
-                                repr(self.named_variables),
+        return """AutoDiffRev(names_init_vals={}, trace={})""".format(
+                                repr(self.names_init_vals),
                                 repr(repr(self.trace).strip('"'))
                             )
 
