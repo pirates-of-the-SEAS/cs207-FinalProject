@@ -302,22 +302,6 @@ def test_shift():
     np.testing.assert_array_equal(3 << u, [24, 48]), "Shift failed"
 
 
-# def test_getitem():
-#     f1 = AutoDiff(name='x', val=3)
-#     f2 = AutoDiff(name='y', val=4)
-#     u = AutoDiffVector((f1, f2))
-#     assert u['val'] == 13, "Get item failed"
-#     assert u['d_x'] == 1, "Get item failed"
-
-
-# def test_setitem():
-#     x = AutoDiff(name='x', val=13)
-#     x['val'] = 2
-#     assert x['val'] == 2, "Set item failed"
-#     x['d_x'] = 24.7
-#     assert x['d_x'] == 24.7, "Set item failed"
-
-
 def test_repr():
     v = AutoDiffVector([2,2])
     assert repr(v) == """AutoDiffVector(names_init_vals=[2,2]""", "Repr failed"
