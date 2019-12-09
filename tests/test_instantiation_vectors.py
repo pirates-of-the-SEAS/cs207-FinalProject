@@ -45,16 +45,16 @@ import numpy as np
 #         AutoDiffVector()
 #     except ValueError:
 #         print("Caught error as expected")
-
-
-def test_double_instantiation():
-    try:
-        AutoDiffVector(name='x', val=3, trace=3)
-    except ValueError:
-        print("Caught error as expected")
-
-def test_nameless_instantiation():
-    try:
-        AutoDiffVector(val=3)
-    except ValueError:
-        print("Caught error as expected")
+#
+#
+# def test_double_instantiation():
+#     try:
+#         AutoDiffVector(name='x', val=3, trace=3)
+#     except ValueError:
+#         print("Caught error as expected")
+#
+# def test_nameless_instantiation():
+#     try:
+#         AutoDiffVector(val=3)
+#     except ValueError:
+#         print("Caught error as expected")
