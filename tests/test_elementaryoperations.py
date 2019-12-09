@@ -318,12 +318,6 @@ def test_floor():
     assert math.floor(x) == 10, "Floor failed"
 
 
-def test_ceil():
-    x = AutoDiff(name='x', val=10.9)
-    assert 11 == math.floor(x), "Floor failed"
-    assert math.floor(x) == 11, "Floor failed"
-
-
 def test_trunc():
     x = AutoDiff(name='x', val=-4.343)
     assert -4 == math.trunc(x), "Truncate failed"
