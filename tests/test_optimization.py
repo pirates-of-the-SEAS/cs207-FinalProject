@@ -1,6 +1,7 @@
 from ARRRtomatic_diff import AutoDiff, AutoDiffVector
 from ARRRtomatic_diff import optimization as opt
 from ARRRtomatic_diff.optimization.gradient_descent import rosenbrock as rb
+from ARRRtomatic_diff.optimization.gradient_descent import parabola as pb
 import math
 import numpy as np
 import scipy
@@ -11,12 +12,41 @@ def test_rosenbrock():
     ros, list = opt.rosenbrock(w)
     np.testing.assert_array_equal(ros.val, 4,), 'Rosenbrock function failed'
 
+def test_gradientdescent_scalar():
+    w0 = -87
+    w2 = 5
+    output = opt.do_gradient_descent(w0, pb, max_iter=1000, step_size=0.01)
+    np.testing.assert_almost_equal(output, 0, decimal=2), 'Gradient descent failed'
+    output = opt.do_gradient_descent(w0, pb, use_momentum=True, max_iter=2000, step_size=0.001)
+    np.testing.assert_almost_equal(output, 0, decimal=3), 'Gradient descent with momentum failed'
+    output = opt.do_gradient_descent(w0, pb, use_line_search=True, max_iter=2000, step_size=0.001)
+    np.testing.assert_almost_equal(output, 0, decimal=3), 'Gradient descent with line search failed'
+    output = opt.do_gradient_descent(w0, pb, use_adagrad=True, max_iter=3000, step_size=10)
+    np.testing.assert_almost_equal(output, 0, decimal=3), 'Gradient descent with adagrad failed'
+    output = opt.do_gradient_descent(w0, pb, use_adam=True, max_iter=2000, step_size=19)
+    np.testing.assert_almost_equal(output, 0, decimal=3), 'Gradient descent with adam failed'
+    try:
+        opt.do_gradient_descent(w0, pb, use_momentum=True, max_iter=2000, step_size=0.001)
+    except ValueError:
+        print("Caught error as expected")
+    try:
+        opt.do_gradient_descent(w0, pb, adam_b1=50, max_iter=2000, step_size=0.001)
+    except ValueError:
+        print("Caught error as expected")
+    try:
+        opt.do_gradient_descent(w0, pb, adam_b1=0, max_iter=2000, step_size=0.001)
+    except ValueError:
+        print("Caught error as expected")
+    try:
+        opt.do_gradient_descent(w0, pb, use_line_search=True, use_momentum=True, step_size=0.001)
+    except Exception:
+        print("Caught error as expected")
 
-def test_gradientdescent():
+def test_gradientdescent_vector():
     w0 = np.array([-1, 1])
     output = opt.do_gradient_descent(w0, rb, max_iter=11000, step_size=0.001)
     np.testing.assert_almost_equal(output, [1, 1], decimal=2), 'Gradient descent failed'
-    output = opt.do_gradient_descent(w0, opt.rosenbrock, use_momentum=True, max_iter=2000, step_size=0.001)
+    output = opt.do_gradient_descent(w0, rb, use_momentum=True, max_iter=2000, step_size=0.001)
     np.testing.assert_almost_equal(output, [1, 1], decimal=3), 'Gradient descent with momentum failed'
 
 def test_example_loss():
