@@ -95,8 +95,7 @@ def do_newtons_method(x0, f, tol=1e-8, max_iter=2000, verbose=0):
             val, J, step = __newton_step_multivariate(ad, order)
 
             if np.linalg.norm(val, 2) <= tol:
-                if verbose > 0:
-                    print(f"Converged to {x} after {num_iters} iterations")
+                print(f"Converged to {x} after {num_iters} iterations")
 
                 break
 
