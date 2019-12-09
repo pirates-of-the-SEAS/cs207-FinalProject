@@ -98,11 +98,27 @@ def test_sgd_adam():
     # df = pd.read_csv('../data/sgd_example.csv', header=None).T
     X = df.values
     output = opt.do_stochastic_gradient_descent(w0, opt.example_loss, X, num_epochs=25, tol=1e-6,
+                                                verbose=1,
                                                 use_momentum=False,
                                                 use_adagrad=False,
                                                 use_adam=True,
                                                 step_size=0.48)
     np.testing.assert_almost_equal(output, [2.05e+00, -2.01e-03], decimal=2), 'Stochastic gradient descent with adam failed'
+
+
+def test_sgd_unaltered():
+    w0 = np.array([0, 1])
+    np.random.seed(1)
+    random.seed(1)
+    df = pd.read_csv('./data/sgd_example.csv', header=None).T
+    # df = pd.read_csv('../data/sgd_example.csv', header=None).T
+    X = df.values
+    output = opt.do_stochastic_gradient_descent(w0, opt.example_loss, X, num_epochs=1, tol=1e-6,
+                                                use_momentum=False,
+                                                use_adagrad=False,
+                                                use_adam=False,
+                                                step_size=0.28)
+    np.testing.assert_almost_equal(output, [0.031, 0.9997], decimal=1), 'Stochastic gradient descent with momentum failed'
 
 
 def test_newtons_method_scalar():
