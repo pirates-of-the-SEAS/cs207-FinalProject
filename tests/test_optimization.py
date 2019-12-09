@@ -70,8 +70,15 @@ def test_newtons_method_junk():
 
 def test_bfgs_scalar():
     bfgs_output = opt.do_bfgs(0, opt.example_scalar, tol=1e-8, verbose=0)
-    print("RESULT", bfgs_output)
     assert np.allclose(bfgs_output, -1.5707963), 'BFGS scalar failed'
+
+def test_bfgs_scalar_parabola():
+    bfgs_output = opt.do_bfgs(-953.4, opt.parabola, tol=1e-8, max_iter=2000, verbose=0)
+    assert np.allclose(bfgs_output, 0), 'BFGS scalar failed'
+
+def test_bfgs_scalar_nonconverge():
+    bfgs_output = opt.do_bfgs(0.8, opt.example_scalar, tol=1e-8, max_iter=3, verbose=1)
+    assert np.allclose(bfgs_output, 1.42417872), 'BFGS scalar failed'
 
 def test_bfgs_vector():
     w0 = np.array([-1, 1])
