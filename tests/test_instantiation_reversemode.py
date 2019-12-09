@@ -38,6 +38,7 @@ def test_double_instantiation():
     except ValueError:
         print("Caught error as expected")
 
+
 def test_nameless_instantiation():
     try:
         x = AutoDiffRev(val=3)
