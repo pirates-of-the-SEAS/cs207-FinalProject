@@ -4,7 +4,6 @@ import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
 
 from ARRRtomatic_diff.optimization import *
-from ARRRtomatic_diff import AutoDiff, AutoDiffVector
 
 def rosen(x, y):
     term1 = 100 * (y - x ** 2) ** 2

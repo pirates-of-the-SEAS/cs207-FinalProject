@@ -30,16 +30,9 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
 
 
 if __name__ == '__main__':
-    X, d = generate_nonlinear_lsq_data(x_true=0.7, y_true=0.37,
-                                   x_data=None, y_data=None)
+    u = AutoDiffVector([2, 2])
 
-    
-    w = do_levenberg_marquardt([0.6, 0.4], beacon_resids, X, d,
-                               mu=None,
-                               S=None,
-                               tol=1e-8, max_iter=2000, verbose=0)
-
-    print(w)
+    print(u.get_values())
 
 
     # df = pd.read_csv('./data/sgd_example.csv', header=None).T
