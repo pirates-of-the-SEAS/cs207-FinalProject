@@ -5,7 +5,7 @@ class AutoDiffRev:
     
     Assumes that the AutoDiffRev object will be initialized in one of two contexts,
     and the argument to the constructor will change depending on the context
-    in which the AutoDiff object is created. The user should only ever
+    in which the AutoDiffRev object is created. The user should only ever
     interact with the first context.
 
     The contexts are: 
@@ -131,7 +131,7 @@ class AutoDiffRev:
         return self.names_init_vals
 
     def get_named_variables(self):
-        """returns a set containing all of the named variables used in the AutoDiff object"""
+        """returns a set containing all of the named variables used in the AutoDiffRev object"""
         return set(self.names_init_vals.keys())
 
     def get_value(self):
@@ -217,7 +217,7 @@ class AutoDiffRev:
 
             RETURNS
             ========
-            an AutoDiff object with the combined values and gradients
+            an AutoDiffRev object with the combined values and gradients
         """
         names_init_vals = self.get_names_init_vals()
         other_names_init_vals = other.get_names_init_vals()
