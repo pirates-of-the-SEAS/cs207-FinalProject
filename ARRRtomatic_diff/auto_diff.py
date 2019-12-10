@@ -159,7 +159,7 @@ class AutoDiff:
 
 
     @staticmethod
-    def __merge_names_init_vals(d1, d2):
+    def merge_names_init_vals(d1, d2):
         """Combines two dictionaries mapping variable names to initial values
         and raises an exception if an inconsistency is found. 
             INPUTS
@@ -220,13 +220,18 @@ class AutoDiff:
 
         """
 
-        g = np.zeros(len(self.names_init_vals))
-
         if order is None:
             order = sorted(self.get_named_variables())
 
+        g = np.zeros(len(order))
+
+
         for i, var in enumerate(order):
-            g[i] = self.trace[f'd_{var}']
+            try:
+                g[i] = self.trace[f'd_{var}']
+            except KeyError:
+                pass
+
 
         return g, order
 
@@ -267,7 +272,7 @@ class AutoDiff:
         trace = self.get_trace()
 
         # enforce consistency among the initial values
-        combined_names_init_vals = AutoDiff.__merge_names_init_vals(
+        combined_names_init_vals = AutoDiff.merge_names_init_vals(
             names_init_vals, other_names_init_vals)
 
         val = trace['val'] 
@@ -715,9 +720,19 @@ class AutoDiffVector:
 
     @staticmethod
     def __verify_valid_input(ads):
+        names_init_vals = {}
         for ad in ads:
             if isinstance(ad, AutoDiffRev):
                 raise ValueError("Cannot use AutoDiffRev with AutoDiffVector")
+
+            try:
+                ad_names_init_vals = ad.get_names_init_vals()
+            except AttributeError:
+                continue
+            
+
+            names_init_vals = AutoDiff.merge_names_init_vals(names_init_vals,
+                                           ad_names_init_vals)
 
 
     def __len__(self):
@@ -1089,6 +1104,8 @@ class AutoDiffRev:
     def __init__(self, val, name=None, breadcrumbs=None,
                  root_vars=None, names_init_vals=None):
 
+        self.UID = AutoDiffRev.generate_signature()
+
         # name
         self.name = name
         if names_init_vals is None:
@@ -1115,14 +1132,15 @@ class AutoDiffRev:
             self.breadcrumbs = breadcrumbs
             
         if root_vars is None:
-            self.root_vars = {name: self}
+            self.root_vars = {name: set((self,))}
         else:
-            self.root_vars = root_vars 
+            self.root_vars = root_vars
 
-
+    def __hash__(self):
+        return hash(self.UID)
 
     @staticmethod
-    def __merge_names_init_vals(d1, d2):
+    def merge_names_init_vals(d1, d2):
         """Combines two dictionaries mapping variable names to initial values
         and raises an exception if an inconsistency is found. 
             INPUTS
@@ -1148,10 +1166,51 @@ class AutoDiffRev:
         # if they are, return a combined dictionary
         return dict(d1, **d2)
 
+    @staticmethod
+    def __merge_root_vars(d1, d2):
+        """Combines two dictionaries mapping variable names to initial values
+        and raises an exception if an inconsistency is found. 
+            INPUTS
+            =======
+            d1: the first dictionary
+            d2: the second dictionary
+
+            RETURNS
+            ========
+            a combined dictionary if all initial values are consistent. 
+
+        """
+        d1_keys = set(d1.keys())
+        d2_keys = set(d2.keys())
+
+        all_keys = d1_keys | d2_keys
+
+        d3 = {}
+
+        for key in all_keys:
+            try:
+                set1 = d1[key]
+            except:
+                set1 = set([])
+
+            try:
+                set2 = d2[key]
+            except:
+                set2 = set([])
+
+            combined_set = set1 | set2
+
+            d3[key] = combined_set
+       
+        return d3
+
+    def get_root_vars(self):
+        return self.root_vars.copy()
+
     def get_names_init_vals(self):
         """Returns the dictionary containing the names and initial values of
         all of the variables used in the AutoDiff object"""
-        return self.names_init_vals
+        return self.names_init_vals.copy()
 
     def get_named_variables(self):
         """returns a set containing all of the named variables used in the AutoDiff object"""
@@ -1160,8 +1219,6 @@ class AutoDiffRev:
     def get_value(self):
         """returns the current value of the function"""
         return self.val
-
-
 
     @property
     def variables(self):
@@ -1205,7 +1262,14 @@ class AutoDiffRev:
         self.__end = True
 
         for varname in order:
-            result.append(self.root_vars[varname].__partial(self.breadcrumbs))
+            s = 0
+            try:
+                for adr in self.root_vars[varname]:
+                    s += adr.__partial(self.breadcrumbs)
+            except KeyError:
+                pass
+
+            result.append(s)
         
         self.__end = False
             
@@ -1221,7 +1285,7 @@ class AutoDiffRev:
         other_names_init_vals = other.get_names_init_vals()
 
         # verify that all variables have the same initial value
-        updated_names_init_vals = AutoDiffRev.__merge_names_init_vals(
+        updated_names_init_vals = AutoDiffRev.merge_names_init_vals(
             names_init_vals, other_names_init_vals)
 
         val = self.get_value()
@@ -1244,9 +1308,12 @@ class AutoDiffRev:
                               set([sig2])     
         
         # keep track of root variables
-        updated_root_vars = {}
-        updated_root_vars.update(self.root_vars)
-        updated_root_vars.update(other.root_vars)
+
+        root_vars = self.get_root_vars()
+        other_root_vars = other.get_root_vars()
+        
+        updated_root_vars = AutoDiffRev.__merge_root_vars(root_vars,
+                                                          other_root_vars)
 
         # keep track of paths
         z = AutoDiffRev(val=updated_val,
@@ -1278,7 +1345,7 @@ class AutoDiffRev:
         updated_breadcrumbs = self.breadcrumbs | set([sig])     
         
         # keep track of root variables
-        updated_root_vars = self.root_vars.copy()
+        updated_root_vars = self.get_root_vars()
 
         # keep track of paths
         z = AutoDiffRev(val=updated_val,
@@ -1346,11 +1413,12 @@ class AutoDiffRev:
         return (dy*x - y*dx)/x**2
 
     def __add__(self, other):
-        # try:
-        #     iter(other)
-        #     return AutoDiffVector.combine(self, other, lambda x,y:x+y)
-        # except:
-        #     pas
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(self, other, lambda x,y:x+y)
+        except:
+            pass
+
         try:
             return self.__update_binary_autodiff(other,
                                                  AutoDiffRev.__add,
@@ -1371,11 +1439,11 @@ class AutoDiffRev:
         return other + -self
 
     def __mul__(self, other):
-        # try:
-        #     iter(other)
-        #     return AutoDiffVector.combine(self, other, lambda x,y:x*y)
-        # except:
-        #     pass
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(self, other, lambda x,y:x*y)
+        except:
+            pass
 
         try:
             return self.__update_binary_autodiff(other,
@@ -1393,11 +1461,11 @@ class AutoDiffRev:
         return self * other
 
     def __pow__(self, other):
-        # try:
-        #     iter(other)
-        #     return AutoDiffVector.combine(self, other, lambda x,y:x**y)
-        # except:
-        #     pass
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(self, other, lambda x,y:x**y)
+        except:
+            pass
 
         
         selfval = self.get_value()
@@ -1415,6 +1483,12 @@ class AutoDiffRev:
                                                 other * selfval**(other-1))
           
     def __rpow__(self, other):
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(other, self, lambda x,y:x**y)
+        except:
+            pass
+
         selfval = self.get_value()
         
         return self.__update_binary_numeric(other,
@@ -1423,6 +1497,12 @@ class AutoDiffRev:
                                                 
 
     def __truediv__(self, other):
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(self, other, lambda x,y:x/y)
+        except:
+            pass
+
         selfval = self.get_value()
         
         try:
@@ -1438,6 +1518,13 @@ class AutoDiffRev:
                                                 1/other)
 
     def __rtruediv__(self, other):
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(other, self, lambda x,y:x/y)
+        except:
+            pass
+
+
         selfval = self.get_value()
         
         return self.__update_binary_numeric(other,
@@ -1634,9 +1721,18 @@ class AutoDiffRevVector:
 
     @staticmethod
     def __verify_valid_input(adrs):
+        names_init_vals = {}
         for adr in adrs:
             if isinstance(adr, AutoDiff):
                 raise ValueError("Cannot use AutoDiff with AutoDiffRevVector")
+
+            try:
+                ad_names_init_vals = adr.get_names_init_vals()
+            except AttributeError:
+                continue
+
+            names_init_vals = AutoDiffRev.merge_names_init_vals(names_init_vals,
+                                           ad_names_init_vals)
 
 
     def __len__(self):
