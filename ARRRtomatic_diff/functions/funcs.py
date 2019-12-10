@@ -22,15 +22,23 @@ def __update_unary(x, operation, doperation):
      unary operation
     """
 
-    # attempt to broadcast uperation to each element of iterable if possible
-    # try:
+    #attempt to broadcast uperation to each element of iterable if possible
+
+    if isinstance(x, AutoDiffVector):
+        results = []
+        for ad in x:
+            results.append(__update_unary(ad, operation, doperation))
+
+        return AutoDiffVector(results)
+
+    # if isinstance(x, AutoDiffRevVector):
+
     #     results = []
     #     for ad in x:
     #         results.append(__update_unary(ad, operation, doperation))
 
-    #     return AutoDiffVector(results)
-    # except TypeError:
-    #     pass
+    #     return AutoDiffRevVector(results)
+
 
     if isinstance(x, AutoDiffRev):
         sig = AutoDiffRev.generate_signature()
@@ -61,7 +69,7 @@ def __update_unary(x, operation, doperation):
         x.children.append((weight, z, sig))
         return z
 
-    try:
+    if isinstance(x, AutoDiff):
         names_init_vals = x.get_names_init_vals()
         named_variables = x.get_named_variables()
         trace = x.get_trace()
@@ -99,10 +107,9 @@ def __update_unary(x, operation, doperation):
                 updated_trace[f'd_{var}'] =  updated_deriv 
             r = AutoDiff(names_init_vals=names_init_vals,
                         trace=updated_trace)
-        return r 
+        return r
 
-    except AttributeError:
-        return operation(x)
+    return operation(x)
 
 
 def _exp(base):

@@ -36,9 +36,8 @@ if __name__ == '__main__':
     x_f = AutoDiff(name='x', val=5)
     y_f = AutoDiff(name='y', val=4)
 
-    a = sin(sin(sin(x_f)))
-
-    b = sin(sin(sin(x)))
+    a = -x_f
+    b = -x 
 
     print(a.get_gradient())
     print(b.get_gradient())
