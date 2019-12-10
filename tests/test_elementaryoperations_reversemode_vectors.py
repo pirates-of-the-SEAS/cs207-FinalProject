@@ -7,6 +7,7 @@ def test_vec_add():
     f1 = AutoDiffRev(name='x', val=-1)
     f2 = AutoDiffRev(name='y', val=3)
     u = AutoDiffRevVector((f1, f2))
+    l = AutoDiffRevVector((f1, f2, f1))
     v = AutoDiffRevVector((-f2, f1))
     w = AutoDiffRevVector([10, 10])
     r = AutoDiffRevVector([-3, -3])
@@ -26,6 +27,10 @@ def test_vec_add():
     np.testing.assert_array_equal((w + r), [7, 7]), "Addition failed"
     J, order = (w + r).get_jacobian()
     np.testing.assert_array_equal(J, [[0], [0]]), "Addition failed"
+    try:
+        u + l
+    except Exception:
+        print("Caught error as expected")
 
 
 def test_vec_subtract():
@@ -321,6 +326,23 @@ def test_or_and():
     np.testing.assert_array_equal(v.__rxor__(3), [1, 1]), "ror failed"
     np.testing.assert_array_equal(v.__rand__(3), [2, 2]), "ror failed"
 
+def test_item():
+    v = AutoDiffRevVector([2, 2])
+    f1 = AutoDiffRev(name='x', val=3.3)
+    f2 = AutoDiffRev(name='y', val=-5.8)
+    u = AutoDiffRevVector((f1, f2))
+    try:
+        v.__delitem__(2)
+    except NotImplementedError:
+        print("Caught error as expected")
+    try:
+        v.__setitem__(2, 4)
+    except NotImplementedError:
+        print("Caught error as expected")
+    try:
+        u.__getitem__(0) == 3, "Get item failed"
+    except AttributeError:
+        print("Caught error as expected")
 
 def test_invert():
     v = AutoDiffRevVector([2, 2])

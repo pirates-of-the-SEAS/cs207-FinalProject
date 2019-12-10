@@ -74,6 +74,7 @@ def test_dotproduct():
     assert u.dot(v) == -24, "Dot product failed"
     assert u.dot(q) == 3, "Dot product failed"
     assert q.dot(u).get_value() == 3, "Dot product failed"
+    assert u.sq_norm().get_value() == 34, "Square norm failed"
     try:
         u.dot(t)
     except Exception:
