@@ -11,7 +11,7 @@ import numpy as np
 
 from ARRRtomatic_diff import (AutoDiff, AutoDiffVector, AutoDiffRev,
                               AutoDiffRevVector)
-from ARRRtomatic_diff.functions import sin, exp, sqrt, log
+from ARRRtomatic_diff.functions import sin, exp, sqrt, log, tan
 from ARRRtomatic_diff.optimization import (do_newtons_method,
                                            example_scalar,
                                            example_multivariate,
@@ -30,13 +30,16 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
 
 
 if __name__ == '__main__':
-    f1 = AutoDiffRev(name='x', val=0)
-    f2 = AutoDiffRev(name='y', val=np.pi/2)
+    f1 = AutoDiffRev(name='x', val=-2)
+    f2 = AutoDiffRev(name='y', val=np.pi/8)
     u = AutoDiffRevVector((f1, f2))
-    v = AutoDiffRevVector([0, np.pi/2])
-    np.testing.assert_array_almost_equal(sin(u).val, [0, 1]), 'Sine failed'
-    J, order = (sin(u)).get_jacobian()
-    np.testing.assert_array_almost_equal(J, [[1, 0], [0, 0]]), 'Sine failed'
+
+
+    v = AutoDiffRevVector([np.pi/2, 0])
+    try:
+        np.testing.assert_array_almost_equal(tan(v).val, [2.18504, 0.414214]), 'Tan failed'
+    except TypeError:
+        print("Caught error as expected")
 
 
 

@@ -1,7 +1,6 @@
 from ARRRtomatic_diff import AutoDiffVector, AutoDiff
 from ARRRtomatic_diff import functions as ad
 import numpy as np
-import math
 
 
 def test_sqrt():

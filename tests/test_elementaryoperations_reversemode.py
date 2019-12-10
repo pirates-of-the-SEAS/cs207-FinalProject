@@ -2,20 +2,24 @@ from ARRRtomatic_diff import AutoDiffRev
 import math
 import numpy as np
 
+
 def test_add():
     x = AutoDiffRev(name='x', val=2)
     y = AutoDiffRev(name='y', val=-5)
     z = AutoDiffRev(name='z', val=0)
     q = AutoDiffRev(name='b0', val="string")
-    assert (x + 1) == 3, 'Addition failed'
-    assert (x + 1).trace['d_x'] == 1, 'Addition failed'
+    assert (x + 1).get_value() == 3, 'Addition failed'
+    g, _ = (x + 1).get_gradient()
+    assert g == [1], 'Addition failed'
     assert (1 + x) == 3, 'Addition failed'
-    assert (1 + x).trace['d_x'] == 1, 'Addition failed'
-    assert (y + x) == -3, 'Addition failed'
-    assert (y + x).trace['d_x'] == 1, 'Addition failed'
-    assert (y + x).trace['d_y'] == 1, 'Addition failed'
-    assert (z + z) == 0, 'Addition failed'
-    assert (z + z).trace['d_z'] == 2, 'Addition failed'
+    g, _ = (1 + x).get_gradient()
+    assert g == [1], "Addition failed"
+    assert (y + x).get_value() == -3, 'Addition failed'
+    g, _ = (y + x).get_gradient()
+    np.testing.assert_array_almost_equal(g, [1, 1]), 'Addition failed'
+    assert (z + z).get_value() == 0, 'Addition failed'
+    g, _ = (z + z).get_gradient()
+    assert g == [2], 'Addition failed'
     try:
         (q + 5)
     except TypeError:
@@ -28,14 +32,17 @@ def test_subtract():
     z = AutoDiffRev(name='z', val=0)
     q = AutoDiffRev(name='b0', val="string")
     assert (x - 1) == 8, 'Subtraction failed'
-    assert (x - 1).trace['d_x'] == 1, 'Subtraction failed'
+    g, _ = (x - 1).get_gradient()
+    assert g == [1], "Subtraction failed"
     assert (1 - x) == -8, 'Subtraction failed'
-    assert (1 - x).trace['d_x'] == -1, 'Subtraction failed'
+    g, _ = (1 - x).get_gradient()
+    assert g == [-1], "Subtraction failed"
     assert (y - x) == -14, 'Subtraction failed'
-    assert (y - x).trace['d_x'] == -1, 'Subtraction failed'
-    assert (y - x).trace['d_y'] == 1, 'Subtraction failed'
+    g, _ = (y - x).get_gradient()
+    np.testing.assert_array_equal(g, [-1, 1]), 'Subtraction failed'
     assert (z + z) == 0, 'Subtraction failed'
-    assert (z + z).trace['d_z'] == 2, 'Subtraction failed'
+    g, _ = (z + z).get_gradient()
+    assert g == 2, 'Subtraction failed'
     try:
         (q - 5)
     except TypeError:
@@ -48,20 +55,22 @@ def test_multiply():
     z = AutoDiffRev(name='z', val=0)
     q = AutoDiffRev(name='b0', val="string")
     assert (x * 2) == 12, 'Multiplication failed'
-    assert (x * 2) == 12, 'Multiplication failed'
-    assert (x * 2).trace['d_x'] == 2, 'Multiplication failed'
+    g, _ = (x * 2).get_gradient()
+    assert g == [2], "Multiplication failed"
     assert (2 * x) == 12, 'Multiplication failed'
-    assert (2 * x).trace['d_x'] == 2, 'Multiplication failed'
-    assert (y * x) == -30, 'Multiplication failed'
-    assert (y * x).trace['d_x'] == -5, 'Multiplication failed'
-    assert (y * x).trace['d_y'] == 6, 'Multiplication failed'
-    assert (x * y) == -30, 'Multiplication failed'
-    assert (x * y).trace['d_x'] == -5, 'Multiplication failed'
-    assert (x * y).trace['d_y'] == 6, 'Multiplication failed'
-    assert (z * z) == 0, 'Multiplication failed'
-    assert (z * z).trace['d_z'] == 0, 'Multiplication failed'
+    g, _ = (2 * x).get_gradient()
+    assert g == [2], "Multiplication failed"
+    assert (y * x).get_value() == -30, 'Multiplication failed'
+    g, _ = (y * x).get_gradient()
+    np.testing.assert_array_equal(g, [-5, 6]), 'Multiplication failed'
+    assert (x * y).get_value() == -30, 'Multiplication failed'
+    g, _ = (x * y).get_gradient()
+    np.testing.assert_array_equal(g, [-5, 6]), 'Multiplication failed'
+    assert (z * z).get_value() == 0, 'Multiplication failed'
+    g, _ = (z * z).get_gradient()
+    np.testing.assert_array_equal(g, [0]), 'Multiplication failed'
     try:
-        (q * 5)
+        (q * 5).get_value()
     except TypeError:
         print("Caught error as expected")
 
@@ -72,41 +81,43 @@ def test_divide():
     z = AutoDiffRev(name='z', val=0)
     q = AutoDiffRev(name='b0', val="string")
     assert (x / 2) == 3, 'Division failed'
-    assert (x / 2).trace['d_x'] == (1 / 2), 'Division failed'
+    g, _ = (x / 2).get_gradient()
+    assert g == [1 / 2], 'Division failed'
     assert (18 / x) == 3, 'Division failed'
-    assert (18 / x).trace['d_x'] == -(1 / 2), 'Division failed'
+    g, _ = (18 / x).get_gradient()
+    assert g == [-1/2], "Division failed"
     assert (y / x) == -2, 'Division failed'
-    assert (y / x).trace['d_x'] == (12 / 36), 'Division failed'
-    assert (y / x).trace['d_y'] == (1 / 6), 'Division failed'
-    assert (x / y) == -0.5, 'Division failed'
-    assert (x / y).trace['d_x'] == (1 / -12), 'Division failed'
-    assert (x / y).trace['d_y'] == (-6 / 144), 'Division failed'
+    g, _ = (y / x).get_gradient()
+    np.testing.assert_array_equal(g, [(12 / 36), (1 / 6)]), 'Division failed'
+    assert (x / y).get_value() == -0.5, 'Division failed'
+    g, _ = (x / y).get_gradient()
+    np.testing.assert_array_equal(g, [(1 / -12), (-6 / 144)]), 'Division failed'
     try:
-        assert (z / z) == 0
-    except ZeroDivisionError as e:
+        assert (z / z).get_value() == 0
+    except ZeroDivisionError:
         print("Caught Zero Division Error")
     try:
-        assert (z / z).trace['d_z'] == 0
-    except ZeroDivisionError as e:
+        assert (z / z).get_gradient() == 0
+    except ZeroDivisionError:
         print("Caught Zero Division Error")
     try:
-        (q / 5)
+        (q / 5).get_value()
     except TypeError:
         print("Caught error as expected")
+
 
 def test_composition():
     x = AutoDiffRev(name='x', val=2)
     y = AutoDiffRev(name='y', val=-5)
     z = AutoDiffRev(name='z', val=0)
-    q = AutoDiffRev(name='b0', val="string")
-    assert ((y + x) * y).trace['val'] == 15, 'Composition failed'
-    assert ((y + x) * y * y).trace['d_x'] == 25, 'Composition failed'
-    assert ((y + x) * y * y).trace['d_y'] == 55, 'Composition failed'
-    assert ((y - x) * y).trace['val'] == 35, 'Composition failed'
-    assert ((y - x) * y * y).trace['d_x'] == -25, 'Composition failed'
-    assert ((y - x) * y * y).trace['d_y'] == 95, 'Composition failed'
+    assert ((y + x) * y * y).get_value() == -75, 'Composition failed'
+    g, _ = ((y + x) * y * y).get_gradient()
+    np.testing.assert_array_almost_equal(g, [25, 55]), "Composition failed"
+    assert ((y - x) * y) == 35, 'Composition failed'
+    g, _ = ((y - x) * y * y).get_gradient()
+    np.testing.assert_array_almost_equal(g, [-25, 95]), "Composition failed"
     try:
-        assert ((y - x) * y * y)/z == 0
+        assert ((y - x) * y * y) / z == 0
     except ZeroDivisionError:
         print("Caught Zero Division Error")
 
@@ -118,21 +129,32 @@ def test_exponentiation():
     q = AutoDiffRev(name='b0', val="string")
     r = AutoDiffRev(name='r', val=5)
     assert (x ** 2) == 9, "Exponentiation failed"
-    assert (x ** 2).trace['d_x'] == 6, "Exponentiation failed"
+    g, _ = (x ** 2).get_gradient()
+    assert g == [6], "Exponentiation failed"
     assert (2 ** x) == 8, "Exponentiation failed"
-    assert np.allclose((2 ** x).trace['d_x'], 5.545177444479562, atol=1e-12) is True, "Exponentiation failed"
+    g, _ = (2 ** x).get_gradient()
+    np.testing.assert_array_almost_equal(g, [5.545177444479562]), "Exponentiation failed"
     assert (x ** 0) == 1, "Exponentiation failed"
-    assert (x ** 0).trace['d_x'] == 0, "Exponentiation failed"
+    g, _ = (x ** 0).get_gradient()
+    np.testing.assert_array_almost_equal(g, [0]), "Exponentiation failed"
     assert (x ** -2) == (1 / 9), "Exponentiation failed"
-    assert (x ** -2).trace['d_x'] == -2 / (3 ** 3), "Exponentiation failed"
+    g, _ = (x ** -2).get_gradient()
+    np.testing.assert_array_almost_equal(g, [-2 / (3 ** 3)]), "Exponentiation failed"
     assert (z ** 2) == 4, "Exponentiation failed"
-    assert (z ** 2).trace['d_z'] == -4, "Exponentiation failed"
+    g, _ = (z ** 2).get_gradient()
+    np.testing.assert_array_almost_equal(g, [-4]), "Exponentiation failed"
     assert (z ** 3) == -8, "Exponentiation failed"
-    assert (z ** 3).trace['d_z'] == 12, "Exponentiation failed"
+    g, _ = (z ** 3).get_gradient()
+    np.testing.assert_array_almost_equal(g, [12]), "Exponentiation failed"
     assert (y ** 2) == 0, "Exponentiation failed"
-    assert (y ** 2).trace['d_y'] == 0, "Exponentiation failed"
-    assert (x ** x) == 27, "Exponentiation failed"
+    g, _ = (y ** 2).get_gradient()
+    np.testing.assert_array_almost_equal(g, [0]), "Exponentiation failed"
+    assert (x ** x).get_value() == 27, "Exponentiation failed"
+    g, _ = (x ** x).get_gradient()
+    assert g == [56.66253179403897], "Exponentiation failed"
     assert (r ** x) == 125, "Exponentiation failed"
+    g, _ = (r ** x).get_gradient()
+    np.testing.assert_array_almost_equal(g, [75, 201.17973905426254]), "Exponentiation failed"
     try:
         (q ** 5)
     except TypeError:
@@ -325,7 +347,7 @@ def test_trunc():
 
 def test_str():
     x = AutoDiffRev(name='x', val=2)
-    assert str(x) == "{'val': 2, 'd_x': 1}", "Str failed"
+    assert str(x) == "2", "Str failed"
 
 
 def test_bool():
@@ -346,28 +368,10 @@ def test_named_variables():
     assert x.variables == {'x'}, "Get variables property failed"
 
 
-def test_get_trace():
-    x = AutoDiffRev(name='x', val=3)
-    assert x.get_trace() == {'d_x': 1, 'val': 3}, "Get trace failed"
-
-
 def test_get_value():
     x = AutoDiffRev(name='x', val=3)
     assert x.get_value() == 3, "Get value failed"
     assert x.val == 3, "Get value property failed"
-
-#
-# def test_get_gradient():
-#     x = AutoDiffRev(name='x', val=3)
-#     grad1, varnames = x.get_gradient()
-#     print("GRAD1", grad1)
-#     print("VARNAMES", varnames)
-#     grad2, _ = (8 * x).get_gradient()
-#     grad3, _ = x.gradient
-#
-#     assert np.allclose(grad1, np.array([1.])), "Get gradient failed"
-#     assert np.allclose(grad2, np.array([8.])), "Get gradient failed"
-#     assert np.allclose(grad3, np.array([1.])), "Get gradient property failed"
 
 
 def test_contains():
@@ -383,29 +387,11 @@ def test_shift():
     assert 2 << x == 64, "Shift failed"
 
 
-# def test_getitem():
-#     x = AutoDiffRev(name='x', val=13)
-#     assert x['val'] == 13, "Get item failed"
-#     assert x['d_x'] == 1, "Get item failed"
-
-
-# def test_setitem():
-#     x = AutoDiffRev(name='x', val=13)
-#     x['val'] = 2
-#     assert x['val'] == 2, "Set item failed"
-#     x['d_x'] = 24.7
-#     assert x['d_x'] == 24.7, "Set item failed"
-
-#
-# def test_repr():
-#     x = AutoDiffRev(name='x', val=13)
-#     assert repr(x) == """AutoDiffRev(names_init_vals={\'x\': 13}, trace="{\'val\': 13, \'d_x\': 1}")""", "Repr failed"
-#
-
 def test_neg():
     x = AutoDiffRev(name='x', val=2)
     assert -x == -2, "Neg failed"
-    assert -x.trace['d_x'] == -1, "Neg failed"
+    g, _ = (-x).get_gradient()
+    assert g == [-1], "Neg failed"
 
 
 def test_pos():
@@ -420,7 +406,7 @@ def test_invert():
 
 def test_complex():
     x = AutoDiffRev(name='x', val=2)
-    assert complex(x) == (2+0j), "Complex failed"
+    assert complex(x) == (2 + 0j), "Complex failed"
 
 
 def test_floordiv():
