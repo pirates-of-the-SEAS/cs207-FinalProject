@@ -2,8 +2,7 @@ import math
 
 import numpy as np
 
-from ARRRtomatic_diff import AutoDiff, AutoDiffRev, AutoDiffVector
-
+from .. import AutoDiff, AutoDiffRev, AutoDiffVector
 
 def __update_unary(x, operation, doperation):
     """Updates an AutoDiff object with a unary operation or simply
@@ -23,14 +22,15 @@ def __update_unary(x, operation, doperation):
      unary operation
     """
 
-    """try:
+    attempt to broadcast uperation to each element of iterable if possible
+    try:
         results = []
         for ad in x:
             results.append(__update_unary(ad, operation, doperation))
 
         return AutoDiffVector(results)
     except TypeError:
-        pass"""
+        pass
 
     try:
         names_init_vals = x.get_names_init_vals()
@@ -71,6 +71,7 @@ def __update_unary(x, operation, doperation):
             r = AutoDiff(names_init_vals=names_init_vals,
                         trace=updated_trace)
         return r 
+
     except AttributeError:
         return operation(x)
 

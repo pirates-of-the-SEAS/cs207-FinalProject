@@ -111,9 +111,12 @@ project_repo/
 
 + [ ] Introduction 
 Describe the problem the software solves and why it is important to solve that problem. This can be built off of the milestones, but you may need to update it depending on what new feature you proposed.
++ [ ] Discussion of why optimization is important
 + [ ] Background 
- + [ ] The automatic differentiation background can probably stay the same as in the milestones, unless you were told to update it considerably.
+ + [x] The automatic differentiation background can probably stay the same as in the milestones, unless you were told to update it considerably.
  + [ ] Be sure to include any necessary background for your new feature.
+ + [ ] Discussion of optimization routines and reverse mode
+ 
 + [ ]  How to use your package
     + [ ] How to install?
     + [ ] Include a basic demo for the user. This can be based off of the milestone, but it may change depending on what your new feature is. 
@@ -134,6 +137,8 @@ Describe the problem the software solves and why it is important to solve that p
       + [ ] Important attributes
       + [ ] External dependencies
       + [ ] Elementary functions
+      
+      + [ ] Discussion of AutoDiffVector
 
 + [ ] Your extension
  + [ ] Description of your extension (the feature(s) you implemented in addition to the minimum requirements.)

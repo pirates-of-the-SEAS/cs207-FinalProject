@@ -1,7 +1,7 @@
 """
-example
-
-takes as input a function that returns a computational graph
+Implements gradient descent and stochastic gradient descent for a function
+with multivariate inputs. Module contains a collection of example input
+functions, private helper functions, and the implementations of GD and SGD.
 """
 
 import numpy as np
@@ -13,6 +13,19 @@ from .. import AutoDiff, AutoDiffVector
 from ..functions import sin, exp
 
 def rosenbrock(w):
+    """
+    This function serves as a performance test for optimization algorithms.
+    The global minimum of Rosenbrock's valley is achieved at (1, 1), where f(x,y) = 0.
+    Rosenbrock function is:  f(x,y) = (1 -x)^2 + 100*(y-x^2)^2
+    INPUTS
+    =======
+    w: the initial starting point vector, x0 = w[0], y0 = w[1]
+
+    RETURNS
+    ========
+    1. f (w)
+    2. ordered list of variables x, y
+    """
     x = AutoDiff(name='x', val=w[0])
     y = AutoDiff(name='y', val=w[1])
 
@@ -24,6 +37,17 @@ def rosenbrock(w):
     return total, ['x', 'y']
 
 def parabola(w):
+    """Example function for optimization
+
+            INPUTS
+            =======
+            w: a python numeric containing the current guess for the minimum
+
+            RETURNS
+            ========
+            f: an AutoDiff object representing the optimization objective
+            order: a list containing the order of the variable names
+        """
     x = AutoDiff(name='x', val=w[0])
 
     return x**2, ['x']
@@ -35,6 +59,23 @@ def __verify_valid_args(use_line_search,
                         momentum,
                         adam_b1,
                         adam_b2):
+
+    """
+    A method to handle the possible set of cases where the inputs to an optimization method may not be valid.
+    if inputs are invalid, raises Error.
+
+     INPUTS
+    =======
+    :param use_line_search: boolean, True or False (whether to use line search)
+    :param use_momentum: boolean, True or False
+    :param use_adagrad: boolean, True or False (whether to use Adaptive gradient descent)
+    :param use_adam: boolean, True or False (whether to use Adaptive momentum estimation)
+    :param momentum: the momentum applied to each update
+    :param adam_b1: float(scalar), Beta1, which is the momentum decay applied to the first moment estimates
+    :param adam_b2: float(scalar, Beta2, which is the exponential decay rate for second moment estimates
+
+
+    """
 
     if momentum < 0:
         raise ValueError
@@ -50,6 +91,21 @@ def __verify_valid_args(use_line_search,
 
 
 def __do_line_search_update(get_val, get_gradient, w, direction):
+    """
+    Performs Armijo line search along the specified "direction"
+    starting at point f(w)
+    INPUTS
+    =======
+
+    :param get_val: callable function f
+    :param get_gradient: callable function that calculates grad f
+    :param w: initial searching point
+    :param direction: line searching direction
+
+    RETURNS
+    ========
+    optimal step size * direction
+    """
     line_search_results = line_search(get_val,
                                       get_gradient,
                                       w,
@@ -60,11 +116,12 @@ def __do_line_search_update(get_val, get_gradient, w, direction):
     return step_size * direction
 
 def __do_momentum_update(dw, momentum, step_size, direction):
+    """performs the gradient descent update with momentum"""
     dw = momentum * dw + step_size * direction
-
     return dw
 
 def __do_adagrad_update(G, step_size, grad):
+    """performs the gradient descent update with adagrad"""
     G += grad.reshape(-1, 1) @ grad.reshape(1, -1)
 
     diagG = np.diag(G + 0.001)**(-1./2)
@@ -73,13 +130,9 @@ def __do_adagrad_update(G, step_size, grad):
 
     return dw
 
-# def __do_rmsprop_update(dw, rmsprop, step_size, direction):
-#     dw = rmsprop * dw + (1 - rmsprop) * direction**2
-
-#     return step_size * dw**(-1./2) * direction
-
 def __do_adam_update(i, m, v, adam_b1, adam_b2, step_size,
                                   grad, adam_eps):
+    """performs the gradient descent update with adam"""
 
     m = adam_b1 * m + (1 - adam_b1) * grad
     v = adam_b2 * v + (1 - adam_b2) * grad**2
@@ -101,7 +154,36 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
                         momentum=0.9,
                         adam_b1=0.9,
                         adam_b2=0.999,
-                        adam_eps=0.0001):
+                        adam_eps=0.0001,
+                        show=False # plz don't erase
+                        ):
+    """
+    Performs gradient descent iterations given an initial guess and function
+
+    INPUTS
+    ======
+    x0: the initial input
+    f: the function whose minimum will be sought. must return either an AutoDiff
+        or AutoDiffVector object
+    tol: iterations stop when the norm of the vector function is smaller than this value
+    max_iter: stop after this # of iterations
+    step_size: step size of the gradient descent steps
+    verbose: the level of verbosity when reporting what the routine is doing
+    use_line_search: whether to use SciPy's line search. mutually exclusive with other gradient descent modifications
+    use_momentum: whether to use momentum updates. mutually exclusive with other gradient descent modifications
+    use_adagrad: whether to use adagrad updates. mutually exclusive with other gradient descent modifications
+    use_adam: whether to use adam updates. mutually exclusive with other gradient descent modifications
+    momentum: the momentum parameter
+    adam_b1: the first adam parameter
+    adam_b2: the second adam parameter
+    adam_eps: small value to prevent division by zero
+    show: whether to show some updates
+
+    RETURNS
+    =======
+    w: the guess for the minimum
+
+    """
 
     __verify_valid_args(use_line_search,
                         use_momentum,
@@ -111,12 +193,19 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
                         adam_b1,
                         adam_b2)
 
+
+    # determine whether function is scalar or not
     try:
         num_params = len(w0)
         w = w0
     except:
         num_params = 1
         w = np.array([w0])
+    if show:
+        w_path = []
+        w_path.append(w)
+
+    # define helper functions 
 
     def get_val(w):
         try:
@@ -135,6 +224,7 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
 
         return ad.get_gradient(order)[0]
 
+    # do gradient descent steps
     for i in range(max_iter):
         grad = get_gradient(w)
 
@@ -142,6 +232,7 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
             print("Converged after {} steps".format(i))
             break
 
+        # get step direction
         direction = -1 * grad
 
         if use_line_search:
@@ -159,12 +250,6 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
 
             dw = __do_adagrad_update(G, step_size, grad)
 
-        # if use_rmsprop:
-        #     if i == 0:
-        #         dw = 0
-
-        #     dw = __do_rmsprop_update(dw, rmsprop, step_size, direction)
-
         if use_adam:
             if i == 0:
                 m = 0
@@ -173,17 +258,36 @@ def do_gradient_descent(w0, f, tol=1e-8, max_iter=2000, step_size=0.1,
             dw, m, v = __do_adam_update(i, m, v, adam_b1, adam_b2, step_size,
                                   grad, adam_eps)
 
+        # perform the vanilla gradient descent updates
         if not any([use_line_search, use_momentum, use_adagrad,
                     use_adam]):
             dw = step_size * direction
         # print(w)
         w = w + dw
+        if show:
+            w_path.append(w)
     else:
         print(f"Did not converge after {max_iter} steps")
-        
+
+    if show:
+        return w_path
+
     return w
 
 def example_loss(params, X_data, y_data):
+    """Example function to be used in stochastic gradient descent
+
+            INPUTS
+            =======
+            params: the parameter values over which the function is being optimized
+            X: the data comprising the loss function
+            y: the target variable
+            
+            RETURNS
+            ========
+            avg_loss: the average loss given the data. is an autodiff variable.
+            order: the order of the parameters
+        """
     a = 0.000045
     b = -0.000098
     c = 0.003926
@@ -220,6 +324,35 @@ def do_stochastic_gradient_descent(w0,
                                    adam_b1=0.9,
                                    adam_b2=0.999,
                                    adam_eps=0.0001):
+    """
+    Performs stochastic gradient descent iterations given an initial guess and function
+
+    INPUTS
+    ======
+    x0: the initial input
+    f: the function whose minimum will be sought. must return either an AutoDiff
+        or AutoDiffVector object
+    X: the data comprising the loss function
+    y: the target for the data
+    num_epochs: how many iterations to perform SGD
+    batch_size: the size of each mini batch
+    step_size: step size of the gradient descent steps
+    tol: iterations stop when the norm of the vector function is smaller than this value
+    verbose: the level of verbosity when reporting what the routine is doing
+    use_momentum: whether to use momentum updates. mutually exclusive with other gradient descent modifications
+    use_adagrad: whether to use adagrad updates. mutually exclusive with other gradient descent modifications
+    use_adam: whether to use adam updates. mutually exclusive with other gradient descent modifications
+    momentum: the momentum parameter
+    adam_b1: the first adam parameter
+    adam_b2: the second adam parameter
+    adam_eps: small value to prevent division by zero
+    show: whether to show some updates
+
+    RETURNS
+    =======
+    w: the guess for the minimum
+
+    """
 
     __verify_valid_args(False,
                         use_momentum,
@@ -245,6 +378,7 @@ def do_stochastic_gradient_descent(w0,
         w = np.array([w0])
 
     for i in range(num_epochs):
+        # get the current value of the loss
         L, order = f(w, X_orig, y_orig)
 
         if np.linalg.norm(L.get_gradient(order)[0], 2) <= tol:
@@ -260,9 +394,12 @@ def do_stochastic_gradient_descent(w0,
             print(w)
 
 
+        # go through data in random order each epoch
         idx = np.random.permutation(num_data)
         num_iters = int(num_data // batch_size)
         for j in range(num_iters):
+
+            # get the mini batch
             start_idx = j * batch_size
             end_idx = min((j+1) * batch_size, num_data - 1)
 
@@ -280,6 +417,7 @@ def do_stochastic_gradient_descent(w0,
 
             grad, _ = ad.get_gradient(order)
 
+            # get the mini batch direction
             direction = -1 * grad
 
 
@@ -295,12 +433,6 @@ def do_stochastic_gradient_descent(w0,
 
                 dw = __do_adagrad_update(G, step_size, grad)
 
-            # if use_rmsprop:
-            #     if i == 0:
-            #         dw = 0
-
-            #     dw = __do_rmsprop_update(dw, rmsprop, step_size, direction)
-
             if use_adam:
                 if i == 0:
                     m = 0
@@ -309,6 +441,7 @@ def do_stochastic_gradient_descent(w0,
                 dw, m, v = __do_adam_update(i, m, v, adam_b1, adam_b2, step_size,
                                       grad, adam_eps)
 
+            # do vanilla updates if no variant is specified
             if not any([use_momentum, use_adagrad, use_adam]):
                 dw = step_size * direction
 
