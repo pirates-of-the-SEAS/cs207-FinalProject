@@ -1,4 +1,4 @@
-from ARRRtomatic_diff import AutoDiffRev, AutoDiffRevVector
+from ARRRtomatic_diff import AutoDiffRev, AutoDiffRevVector, AutoDiff
 import numpy as np
 
 
@@ -17,6 +17,11 @@ def test_instantiation_pos():
     np.testing.assert_array_equal(J, [[0], [0]]), "Positive instantiation failed"
     np.testing.assert_array_equal(z.get_values(), [1, 9]), "Positive instantiation failed"
     np.testing.assert_array_equal(q.get_values(), [1, 1, 9, 3]), "Positive instantiation failed"
+    try:
+        x = AutoDiff(name='x', val=4)
+        p = AutoDiffRevVector((x, f1))
+    except ValueError:
+        print("Caught error as expected")
 
 
 def test_instantiation_neg():

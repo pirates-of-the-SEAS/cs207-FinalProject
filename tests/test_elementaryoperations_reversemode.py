@@ -397,12 +397,17 @@ def test_neg():
 def test_pos():
     x = AutoDiffRev(name='x', val=2)
     assert x == 2, "Pos failed"
+    assert x.__pos__() == 2, "Pos failed"
 
 
 def test_invert():
     x = AutoDiffRev(name='x', val=2)
     assert ~x == -3, "Invert failed"
 
+def test_andor():
+    x = AutoDiffRev(name='x', val=2)
+    assert x.__ror__(3) == 3, "ror failed"
+    assert x.__rand__(3) == 2, "rand failed"
 
 def test_complex():
     x = AutoDiffRev(name='x', val=2)
