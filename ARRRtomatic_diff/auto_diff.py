@@ -1186,8 +1186,35 @@ class AutoDiffRev:
         return z
         
 
-    def __update_binary_numeric(self, num, update_val, update_deriv):
-        pass
+    def __update_binary_numeric(self, num, update_vals, partial):
+        updated_names_init_vals = self.get_names_init_vals()
+
+        val = self.get_value()
+
+        updated_val = update_vals(val, num)
+
+        # is typically thrown when an imaginary number appears or there's a
+        # division by 0
+        if np.isnan(updated_val):
+            raise ValueError
+
+        sig = AutoDiffRev.generate_signature()
+        
+        updated_breadcrumbs = self.breadcrumbs | set([sig])     
+        
+        # keep track of root variables
+        updated_root_vars = self.root_vars.copy()
+
+        # keep track of paths
+        z = AutoDiffRev(val=updated_val,
+                        breadcrumbs=updated_breadcrumbs,
+                        root_vars=updated_root_vars,
+                        names_init_vals=updated_names_init_vals)
+
+
+        self.children.append((partial, z, sig))
+
+        return z
 
     @staticmethod
     def __add(x, y):
@@ -1255,7 +1282,9 @@ class AutoDiffRev:
                                                  1,
                                                  1)
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
+            return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__add,
+                                         1)
 
     def __radd__(self, other):
         return self + other
@@ -1279,7 +1308,9 @@ class AutoDiffRev:
                                                  other.get_value(),
                                                  self.get_value())
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
+            return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__mul,
+                                                other)
 
 
             
