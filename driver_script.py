@@ -30,10 +30,17 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
 
 
 if __name__ == '__main__':
-   f1 = AutoDiffRev(name='x', val=1)
-   f2 = AutoDiffRev(name='x', val=3)
-   u = AutoDiffRevVector((f1, f2))
+   x = AutoDiffRev(name='x', val=1)
+   y = AutoDiffRev(name='y', val=3)
+   z = AutoDiffRev(name='z', val=4)
+
+
+   u = 5 + AutoDiffRevVector((x, y))
+
    print(u.get_values())
+   print(u.get_jacobian())
+
+
     
 
 

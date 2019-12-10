@@ -1430,6 +1430,12 @@ class AutoDiffRev:
                                                 
 
     def __truediv__(self, other):
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(self, other, lambda x,y:x/y)
+        except:
+            pass
+
         selfval = self.get_value()
         
         try:
@@ -1445,6 +1451,13 @@ class AutoDiffRev:
                                                 1/other)
 
     def __rtruediv__(self, other):
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(other, self, lambda x,y:x/y)
+        except:
+            pass
+
+
         selfval = self.get_value()
         
         return self.__update_binary_numeric(other,
