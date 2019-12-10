@@ -1102,7 +1102,7 @@ class AutoDiffRev:
         return self.get_gradient()
 
     @staticmethod
-    def __generate_signature():
+    def generate_signature():
         num_str = str(random.random())
         return hashlib.md5(num_str.encode()).hexdigest().upper()
 
@@ -1160,8 +1160,8 @@ class AutoDiffRev:
             raise ValueError
 
 
-        sig1 = AutoDiffRev.__generate_signature()
-        sig2 = AutoDiffRev.__generate_signature()
+        sig1 = AutoDiffRev.generate_signature()
+        sig2 = AutoDiffRev.generate_signature()
         
         updated_breadcrumbs = self.breadcrumbs | \
                               other.breadcrumbs| \

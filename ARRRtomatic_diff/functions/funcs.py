@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 
-from .. import AutoDiff, AutoDiffRev, AutoDiffVector
+from .. import AutoDiff, AutoDiffRev, AutoDiffVector#, AutoDiffRevVector
 
 def __update_unary(x, operation, doperation):
     """Updates an AutoDiff object with a unary operation or simply
@@ -31,6 +31,35 @@ def __update_unary(x, operation, doperation):
     #     return AutoDiffVector(results)
     # except TypeError:
     #     pass
+
+    if isinstance(x, AutoDiffRev):
+        sig = AutoDiffRev.generate_signature()
+        updated_breadcrumbs = x.breadcrumbs | set([sig])    
+        
+        # keep track of root variables
+        updated_root_vars = x.root_vars.copy()
+
+        updated_names_init_vals = x.get_names_init_vals()
+
+        val = x.get_value()
+
+        updated_val = operation(val)
+
+        if np.isnan(updated_val):
+                raise ValueError
+
+        weight = doperation(val)
+
+        if np.isnan(weight):
+            raise ValueError
+        
+        z = AutoDiffRev(val=updated_val,
+                        breadcrumbs=updated_breadcrumbs,
+                        root_vars=updated_root_vars,
+                        names_init_vals=updated_names_init_vals)
+
+        x.children.append((weight, z, sig))
+        return z
 
     try:
         names_init_vals = x.get_names_init_vals()
