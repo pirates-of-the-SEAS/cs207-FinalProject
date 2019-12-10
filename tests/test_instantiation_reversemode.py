@@ -1,5 +1,6 @@
 from ARRRtomatic_diff import AutoDiffRev
 
+
 def test_instantiation_neg():
     x = AutoDiffRev(name='x', val=-3)
     assert x == -3, 'Negative instantiation failed'

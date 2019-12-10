@@ -73,3 +73,12 @@ def test_double_instantiation():
         AutoDiffVector((f1, f2), f1)
     except TypeError:
         print("Caught error as expected")
+
+
+def test_duplicate_instantiation():
+    f1 = AutoDiff(name='x', val=1)
+    f2 = AutoDiff(name='x', val=3)
+    try:
+        AutoDiffVector((f1, f2))
+    except Exception:
+        print("Caught error as expected")
