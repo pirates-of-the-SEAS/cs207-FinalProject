@@ -1026,7 +1026,7 @@ class AutoDiffVector:
         return AutoDiffVector.combine(other, self, lambda x,y: x // y).get_values()
 
     def __rmod__(self, other):
-        return AutoDiffVector.combine(other, self, lambda x,y: x & y).get_values()
+        return AutoDiffVector.combine(other, self, lambda x,y: x % y).get_values()
 
     def __rlshift__(self, other):
         return AutoDiffVector.combine(other, self, lambda x,y: x << y).get_values()
