@@ -1134,7 +1134,7 @@ class AutoDiffRev:
         
         self.__end = False
             
-        return result, order
+        return np.array(result), order
     
 
     def __update_binary_autodiff(self, other,
