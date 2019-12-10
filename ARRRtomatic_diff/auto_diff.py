@@ -1096,22 +1096,6 @@ class AutoDiffRev:
     """AutoDiffRev class implementing reverse mode automatic differentiation through
     operator overloading and explicit construction of the computational graph through
     function composition.
-    
-    Assumes that the AutoDiffRev object will be initialized in one of two contexts,
-    and the argument to the constructor will change depending on the context
-    in which the AutoDiffRev object is created. The user should only ever
-    interact with the first context.
-
-    The contexts are: 
-
-    1. A user creating an AutoDiffRev object for the first time in which case the
-        arguments 'name' and 'val' are passed. 'name' should only ever be not None
-        when initially creating an AutoDiffRev variable. 
-       (see example)
-    2. A call from inside a function corresponding to an elementary operation,
-        in which case the trace is assumed to have been pre-computed and
-        the arguments are 'trace' and 'name'. 'name' in this case is a
-        dictionary mapping variable name to initial values
 
     Each AutoDiffRev object epresents a node in the computational graph.
     Additionally, each object maintains a set of breadcrumbs which represent 
@@ -1131,8 +1115,6 @@ class AutoDiffRev:
         names_init_vals: dictionary, a dictionary mapping the names of the variables that
            are the input of the AutoDiffRev object to their initial values. Initial
            values are maintained to enforce consistency.
-        trace: dictionary, a dictionary containing the value and gradient of
-              the composite function
         
         RETURNS
         ========
@@ -1147,11 +1129,6 @@ class AutoDiffRev:
         >>>print(5*x)
         {'val': 12, 'd_x': 6}
 
-        EXAMPLES CONTEXT 2:
-        =========
-        >>> x = AutoDiffRev(trace={'val': 3, 'd_x': 4, 'd_y': 2}, name={'x': 1, 'y': 2})
-        >>> print(x)
-        {'val': 3, 'd_x': 4, 'd_y': 2}
 
     """
     def __init__(self, val, name=None, breadcrumbs=None,
