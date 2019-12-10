@@ -9,7 +9,8 @@ have to make autodiffvector
 import pandas as pd
 import numpy as np
 
-from ARRRtomatic_diff import AutoDiff, AutoDiffVector, AutoDiffRev
+from ARRRtomatic_diff import (AutoDiff, AutoDiffVector, AutoDiffRev,
+                              AutoDiffRevVector)
 from ARRRtomatic_diff.functions import sin, exp, sqrt, log
 from ARRRtomatic_diff.optimization import (do_newtons_method,
                                            example_scalar,
@@ -24,7 +25,6 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
                                            do_levenberg_marquardt,
                                            example_loss,
                                            do_stochastic_gradient_descent
-
 )
 
 
@@ -36,11 +36,33 @@ if __name__ == '__main__':
     x_f = AutoDiff(name='x', val=5)
     y_f = AutoDiff(name='y', val=4)
 
-    a = 5/x_f
-    b = 5/x
+    u_f = AutoDiffVector([
+        -y_f,
+        x_f
+    ])
 
-    print(a.get_gradient())
-    print(b.get_gradient())
+    v_f = AutoDiffVector([
+        x_f,
+        y_f
+    ])
+
+    u = AutoDiffRevVector([
+        -y,
+        x
+    ])
+
+    v = AutoDiffRevVector([
+        x,
+        y
+    ])
+
+    a = u_f - v_f
+    b = u + v
+    c = u - v
+
+    print(a.get_jacobian())
+    print(b.get_jacobian())
+    print(c.get_jacobian())
     
 
 
