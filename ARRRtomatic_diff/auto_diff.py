@@ -154,7 +154,7 @@ class AutoDiff:
                 raise ValueError("named variables not specified")
 
     @staticmethod
-    def __merge_names_init_vals(d1, d2):
+    def merge_names_init_vals(d1, d2):
         """Combines two dictionaries mapping variable names to initial values
         and raises an exception if an inconsistency is found. 
             INPUTS
@@ -267,7 +267,7 @@ class AutoDiff:
         trace = self.get_trace()
 
         # enforce consistency among the initial values
-        combined_names_init_vals = AutoDiff.__merge_names_init_vals(
+        combined_names_init_vals = AutoDiff.merge_names_init_vals(
             names_init_vals, other_names_init_vals)
 
         val = trace['val'] 
@@ -653,9 +653,15 @@ class AutoDiffVector:
 
     @staticmethod
     def __verify_valid_input(ads):
+        names_init_vals = {}
         for ad in ads:
             if isinstance(ad, AutoDiffRev):
                 raise ValueError("Cannot use AutoDiffRev with AutoDiffVector")
+
+            ad_names_init_vals = ad.get_names_init_vals()
+
+            names_init_vals = AutoDiff.merge_names_init_vals(names_init_vals,
+                                           ad_names_init_vals)
 
 
     def __len__(self):
@@ -1065,7 +1071,7 @@ class AutoDiffRev:
         return hash(self.UID)
 
     @staticmethod
-    def __merge_names_init_vals(d1, d2):
+    def merge_names_init_vals(d1, d2):
         """Combines two dictionaries mapping variable names to initial values
         and raises an exception if an inconsistency is found. 
             INPUTS
@@ -1210,7 +1216,7 @@ class AutoDiffRev:
         other_names_init_vals = other.get_names_init_vals()
 
         # verify that all variables have the same initial value
-        updated_names_init_vals = AutoDiffRev.__merge_names_init_vals(
+        updated_names_init_vals = AutoDiffRev.merge_names_init_vals(
             names_init_vals, other_names_init_vals)
 
         val = self.get_value()
@@ -1626,9 +1632,15 @@ class AutoDiffRevVector:
 
     @staticmethod
     def __verify_valid_input(adrs):
+        names_init_vals = {}
         for adr in adrs:
             if isinstance(adr, AutoDiff):
                 raise ValueError("Cannot use AutoDiff with AutoDiffRevVector")
+
+            ad_names_init_vals = adr.get_names_init_vals()
+
+            names_init_vals = AutoDiffRev.merge_names_init_vals(names_init_vals,
+                                           ad_names_init_vals)
 
 
     def __len__(self):
