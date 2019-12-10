@@ -10,7 +10,7 @@
 + Victor(Wisoo) Song
 
 # About
-ARRRtomatic diff is an automatic differentiation library that implements forward mode automatic differentiation. See the docs folder (https://github.com/pirates-of-the-SEAS/cs207-FinalProject/blob/master/docs/documentation.ipynb) for more detail on how install, setup, and use.
+ARRRtomatic diff is an automatic differentiation library that implements forward mode automatic differentiation. See the docs folder (https://github.com/pirates-of-the-SEAS/cs207-FinalProject/blob/master/docs/documentation.ipynb) for more detail on how to install, setup, and use.
  
 
 
