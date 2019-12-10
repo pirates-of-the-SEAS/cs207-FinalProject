@@ -36,8 +36,8 @@ if __name__ == '__main__':
     x_f = AutoDiff(name='x', val=5)
     y_f = AutoDiff(name='y', val=4)
 
-    a = -x_f
-    b = -x 
+    a = 5/x_f
+    b = 5/x
 
     print(a.get_gradient())
     print(b.get_gradient())
