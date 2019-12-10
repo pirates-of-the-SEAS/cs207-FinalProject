@@ -30,10 +30,15 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
 
 
 if __name__ == '__main__':
-   f1 = AutoDiffRev(name='x', val=1)
-   f2 = AutoDiffRev(name='x', val=3)
-   u = AutoDiffRevVector((f1, f2))
-   print(u.get_values())
-    
+    f1 = AutoDiffRev(name='x', val=0)
+    f2 = AutoDiffRev(name='y', val=np.pi/2)
+    u = AutoDiffRevVector((f1, f2))
+    v = AutoDiffRevVector([0, np.pi/2])
+    np.testing.assert_array_almost_equal(sin(u).val, [0, 1]), 'Sine failed'
+    J, order = (sin(u)).get_jacobian()
+    np.testing.assert_array_almost_equal(J, [[1, 0], [0, 0]]), 'Sine failed'
+
+
+
 
 
