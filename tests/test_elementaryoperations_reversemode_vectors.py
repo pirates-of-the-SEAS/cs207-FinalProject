@@ -313,8 +313,10 @@ def test_pos():
     assert v.__pos__() == v, "Pos failed"
 
 
-def test_rorrand():
+def test_or_and():
     v = AutoDiffRevVector([2, 2])
+    np.testing.assert_array_equal(v.__or__(3), [3, 3]), "ror failed"
+    np.testing.assert_array_equal(v.__and__(3), [2, 2]), "ror failed"
     np.testing.assert_array_equal(v.__ror__(3), [3, 3]), "ror failed"
     np.testing.assert_array_equal(v.__rxor__(3), [1, 1]), "ror failed"
     np.testing.assert_array_equal(v.__rand__(3), [2, 2]), "ror failed"
@@ -341,5 +343,3 @@ def test_complex():
 def test_floordiv():
     v = AutoDiffRevVector([13, 13])
     np.testing.assert_array_equal(v//3, [4, 4]), "Neg failed"
-
-
