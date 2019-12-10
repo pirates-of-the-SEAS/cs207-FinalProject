@@ -50,9 +50,13 @@ AutoDiff(names_init_vals={'y': 3}, trace="{'val': 3, 'd_y': 1}")
 >>> v = AutoDiffVector([x**2, y])
 """
 
+import hashlib
+
 import math
 
 import numpy as np
+
+import random
 
 class AutoDiff:
     """AutoDiff class implementing forward mode automatic differentiation through
@@ -691,17 +695,14 @@ class AutoDiffVector:
         elif order is None:
             order = sorted(self.named_variables)
 
-
         J = np.zeros((self.num_funcs, num_vars))
-
         
         for i, ad in enumerate(self.__auto_diff_variables):
-            for j, var in enumerate(order):
-                try:
-                    J[i, j] = ad.get_trace()[f'd_{var}']
-                except:
-                    pass
-
+            try:
+                g_i, _ = ad.get_gradient(order)
+                J[i, :] = g_i
+            except AttributeError:
+                pass
 
         return J, order
 
@@ -1002,240 +1003,191 @@ class AutoDiffVector:
 
 
 class AutoDiffRev:
-    """AutoDiffRev class implementing forward mode automatic differentiation through
-    operator overloading and explicit construction of the computational graph through
-    function composition.
+    """
+    represents a node in the computational graph.
+    maintains a set of breadcrumbs which represent the path to the node
 
-    Assumes that the AutoDiffRev object will be initialized in one of two contexts,
-    and the argument to the constructor will change depending on the context
-    in which the AutoDiffRev object is created. The user should only ever
-    interact with the first context.
+    name should only ever be not none when initially creating
+    an AutoDiffRev variable
 
-    The contexts are: 
+    """
+    def __init__(self, val, name=None, breadcrumbs=None,
+                 root_vars=None, names_init_vals=None):
 
-    1. A user creating an AutoDiffRev object for the first time in which case the
-        arguments 'name' and 'val' are passed
-       (see example)
-    2. A call from inside a function corresponding to an elementary operation,
-        in which case the trace is assumed to have been pre-computed and
-        the arguments are 'trace' and 'name'. 'name' in this case is a
-        set of variable names.
+        # name
+        self.name = name
+        if names_init_vals is None:
+            self.names_init_vals = {name: val}
+        else:
+            self.names_init_vals = names_init_vals
 
-    Different AutoDiffRev objects can be combined through binary operations and
-    the gradients are intelligently combined and updated, as long as the
-    variables are named appropriately.
-    
-        INPUTS CONTEXT 1:
-        =======
-        name: string, the name of the AutoDiffRev variable
-        val: numeric, the value of the AutoDiffRev variable
+        # toggle that indicates whether the partial derivatives are being
+        # computed for this node
+        self.__end = False
 
-        INPUTS CONTEXT 2:
-        =======
-        name: set, the set of the names of the variables that are the input
-              of the AutoDiffRev object
-        trace: dictionary, a dicitonary containing the value and gradient of
-              the composite function
-        
-        RETURNS
-        ========
-        An AutoDiffRev object that maintains the current value of the composite
-        function as well as its gradient with respect to the inputs.
-    
-        EXAMPLES CONTEXT 1:
-        =========
-        >>> x = AutoDiffRev(name='x', val=2)
-        >>> print(x)
-        {'val': 2, 'd_x': 1}
-        >>>print(5*x)
-        {'val': 12, 'd_x': 6}
+        # 
+        self.val = val
 
-        EXAMPLES CONTEXT 2:
-        =========
-        >>> x = AutoDiffRev(trace={'val': 3, 'd_x': 4, 'd_y': 2}, name=set(('x', 'y')))
-        >>> print(x)
-        {'val': 3, 'd_x': 4, 'd_y': 2}
+        # 
+        self.children = []
+
+        # will possibly be used in memoization later
+        self.grad_values = {}
+  
+        if breadcrumbs is None:
+            self.breadcrumbs = set({})
+        else:
+            self.breadcrumbs = breadcrumbs
+            
+        if root_vars is None:
+            self.root_vars = {name: self}
+        else:
+            self.root_vars = root_vars 
+
+
+
+    @staticmethod
+    def __merge_names_init_vals(d1, d2):
+        """Combines two dictionaries mapping variable names to initial values
+        and raises an exception if an inconsistency is found. 
+            INPUTS
+            =======
+            d1: the first dictionary
+            d2: the second dictionary
+
+            RETURNS
+            ========
+            a combined dictionary if all initial values are consistent. 
+
         """
+        intersection = d1.keys() & d2
 
-    def __init__(self, **kwargs):
-        """
-        See the class docstring for an explanation of how this constructor
-        method should be called
-        """
+        # verify that the values for keys appearing in both dictionaries are the same
+        for name in intersection:
+            val1 = d1[name]
+            val2 = d2[name]
+            if val1 != val2:
+                raise Exception("Variable '{}' appears with different values {} and {}".format(
+                    name, val1, val2))
 
-        # no parameters specified
-        if len(kwargs) == 0:
-            raise ValueError("No parameters given")
+        # if they are, return a combined dictionary
+        return dict(d1, **d2)
 
-        # too many parameters specified
-        if 'trace' in kwargs and 'val' in kwargs:
-            raise ValueError("Both value and trace specified")
-
-        # initialize reverse mode variables
-        self.interm_vals = []
-        self.grad_val = None
- 
-        # context 1: handle initial construction of an auto diff toy object 
-        if 'val' in kwargs:
-            self.init_variable = True
-
-
-            self.trace = {
-                'val': kwargs['val']
-            }
-
-            if 'name' in kwargs:
-                self.named_variables = set((kwargs['name'],))
-                self.trace['d_{}'.format(kwargs['name'])] = 1
-            else:
-                raise ValueError("variable name not specified")
-
-        # context 2: construct object assuming trace has been pre-computed
-        elif 'trace' in kwargs:
-            self.init_variable = False
-
-
-            self.trace = kwargs['trace']
-
-            if 'name' in kwargs:
-                self.named_variables = kwargs['name']
-            else:
-                raise ValueError("named variables not specified")
-
-    def get_trace(self):
-        return self.trace
+    def get_names_init_vals(self):
+        """Returns the dictionary containing the names and initial values of
+        all of the variables used in the AutoDiff object"""
+        return self.names_init_vals
 
     def get_named_variables(self):
-        return self.named_variables
+        """returns a set containing all of the named variables used in the AutoDiff object"""
+        return set(self.names_init_vals.keys())
 
     def get_value(self):
-        return self.trace['val']
+        """returns the current value of the function"""
+        return self.val
 
-    def get_gradient(self):
-        if self.grad_val == None:
-            self.grad_val = sum(w*ad.get_gradient() for w, ad in self.interm_vals)
-        return self.grad_val
+
 
     @property
     def variables(self):
         return self.get_named_variables()
 
-    @property
-    def val(self):
-        return self.get_value()
+
+    def get_paths(self):
+        return set([signature for _, _, signature in self.children])
+
 
     @property
     def gradient(self):
         return self.get_gradient()
 
-    def __update_binary_autodiff(self, other, update_vals,
-                                 update_deriv):
-        """Combines two autodiff objects depending on the supplied val and
-           derivative update rule. Not to be used externally.
-            INPUTS
-            =======
-            other: AutoDiffRev, the other AutoDiffRev object whose value and
-                      gradient will be combined
-            update_vals: function, how to combine the values of the two
-                                   auto diff object
-            update_deriv: function, how to combine the gradients of the two
-                             auto diff objects
+    @staticmethod
+    def __generate_signature():
+        num_str = str(random.random())
+        return hashlib.md5(num_str.encode()).hexdigest().upper()
 
-            RETURNS
-            ========
-            an AutoDiffRev object with the combined values and gradients
+    @staticmethod
+    def __md5(s):
+        return hashlib.md5(s.encode()).hexdigest().upper()
 
-        """
-        other_named_variables = other.get_named_variables()
-        named_variables = self.get_named_variables()
+    def __partial(self, breadcrumbs):
+        if self.__end:
+            return 1
+        
+        subset = self.get_paths() & breadcrumbs
+        
+                
+        return sum(weight * var.__partial(breadcrumbs)
+                   for weight, var, signature in self.children
+                   if signature in subset)
+    
+    def get_gradient(self, order=None):
+        result = []
 
-        other_trace = other.get_trace()
-        trace = self.get_trace()
+        if order is None:
+            order = sorted(self.root_vars.keys())
+        
+        self.__end = True
 
-        combined_named_variables = named_variables | other_named_variables
+        for varname in order:
+            result.append(self.root_vars[varname].__partial(self.breadcrumbs))
+        
+        self.__end = False
+            
+        return result, order
+    
 
-        val = trace['val'] 
-        other_val = other_trace['val']
+    def __update_binary_autodiff(self, other,
+                                 update_vals,
+                                 first_partial,
+                                 second_partial):
 
-        # check to see that if we're combining two initial variables
-        # of the same name that they have the same value
-        if self.init_variable and other.init_variable:
-            if (self.named_variables == other.named_variables) and \
-               (val != other_val):
-                raise Exception("Variables of same name have different values")
+        names_init_vals = self.get_names_init_vals()
+        other_names_init_vals = other.get_names_init_vals()
+
+        # verify that all variables have the same initial value
+        updated_names_init_vals = AutoDiffRev.__merge_names_init_vals(
+            names_init_vals, other_names_init_vals)
+
+        val = self.get_value()
+        other_val = other.get_value()
 
         updated_val = update_vals(val, other_val)
 
+        # is typically thrown when an imaginary number appears or there's a
+        # division by 0
         if np.isnan(updated_val):
             raise ValueError
 
-        combined_trace = {'val': updated_val}
 
-        for var in combined_named_variables:
-            try:
-                d1 = trace[f'd_{var}']
-            except KeyError:
-                d1 = 0
-                
-            try:
-                d2 = other_trace[f'd_{var}']
-            except KeyError:
-                d2 = 0
+        sig1 = AutoDiffRev.__generate_signature()
+        sig2 = AutoDiffRev.__generate_signature()
+        
+        updated_breadcrumbs = self.breadcrumbs | \
+                              other.breadcrumbs| \
+                              set([sig1])             | \
+                              set([sig2])     
+        
+        # keep track of root variables
+        updated_root_vars = {}
+        updated_root_vars.update(self.root_vars)
+        updated_root_vars.update(other.root_vars)
 
-            updated_deriv = update_deriv(val, other_val, d1, d2)
+        # keep track of paths
+        z = AutoDiffRev(val=updated_val,
+                        breadcrumbs=updated_breadcrumbs,
+                        root_vars=updated_root_vars,
+                        names_init_vals=updated_names_init_vals)
 
-            if np.isnan(updated_deriv):
-                raise ValueError
 
-            combined_trace[f'd_{var}'] = updated_deriv
-                
-        return AutoDiffRev(name=combined_named_variables,
-                        trace=combined_trace)
+        self.children.append((first_partial, z, sig1))
+        other.children.append((second_partial, z, sig2))
+
+        return z
+        
 
     def __update_binary_numeric(self, num, update_val, update_deriv):
-        """Returns an updated AutoDiffRev object assuming the current one
-                is being used in a binary operation with a numeric.
-                Not to be used externally.
-
-            INPUTS
-            =======
-            num: numeric, a numeric value that will be used to update the
-                           value and gradient of the AutoDiffRev object
-            update_vals: function, how to combine the AutoDiffRev object's val
-                                   with the numeric variable
-            update_deriv: function, how to combine the AutoDiffRev object's
-                            gradient with the numeric variable
-
-            RETURNS
-            ========
-            an AutoDiffRev object with the updated values and gradients
-          """
-        named_variables = self.get_named_variables()
-        trace = self.get_trace()
-        updated_trace = {}
-        updated_trace.update(trace)
-
-        val = updated_trace['val']
-         
-        updated_val = update_val(val, num)
-
-        if np.isnan(updated_val):
-            raise ValueError
-         
-        updated_trace['val'] = updated_val
-        for var in named_variables:
-            updated_deriv = update_deriv(val,
-                                         num,
-                                         updated_trace[f'd_{var}'],
-                                         0)
-
-            if np.isnan(updated_deriv):
-                raise ValueError
-
-            updated_trace[f'd_{var}'] = updated_deriv
-
-        return AutoDiffRev(name=named_variables,
-                            trace=updated_trace)
+        pass
 
     @staticmethod
     def __add(x, y):
@@ -1291,15 +1243,19 @@ class AutoDiffRev:
     def __drdiv(x, y, dx, dy):
         return (dy*x - y*dx)/x**2
 
-
     def __add__(self, other):
+        # try:
+        #     iter(other)
+        #     return AutoDiffVector.combine(self, other, lambda x,y:x+y)
+        # except:
+        #     pas
         try:
-            r = self.__update_binary_autodiff(other, AutoDiffRev.__add, AutoDiffRev.__dadd)
-            other.interm_vals.append((1., r))
+            return self.__update_binary_autodiff(other,
+                                                 AutoDiffRev.__add,
+                                                 1,
+                                                 1)
         except AttributeError:
-            r = self.__update_binary_numeric(other, AutoDiffRev.__add, AutoDiffRev.__dadd)
-        self.interm_vals.append((1.,r))
-        return r
+            return self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
 
     def __radd__(self, other):
         return self + other
@@ -1311,40 +1267,60 @@ class AutoDiffRev:
         return other + -self
 
     def __mul__(self, other):
-        try:
-            r = self.__update_binary_autodiff(other, AutoDiffRev.__mul, AutoDiffRev.__dmul)
-            self.interm_vals.append((other.get_value(), r))
-            other.interm_vals.append((self.get_value(), r))
-        except AttributeError:
-            r = self.__update_binary_numeric(other, AutoDiffRev.__mul, AutoDiffRev.__dmul)
-        return r
+        # try:
+        #     iter(other)
+        #     return AutoDiffVector.combine(self, other, lambda x,y:x*y)
+        # except:
+        #     pass
 
+        try:
+            return self.__update_binary_autodiff(other,
+                                                 AutoDiffRev.__mul,
+                                                 other.get_value(),
+                                                 self.get_value())
+        except AttributeError:
+            return self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
+
+
+            
     def __rmul__(self, other):
         return self * other
 
     def __pow__(self, other):
         try:
-            return self.__update_binary_autodiff(other, AutoDiffRev.__lpow, AutoDiffRev.__dlpow)
+            iter(other)
+            return AutoDiffVector.combine(self, other, lambda x,y:x**y)
+        except:
+            pass
+
+        try:
+            return self.__update_binary_autodiff(other, AutoDiff.__lpow, AutoDiff.__dlpow)
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiffRev.__lpow, AutoDiffRev.__dlpow)
+            return self.__update_binary_numeric(other, AutoDiff.__lpow, AutoDiff.__dlpow)
           
     def __rpow__(self, other):
         try:
-            return self.__update_binary_autodiff(other, AutoDiffRev.__rpow, AutoDiffRev.__drpow)
+            return self.__update_binary_autodiff(other, AutoDiff.__rpow, AutoDiff.__drpow)
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiffRev.__rpow, AutoDiffRev.__drpow)
+            return self.__update_binary_numeric(other, AutoDiff.__rpow, AutoDiff.__drpow)
 
     def __truediv__(self, other):
         try:
-            return self.__update_binary_autodiff(other, AutoDiffRev.__ldiv, AutoDiffRev.__dldiv)
+            iter(other)
+            return AutoDiffVector.combine(self, other, lambda x,y:x/y)
+        except:
+            pass
+
+        try:
+            return self.__update_binary_autodiff(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiffRev.__ldiv, AutoDiffRev.__dldiv)
+            return self.__update_binary_numeric(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
 
     def __rtruediv__(self, other):
         try:
-            return self.__update_binary_autodiff(other, AutoDiffRev.__rdiv, AutoDiffRev.__drdiv)
+            return self.__update_binary_autodiff(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiffRev.__rdiv, AutoDiffRev.__drdiv)
+            return self.__update_binary_numeric(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
 
     def __neg__(self):
         return -1 * self
@@ -1352,29 +1328,11 @@ class AutoDiffRev:
     def __bool__(self):
         return bool(self.get_trace()['val'])
 
-    def __repr__(self):
-        return """AutoDiffRev(name={}, trace={})""".format(
-                                repr(self.named_variables),
-                                repr(repr(self.trace).strip('"'))
-                            )
-
-    def __getitem__(self, key):
-        return self.get_trace()[key]
-
-    def __setitem__(self, key, value):
-        self.trace[key] = value
-
-    def __delitem__(self, key):
-        del self.trace[key]
-
-    def __len__(self):
-        return len(self.trace)
-
-    def __contains__(self, item):
-        return item in self.trace
-
-    def __iter__(self):
-        return iter(self.trace)
+    # def __repr__(self):
+    #     return """AutoDiff(names_init_vals={}, trace={})""".format(
+    #                             repr(self.names_init_vals),
+    #                             repr(repr(self.trace).strip('"'))
+    #                         )
 
     def __str__(self):
         return str(self.trace)
@@ -1486,3 +1444,25 @@ class AutoDiffRev:
             return self.get_trace()['val'] > other.get_trace()['val']
         except:
             return self.get_trace()['val'] > other
+
+             
+    def diagnose(self):
+        print("value")
+        print(self.val)
+        
+        print("root vars")
+        print(self.root_vars)
+        
+        print("breadcrumbs")
+        print(self.breadcrumbs)
+        
+        print("children")
+        for weight, var, signature in self.children:
+            print(signature)
+        
+
+    
+    def __str__(self):
+        return f"{self.val}"
+
+
