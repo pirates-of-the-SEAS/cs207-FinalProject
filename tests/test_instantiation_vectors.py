@@ -50,7 +50,7 @@ def test_instantiation_noname():
 
 def test_bogus_instantiation():
     try:
-        AutoDiffVector("gobbledgook")
+        AutoDiffVector(auto_diff_variables=9)
     except TypeError:
         print("Caught error as expected")
 

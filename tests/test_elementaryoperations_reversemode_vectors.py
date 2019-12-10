@@ -310,11 +310,24 @@ def test_neg():
 def test_pos():
     v = AutoDiffRevVector([2, 2])
     np.testing.assert_array_equal(v, [2, 2]), "Pos failed"
+    assert v.__pos__() == v, "Pos failed"
+
+
+def test_rorrand():
+    v = AutoDiffRevVector([2, 2])
+    np.testing.assert_array_equal(v.__ror__(3), [3, 3]), "ror failed"
+    np.testing.assert_array_equal(v.__rxor__(3), [1, 1]), "ror failed"
+    np.testing.assert_array_equal(v.__rand__(3), [2, 2]), "ror failed"
 
 
 def test_invert():
     v = AutoDiffRevVector([2, 2])
     np.testing.assert_array_equal(~v, [-3, -3]), "Invert failed"
+
+
+def test_otherfloat():
+    v = AutoDiffRevVector([2, 2])
+    assert v.__float__() == [2., 2.], "Float failed"
 
 
 def test_complex():
