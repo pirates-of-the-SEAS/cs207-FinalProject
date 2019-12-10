@@ -31,13 +31,13 @@ def __update_unary(x, operation, doperation):
 
         return AutoDiffVector(results)
 
-    # if isinstance(x, AutoDiffRevVector):
+    if isinstance(x, AutoDiffRevVector):
 
-    #     results = []
-    #     for ad in x:
-    #         results.append(__update_unary(ad, operation, doperation))
+        results = []
+        for ad in x:
+            results.append(__update_unary(ad, operation, doperation))
 
-    #     return AutoDiffRevVector(results)
+        return AutoDiffRevVector(results)
 
 
     if isinstance(x, AutoDiffRev):
