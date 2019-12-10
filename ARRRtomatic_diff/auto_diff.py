@@ -1126,7 +1126,7 @@ class AutoDiffRev:
         return d3
 
     def get_root_vars(self):
-        self.root_vars.copy()
+        return self.root_vars.copy()
 
     def get_names_init_vals(self):
         """Returns the dictionary containing the names and initial values of
@@ -1140,8 +1140,6 @@ class AutoDiffRev:
     def get_value(self):
         """returns the current value of the function"""
         return self.val
-
-
 
     @property
     def variables(self):
@@ -1231,7 +1229,11 @@ class AutoDiffRev:
 
         root_vars = self.get_root_vars()
         other_root_vars = other.get_root_vars()
-        updated_root_vars = AutoDiffRev.__merge_root_vars(d1, d2)
+
+        print(root_vars)
+        print(other_root_vars)
+        updated_root_vars = AutoDiffRev.__merge_root_vars(root_vars,
+                                                          other_root_vars)
 
         # keep track of paths
         z = AutoDiffRev(val=updated_val,
