@@ -133,7 +133,7 @@ def test_exponentiation():
     assert g == [6], "Exponentiation failed"
     assert (2 ** x) == 8, "Exponentiation failed"
     g, _ = (2 ** x).get_gradient()
-    np.testing.assert_array_almost_equal(g, [9.887511]), "Exponentiation failed"
+    np.testing.assert_array_almost_equal(g, [5.545177444479562]), "Exponentiation failed"
     assert (x ** 0) == 1, "Exponentiation failed"
     g, _ = (x ** 0).get_gradient()
     np.testing.assert_array_almost_equal(g, [0]), "Exponentiation failed"
