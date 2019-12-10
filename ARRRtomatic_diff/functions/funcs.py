@@ -22,15 +22,15 @@ def __update_unary(x, operation, doperation):
      unary operation
     """
 
-    attempt to broadcast uperation to each element of iterable if possible
-    try:
-        results = []
-        for ad in x:
-            results.append(__update_unary(ad, operation, doperation))
+    # attempt to broadcast uperation to each element of iterable if possible
+    # try:
+    #     results = []
+    #     for ad in x:
+    #         results.append(__update_unary(ad, operation, doperation))
 
-        return AutoDiffVector(results)
-    except TypeError:
-        pass
+    #     return AutoDiffVector(results)
+    # except TypeError:
+    #     pass
 
     try:
         names_init_vals = x.get_names_init_vals()
