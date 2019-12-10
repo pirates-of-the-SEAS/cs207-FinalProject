@@ -7,10 +7,11 @@ def test_sin():
     f1 = AutoDiff(name='x', val=0)
     f2 = AutoDiff(name='y', val=np.pi/2)
     u = AutoDiffVector((f1, f2))
-    # v = AutoDiffVector([0, np.pi/2])
+    v = AutoDiffVector([0, np.pi/2])
     np.testing.assert_array_almost_equal(ad.sin(u).val, [0, 1]), 'Sine failed'
     J, order = (ad.sin(u)).get_jacobian()
     np.testing.assert_array_almost_equal(J, [[1, 0], [0, 0]]), 'Sine failed'
+
     # np.testing.assert_array_almost_equal(ad.sin(v).val, [0, 1]), 'Sine failed'
     # J, order = (ad.sin(v)).get_jacobian()
     # np.testing.assert_array_almost_equal(J, [[1, 0], [0, 0]]), 'Sine failed'
