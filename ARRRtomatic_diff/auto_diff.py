@@ -658,7 +658,11 @@ class AutoDiffVector:
             if isinstance(ad, AutoDiffRev):
                 raise ValueError("Cannot use AutoDiffRev with AutoDiffVector")
 
-            ad_names_init_vals = ad.get_names_init_vals()
+            try:
+                ad_names_init_vals = ad.get_names_init_vals()
+            except AttributeError:
+                continue
+            
 
             names_init_vals = AutoDiff.merge_names_init_vals(names_init_vals,
                                            ad_names_init_vals)
@@ -1065,8 +1069,6 @@ class AutoDiffRev:
         else:
             self.root_vars = root_vars
 
-        
-
     def __hash__(self):
         return hash(self.UID)
 
@@ -1344,11 +1346,12 @@ class AutoDiffRev:
         return (dy*x - y*dx)/x**2
 
     def __add__(self, other):
-        # try:
-        #     iter(other)
-        #     return AutoDiffVector.combine(self, other, lambda x,y:x+y)
-        # except:
-        #     pas
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(self, other, lambda x,y:x+y)
+        except:
+            pass
+
         try:
             return self.__update_binary_autodiff(other,
                                                  AutoDiffRev.__add,
@@ -1369,11 +1372,11 @@ class AutoDiffRev:
         return other + -self
 
     def __mul__(self, other):
-        # try:
-        #     iter(other)
-        #     return AutoDiffVector.combine(self, other, lambda x,y:x*y)
-        # except:
-        #     pass
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(self, other, lambda x,y:x*y)
+        except:
+            pass
 
         try:
             return self.__update_binary_autodiff(other,
@@ -1391,11 +1394,11 @@ class AutoDiffRev:
         return self * other
 
     def __pow__(self, other):
-        # try:
-        #     iter(other)
-        #     return AutoDiffVector.combine(self, other, lambda x,y:x**y)
-        # except:
-        #     pass
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(self, other, lambda x,y:x**y)
+        except:
+            pass
 
         
         selfval = self.get_value()
@@ -1413,6 +1416,12 @@ class AutoDiffRev:
                                                 other * selfval**(other-1))
           
     def __rpow__(self, other):
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(other, self, lambda x,y:x**y)
+        except:
+            pass
+
         selfval = self.get_value()
         
         return self.__update_binary_numeric(other,
@@ -1637,7 +1646,10 @@ class AutoDiffRevVector:
             if isinstance(adr, AutoDiff):
                 raise ValueError("Cannot use AutoDiff with AutoDiffRevVector")
 
-            ad_names_init_vals = adr.get_names_init_vals()
+            try:
+                ad_names_init_vals = adr.get_names_init_vals()
+            except AttributeError:
+                continue
 
             names_init_vals = AutoDiffRev.merge_names_init_vals(names_init_vals,
                                            ad_names_init_vals)
