@@ -1093,20 +1093,77 @@ class AutoDiffVector:
 
 
 class AutoDiffRev:
-    """
-    represents a node in the computational graph.
-    maintains a set of breadcrumbs which represent the path to the node
+    """AutoDiffRev class implementing reverse mode automatic differentiation through
+    operator overloading and explicit construction of the computational graph through
+    function composition.
+    
+    Assumes that the AutoDiffRev object will be initialized in one of two contexts,
+    and the argument to the constructor will change depending on the context
+    in which the AutoDiffRev object is created. The user should only ever
+    interact with the first context.
 
-    name should only ever be not none when initially creating
-    an AutoDiffRev variable
+    The contexts are: 
+
+    1. A user creating an AutoDiffRev object for the first time in which case the
+        arguments 'name' and 'val' are passed. 'name' should only ever be not None
+        when initially creating an AutoDiffRev variable. 
+       (see example)
+    2. A call from inside a function corresponding to an elementary operation,
+        in which case the trace is assumed to have been pre-computed and
+        the arguments are 'trace' and 'name'. 'name' in this case is a
+        dictionary mapping variable name to initial values
+
+    Each AutoDiffRev object epresents a node in the computational graph.
+    Additionally, each object maintains a set of breadcrumbs which represent 
+    the path to the node. 
+
+    Different AutoDiffRev objects can be combined through binary operations and
+    the gradients are intelligently combined and updated, as long as the
+    variables are named appropriately.
+    
+        INPUTS CONTEXT 1:
+        =======
+        name: string, the name of the AutoDiffRev variable
+        val: numeric, the value of the AutoDiffRev variable
+
+        INPUTS CONTEXT 2:
+        =======
+        names_init_vals: dictionary, a dictionary mapping the names of the variables that
+           are the input of the AutoDiffRev object to their initial values. Initial
+           values are maintained to enforce consistency.
+        trace: dictionary, a dictionary containing the value and gradient of
+              the composite function
+        
+        RETURNS
+        ========
+        An AutoDiffRev object that maintains the current value of the composite
+        function as well as its gradient with respect to the inputs.
+    
+        EXAMPLES CONTEXT 1:
+        =========
+        >>> x = AutoDiffRev(name='x', val=2)
+        >>> print(x)
+        {'val': 2, 'd_x': 1}
+        >>>print(5*x)
+        {'val': 12, 'd_x': 6}
+
+        EXAMPLES CONTEXT 2:
+        =========
+        >>> x = AutoDiffRev(trace={'val': 3, 'd_x': 4, 'd_y': 2}, name={'x': 1, 'y': 2})
+        >>> print(x)
+        {'val': 3, 'd_x': 4, 'd_y': 2}
 
     """
     def __init__(self, val, name=None, breadcrumbs=None,
                  root_vars=None, names_init_vals=None):
+        """
+        See the class docstring for an explanation of how this constructor
+        method should be called
+        """
 
         self.UID = AutoDiffRev.generate_signature()
 
-        # name
+        # stores name input in two contexts
         self.name = name
         if names_init_vals is None:
             self.names_init_vals = {name: val}
@@ -1117,15 +1174,14 @@ class AutoDiffRev:
         # computed for this node
         self.__end = False
 
-        # 
+        # initialize value and intermediate value variables 
         self.val = val
-
-        # 
         self.children = []
 
-        # will possibly be used in memoization later
+        # used for memoization later
         self.grad_values = {}
   
+        # initialize breadcrumbs and root variables
         if breadcrumbs is None:
             self.breadcrumbs = set({})
         else:
@@ -1213,11 +1269,11 @@ class AutoDiffRev:
 
     def get_names_init_vals(self):
         """Returns the dictionary containing the names and initial values of
-        all of the variables used in the AutoDiff object"""
+        all of the variables used in the AutoDiffRev object"""
         return self.names_init_vals.copy()
 
     def get_named_variables(self):
-        """returns a set containing all of the named variables used in the AutoDiff object"""
+        """returns a set containing all of the named variables used in the AutoDiffRev object"""
         return set(self.names_init_vals.keys())
 
     def get_value(self):
@@ -1230,6 +1286,7 @@ class AutoDiffRev:
 
 
     def get_paths(self):
+        """returns current path"""
         return set([signature for _, _, signature in self.children])
 
 
@@ -1239,14 +1296,17 @@ class AutoDiffRev:
 
     @staticmethod
     def generate_signature():
+        """generates random unique hash to define unique var"""
         num_str = str(random.random())
         return hashlib.md5(num_str.encode()).hexdigest().upper()
 
     @staticmethod
     def __md5(s):
+        """returns MD5 hash of input s"""
         return hashlib.md5(s.encode()).hexdigest().upper()
 
     def __partial(self, breadcrumbs):
+        """calculates partial derivative based on breadcrumbs"""
         if self.__end:
             return 1
         
@@ -1258,6 +1318,18 @@ class AutoDiffRev:
                    if signature in subset)
     
     def get_gradient(self, order=None):
+        """Returns a 1D numpy array containing the gradient values as well as the order
+        of the variables
+            INPUTS
+            =======
+            order: the order in which the gradient values should be returned
+
+            RETURNS
+            ========
+            result: a 1D numpy array containing the gradient values
+            order: a list containing the variable order. defaults to alphabetical order.
+
+        """
         result = []
 
         if order is None:
@@ -1284,7 +1356,21 @@ class AutoDiffRev:
                                  update_vals,
                                  first_partial,
                                  second_partial):
+        """Combines two AutoDiffRev objects depending on the supplied val and
+           derivative update rule. Not to be used externally.
+            INPUTS
+            =======
+            other: AutoDiffRev, the other AutoDiffRev object whose value and
+                      gradient will be combined
+            update_vals: function, how to combine the values of the two
+                                   auto diff object
+            first_partial, second_partial: partial derivatives calculated for
+                                             self and other 
 
+            RETURNS
+            ========
+            an AutoDiffRev object with the combined values and gradients
+        """
         names_init_vals = self.get_names_init_vals()
         other_names_init_vals = other.get_names_init_vals()
 
@@ -1333,6 +1419,23 @@ class AutoDiffRev:
         
 
     def __update_binary_numeric(self, num, update_vals, partial):
+        """Returns an updated AutoDiffRev object assuming the current one
+                is being used in a binary operation with a numeric.
+                Not to be used externally.
+
+            INPUTS
+            =======
+            num: numeric, a numeric value that will be used to update the
+                           value and gradient of the AutoDiffRev object
+            update_vals: function, how to combine the AutoDiffRev object's val
+                                   with the numeric variable
+            update_deriv: function, how to combine the AutoDiffRev object's
+                            gradient with the numeric variable
+
+            RETURNS
+            ========
+            an AutoDiffRev object with the updated values and gradients
+        """
         updated_names_init_vals = self.get_names_init_vals()
 
         val = self.get_value()
@@ -1547,13 +1650,6 @@ class AutoDiffRev:
     def __bool__(self):
         return bool(self.get_value())
 
-    # def __repr__(self):
-    #     return """AutoDiff(names_init_vals={}, trace={})""".format(
-    #                             repr(self.names_init_vals),
-    #                             repr(repr(self.trace).strip('"'))
-    #                         )
-
-
     def __floordiv__(self, other):
         self.__check_compatibility(other)
         return self.get_value() // other
@@ -1720,6 +1816,7 @@ class AutoDiffRev:
 
              
     def diagnose(self):
+        """prints reverse mode vars, tool for internal developer debugging"""
         print("value")
         print(self.val)
         
@@ -1740,7 +1837,7 @@ class AutoDiffRev:
 
 
 class AutoDiffRevVector:
-    """AutoDiffVector class that takes as input an iterable of AutoDiff objects
+    """AutoDiffRevVector class that takes as input an iterable of AutoDiffRev objects
   or numeric primitives and keeps track of all named variables. Is largely a
   convenience interface for defining vector valued functions, performing
   bradcasting operations on vector valued functions, and computing the
@@ -1749,11 +1846,11 @@ class AutoDiffRevVector:
 
     """
     def __init__(self, auto_diff_variables):
-        """Constructor for AutoDiffVector. 
+        """Constructor for AutoDiffRevVector. 
 
             INPUTS
             =======
-            num: auto_diff_variables, an iterable of AutoDiff objects and
+            num: auto_diff_variables, an iterable of AutoDiffRev objects and
                   numeric primitives
             
         """
@@ -1765,13 +1862,13 @@ class AutoDiffRevVector:
             self.num_funcs = len(auto_diff_variables)
 
             if self.num_funcs == 0:
-                raise Exception("AutoDiffVector cannot be empty")
+                raise Exception("AutoDiffRevVector cannot be empty")
 
 
             self.__auto_diff_variables = list(auto_diff_variables)
 
 
-            # get all of the variable names for each AutoDiff object
+            # get all of the variable names for each AutoDiffRev object
             self.named_variables = set({})
             for ad in auto_diff_variables:
                 try:
@@ -1781,12 +1878,13 @@ class AutoDiffRevVector:
                     continue
 
         except:
-            raise Exception("AutoDiffVector requires an iterable as input")
+            raise Exception("AutoDiffRevVector requires an iterable as input")
 
         self.idx = 0
 
     @staticmethod
     def __verify_valid_input(adrs):
+        """verifies that input is valid arraytype of AutoDiffRev objects"""
         names_init_vals = {}
         for adr in adrs:
             if isinstance(adr, AutoDiff):
@@ -1808,7 +1906,7 @@ class AutoDiffRevVector:
         return self.copy()
 
     def __next__(self):
-        """iterable with respect to auto diff variables"""
+        """iterable with respect to AutoDiffRev variables"""
         if self.idx < self.num_funcs:
             result = self.__auto_diff_variables[self.idx]
             self.idx += 1
@@ -1817,13 +1915,13 @@ class AutoDiffRevVector:
             raise StopIteration
 
     def get_named_variables(self):
-        """return set of all named variables in all AutoDiff objects making up the
-        AutoDiffVector"""
+        """return set of all named variables in all AutoDiffRev objects making up the
+        AutoDiffRevVector"""
         return self.named_variables
 
     def get_values(self):
         """
-        returns a 1D numpy array containing all values of all AutoDiff objects
+        returns a 1D numpy array containing all values of all AutoDiffRev objects
         """
         results = []
 
@@ -1838,7 +1936,7 @@ class AutoDiffRevVector:
     def get_jacobian(self, order=None):
         """
         returns a 2D numpy array where the ith row is the gradient of the ith
-        AutoDiff object where the variables appear in a specified order.
+        AutoDiffRev object where the variables appear in a specified order.
         """
         num_vars = len(self.named_variables)
 
@@ -1879,19 +1977,19 @@ class AutoDiffRevVector:
 
     @staticmethod
     def combine(first, other, operation):
-        """Combines two objects that are some combination of AutoDiff,
-        AutoDiffVector, or numeric primitive. Performs scalar or vector
+        """Combines two objects that are some combination of AutoDiffRev,
+        AutoDiffRevVector, or numeric primitive. Performs scalar or vector
         operations where appropriate. 
 
             INPUTS
             =======
-            first: either a numeric primitive, AutoDiff, or AutoDiffVector
-            other: either a numeric primitive, AutoDiff, or AutoDiffVector
+            first: either a numeric primitive, AutoDiffRev, or AutoDiffRevVector
+            other: either a numeric primitive, AutoDiffRev, or AutoDiffRevVector
             operation: a binary operation on two numeric primitives
 
             RETURNS
             ========
-            An AutoDiffVector containing the result of the scalar or vector operation
+            An AutoDiffRevVector containing the result of the scalar or vector operation
             
         """
         result = []
@@ -2024,20 +2122,6 @@ class AutoDiffRevVector:
     def __bool__(self):
         return self.apply_to_vals(bool)
 
-    # def __repr__(self):
-    #     repr_str = "["
-    #     for var in self.__auto_diff_variables:
-    #         repr_str += repr(var)
-    #         repr_str += ','
-
-    #     repr_str = repr_str[:-1]
-
-    #     repr_str += ']'
-
-    #     return """AutoDiffRevVector(names_init_vals={}""".format(
-    #                             repr_str
-    #                         )
-
     def __getitem__(self, idx):
         return self.__auto_diff_variables[idx].copy()
 
@@ -2051,21 +2135,6 @@ class AutoDiffRevVector:
 
     def __contains__(self, item):
         raise NotImplementedError
-
-    # def __str__(self):
-    #     vec_str = "["
-
-    #     for var in self.__auto_diff_variables:
-    #         try:
-    #             vec_str += str(var.get_trace())
-    #         except AttributeError:
-    #             vec_str += str(var)
-    #         vec_str += ','
-
-    #     vec_str = vec_str[:-1]
-
-    #     vec_str += ']'
-    #     return vec_str
 
     def __floordiv__(self, other):
         return AutoDiffRevVector.combine(self, other, lambda x,y: x // y).get_values()
