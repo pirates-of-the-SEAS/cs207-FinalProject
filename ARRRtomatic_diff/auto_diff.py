@@ -153,6 +153,11 @@ class AutoDiff:
             else:
                 raise ValueError("named variables not specified")
 
+    def __check_compatibility(self, other):
+        if isinstance(other, AutoDiffRev):
+            raise TypeError("trying to perform an operation involving AutoDiff object and AutoDiffRev object")
+
+
     @staticmethod
     def __merge_names_init_vals(d1, d2):
         """Combines two dictionaries mapping variable names to initial values
