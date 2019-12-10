@@ -45,3 +45,8 @@ def test_nameless_instantiation():
         x = AutoDiffRev(val=3)
     except ValueError:
         print("Caught error as expected")
+
+
+def test_diagnose():
+    x = AutoDiffRev(name='x', val=-3)
+    assert x.diagnose() is None

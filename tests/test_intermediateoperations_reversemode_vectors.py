@@ -64,3 +64,17 @@ def test_composition():
     J, order = (ad.exp(u)**2).get_jacobian()
     np.testing.assert_array_almost_equal(J, [[44052.93158961341, 0], [0, 806.85758698547]]), "Composition failed"
 
+def test_dotproduct():
+    f1 = AutoDiffRev(name='x', val=5)
+    f2 = AutoDiffRev(name='y', val=3)
+    u = AutoDiffRevVector((f1, f2))
+    v = AutoDiffRevVector((-f2, -f2))
+    q = AutoDiffRevVector([0, 1])
+    t = AutoDiffRevVector([9, 8, 10])
+    assert u.dot(v) == -24, "Dot product failed"
+    assert u.dot(q) == 3, "Dot product failed"
+    assert q.dot(u).get_value() == 3, "Dot product failed"
+    try:
+        u.dot(t)
+    except Exception:
+        print("Caught error as expected")

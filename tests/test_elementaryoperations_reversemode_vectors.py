@@ -8,6 +8,8 @@ def test_vec_add():
     f2 = AutoDiffRev(name='y', val=3)
     u = AutoDiffRevVector((f1, f2))
     v = AutoDiffRevVector((-f2, f1))
+    w = AutoDiffRevVector([10, 10])
+    r = AutoDiffRevVector([-3, -3])
     q = [2, 1.5]
     np.testing.assert_array_equal((u + q).val, [1, 4.5]), 'Addition failed'
     np.testing.assert_array_equal((q + u).val, [1, 4.5]), 'Addition failed'
@@ -21,6 +23,9 @@ def test_vec_add():
     np.testing.assert_array_equal((v + u).val, [-4, 2]), 'Addition failed'
     J, order = (u + v).get_jacobian()
     np.testing.assert_array_equal(J, [[1, -1], [1, 1]]), 'Addition failed'
+    np.testing.assert_array_equal((w + r), [7, 7]), "Addition failed"
+    J, order = (w + r).get_jacobian()
+    np.testing.assert_array_equal(J, [[0], [0]]), "Addition failed"
 
 
 def test_vec_subtract():
@@ -46,6 +51,7 @@ def test_vec_multiply():
     f2 = AutoDiffRev(name='y', val=3)
     u = AutoDiffRevVector((f1, f2))
     v = AutoDiffRevVector((-f2, f1))
+    c = AutoDiffRevVector((f1, f1, 9, 3))
     q = [2, 0]
     t = [4, 4]
     np.testing.assert_array_equal((u * 3).val, [-3, 9]), 'Multiplication failed'
@@ -64,6 +70,7 @@ def test_vec_multiply():
     np.testing.assert_array_equal(J, [[-3, 1], [3, -1]]), 'Multiplication failed'
     J, order = (v * u).get_jacobian()
     np.testing.assert_array_equal(J, [[-3, 1], [3, -1]]), 'Multiplication failed'
+    np.testing.assert_array_equal((c * 2), [-2, -2, 18, 6]), "Multiplication failed"
 
 
 def test_vec_divide():
