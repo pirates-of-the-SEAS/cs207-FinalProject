@@ -30,42 +30,61 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
 
 
 if __name__ == '__main__':
-    x = AutoDiffRev(name='x', val=5)
-    y = AutoDiffRev(name='y', val=4)
+    # x = AutoDiffRev(name='x', val=5)
+    # x2 = AutoDiffRev(name='x', val=4)
+    # y = AutoDiffRev(name='y', val=4)
 
-    x_f = AutoDiff(name='x', val=5)
-    y_f = AutoDiff(name='y', val=4)
+    # set([x])
 
-    u_f = AutoDiffVector([
-        -y_f,
-        x_f
-    ])
+    # x_f = AutoDiff(name='x', val=5)
+    # y_f = AutoDiff(name='y', val=4)
 
-    v_f = AutoDiffVector([
-        x_f,
-        y_f
-    ])
+    # # u_f = AutoDiffVector([
+    # #     -y_f,
+    # #     x_f
+    # # ])
 
-    u = AutoDiffRevVector([
-        -y,
-        x
-    ])
+    # # v_f = AutoDiffVector([
+    # #     x_f,
+    # #     y_f
+    # # ])
 
-    v = AutoDiffRevVector([
-        x,
-        y
-    ])
+    # # u = AutoDiffRevVector([
+    # #     -y,
+    # #     x
+    # # ])
 
-    a = u_f - v_f
-    b = u + v
-    c = u - v
+    # # v = AutoDiffRevVector([
+    # #     x,
+    # #     y
+    # # ])
 
-    print(a.get_jacobian())
-    print(b.get_jacobian())
-    print(c.get_jacobian())
+    # a = x_f + y_f
+    # b = x + y
+
+    # print(a.get_gradient())
+    # print(b.get_gradient())
     
 
 
 
 
 
+    f1 = AutoDiff(name='x', val=-1)
+    f2 = AutoDiff(name='y', val=3)
+    u = AutoDiffVector((f1, f2))
+    v = AutoDiffVector((-f2, f1))
+    q = [2, 1.5]
+
+    np.testing.assert_array_equal((u + q).val, [1, 4.5]), 'Addition failed'
+    np.testing.assert_array_equal((q + u).val, [1, 4.5]), 'Addition failed'
+    J, order = (u + q).get_jacobian()
+    np.testing.assert_array_equal(J, [[1, 0], [0, 1]]), 'Addition failed'
+    J, order = (v + q).get_jacobian()
+    np.testing.assert_array_equal(J, [[0, -1], [1, 0]]), 'Addition failed'
+    J, order = (q + u).get_jacobian()
+    np.testing.assert_array_equal(J, [[1, 0], [0, 1]]), 'Addition failed'
+    np.testing.assert_array_equal((u + v).val, [-4,  2]), 'Addition failed'
+    np.testing.assert_array_equal((v + u).val, [-4, 2]), 'Addition failed'
+    J, order = (u + v).get_jacobian()
+    np.testing.assert_array_equal(J, [[1, -1], [1, 1]]), 'Addition failed'
