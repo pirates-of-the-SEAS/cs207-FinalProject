@@ -1324,49 +1324,50 @@ class AutoDiffRev:
         # except:
         #     pass
 
+        
         selfval = self.get_value()
-        otherval = other.get_value()
-
+        
         try:
+            otherval = other.get_value()
             return self.__update_binary_autodiff(other,
                                                  AutoDiffRev.__lpow,
                                                  otherval*selfval**(otherval-1),
                                                  selfval**otherval * np.log(selfval)
                                                  )
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__lpow, AutoDiff.__dlpow)
+            return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__lpow,
+                                                other * selfval**(other-1))
           
     def __rpow__(self, other):
         selfval = self.get_value()
-        otherval = other.get_value()
-
-        try:
-            return self.__update_binary_autodiff(other,
-                                                 AutoDiffRev.__lpow,
-                                                 selfval**otherval * np.log(selfval),
-                                                 otherval*selfval**(otherval-1)
-                                                 )
-        except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__rpow, AutoDiff.__drpow)
+        
+        return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__rpow,
+                                                selfval**other * np.log(selfval))
+                                                
 
     def __truediv__(self, other):
         selfval = self.get_value()
-        otherval = other.get_value()
-
+        
         try:
+            otherval = other.get_value()
             return self.__update_binary_autodiff(other,
                                                  AutoDiffRev.__ldiv,
                                                  1/otherval,
                                                  -1 * selfval / otherval**2
                                                  )
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__rpow, AutoDiff.__drpow)
+            return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__ldiv,
+                                                1/other)
 
     def __rtruediv__(self, other):
-        try:
-            return self.__update_binary_autodiff(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
-        except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
+        selfval = self.get_value()
+        
+        return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__rdiv,
+                                                -1 * other / selfval**2)
 
     def __neg__(self):
         return self * -1
