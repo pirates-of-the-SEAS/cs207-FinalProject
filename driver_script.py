@@ -30,51 +30,10 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
 
 
 if __name__ == '__main__':
-    # x = AutoDiffRev(name='x', val=5)
-    # x2 = AutoDiffRev(name='x', val=4)
-    # y = AutoDiffRev(name='y', val=4)
-
-    # set([x])
-
-    # x_f = AutoDiff(name='x', val=5)
-    # y_f = AutoDiff(name='y', val=4)
-
-    # # u_f = AutoDiffVector([
-    # #     -y_f,
-    # #     x_f
-    # # ])
-
-    # # v_f = AutoDiffVector([
-    # #     x_f,
-    # #     y_f
-    # # ])
-
-    # # u = AutoDiffRevVector([
-    # #     -y,
-    # #     x
-    # # ])
-
-    # # v = AutoDiffRevVector([
-    # #     x,
-    # #     y
-    # # ])
-
-    # a = x_f + y_f
-    # b = x + y
-
-    # print(a.get_gradient())
-    # print(b.get_gradient())
+   f1 = AutoDiffRev(name='x', val=1)
+   f2 = AutoDiffRev(name='x', val=3)
+   u = AutoDiffRevVector((f1, f2))
+   print(u.get_values())
     
 
 
-
-    f1 = AutoDiffRev(name='x', val=1)
-    f2 = AutoDiffRev(name='y', val=3)
-    u = AutoDiffRevVector((f1, f2))
-    v = AutoDiffRevVector([2, 2])
-    z = AutoDiffRevVector((f1, 9))
-    q = AutoDiffRevVector((f1, f1, 9, 3))
-    np.testing.assert_array_equal(u.val, [1, 3]), "Positive instantiation failed"
-    J, order = u.get_jacobian()
-
-    print(J)
