@@ -33,11 +33,6 @@ def test_tan():
     np.testing.assert_array_almost_equal(ad.tan(u).val, [2.18504, 0.414214]), 'Tan failed'
     J, order = (ad.tan(u)).get_jacobian()
     np.testing.assert_array_almost_equal(J, [[5.774399, 0], [0, 1.171573]], decimal=4), 'Tan failed'
-    v = AutoDiffRevVector([np.pi/2, 0])
-    try:
-        np.testing.assert_array_almost_equal(ad.tan(v).val, [2.18504, 0.414214]), 'Tan failed'
-    except TypeError:
-        print("Caught error as expected")
 
 
 def test_csc():
