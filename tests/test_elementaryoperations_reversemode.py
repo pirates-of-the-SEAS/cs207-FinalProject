@@ -34,7 +34,6 @@ def test_subtract():
     assert (x - 1) == 8, 'Subtraction failed'
     g, _ = (x - 1).get_gradient()
     assert g == [1], "Subtraction failed"
-    # assert (x - 1).trace['d_x'] == 1, 'Subtraction failed'
     assert (1 - x) == -8, 'Subtraction failed'
     g, _ = (1 - x).get_gradient()
     assert g == [-1], "Subtraction failed"
@@ -81,7 +80,7 @@ def test_divide():
     y = AutoDiffRev(name='y', val=-12)
     z = AutoDiffRev(name='z', val=0)
     q = AutoDiffRev(name='b0', val="string")
-    assert (x / 2)== 3, 'Division failed'
+    assert (x / 2) == 3, 'Division failed'
     g, _ = (x / 2).get_gradient()
     assert g == [1 / 2], 'Division failed'
     assert (18 / x) == 3, 'Division failed'
@@ -129,30 +128,36 @@ def test_exponentiation():
     z = AutoDiffRev(name='z', val=-2)
     q = AutoDiffRev(name='b0', val="string")
     r = AutoDiffRev(name='r', val=5)
-    # assert (x ** 2).get_value() == 9, "Exponentiation failed"
-    # g, _ = (x ** 2).get_gradient()
-    # assert g == [6], "Exponentiation failed"
-    # assert (2 ** x) == 8, "Exponentiation failed"
-    # assert np.allclose((2 ** x).trace['d_x'], 5.545177444479562, atol=1e-12) is True, "Exponentiation failed"
-    # assert (x ** 0) == 1, "Exponentiation failed"
-    # assert (x ** 0).trace['d_x'] == 0, "Exponentiation failed"
-    # assert (x ** -2) == (1 / 9), "Exponentiation failed"
-    # assert (x ** -2).trace['d_x'] == -2 / (3 ** 3), "Exponentiation failed"
-    # assert (z ** 2) == 4, "Exponentiation failed"
-    # assert (z ** 2).trace['d_z'] == -4, "Exponentiation failed"
-    # assert (z ** 3) == -8, "Exponentiation failed"
-    # assert (z ** 3).trace['d_z'] == 12, "Exponentiation failed"
-    # assert (y ** 2) == 0, "Exponentiation failed"
-    # assert (y ** 2).trace['d_y'] == 0, "Exponentiation failed"
+    assert (x ** 2) == 9, "Exponentiation failed"
+    g, _ = (x ** 2).get_gradient()
+    assert g == [6], "Exponentiation failed"
+    assert (2 ** x) == 8, "Exponentiation failed"
+    g, _ = (2 ** x).get_gradient()
+    np.testing.assert_array_almost_equal(g, [9.887511]), "Exponentiation failed"
+    assert (x ** 0) == 1, "Exponentiation failed"
+    g, _ = (x ** 0).get_gradient()
+    np.testing.assert_array_almost_equal(g, [0]), "Exponentiation failed"
+    assert (x ** -2) == (1 / 9), "Exponentiation failed"
+    g, _ = (x ** -2).get_gradient()
+    np.testing.assert_array_almost_equal(g, [-2 / (3 ** 3)]), "Exponentiation failed"
+    assert (z ** 2) == 4, "Exponentiation failed"
+    g, _ = (z ** 2).get_gradient()
+    np.testing.assert_array_almost_equal(g, [-4]), "Exponentiation failed"
+    assert (z ** 3) == -8, "Exponentiation failed"
+    g, _ = (z ** 3).get_gradient()
+    np.testing.assert_array_almost_equal(g, [12]), "Exponentiation failed"
+    assert (y ** 2) == 0, "Exponentiation failed"
+    g, _ = (y ** 2).get_gradient()
+    np.testing.assert_array_almost_equal(g, [0]), "Exponentiation failed"
     assert (x ** x).get_value() == 27, "Exponentiation failed"
     g, _ = (x ** x).get_gradient()
     assert g == [56.66253179403897], "Exponentiation failed"
     assert (r ** x) == 125, "Exponentiation failed"
     g, _ = (r ** x).get_gradient()
-    assert g == [75, 201.17973905426254], "Exponentiation failed"
+    np.testing.assert_array_almost_equal(g, [75, 201.17973905426254]), "Exponentiation failed"
     try:
         (q ** 5)
-    except AttributeError:
+    except TypeError:
         print("Caught error as expected")
 
 
@@ -342,7 +347,7 @@ def test_trunc():
 
 def test_str():
     x = AutoDiffRev(name='x', val=2)
-    assert str(x) == "{'val': 2, 'd_x': 1}", "Str failed"
+    assert str(x) == "2", "Str failed"
 
 
 def test_bool():
@@ -363,29 +368,10 @@ def test_named_variables():
     assert x.variables == {'x'}, "Get variables property failed"
 
 
-def test_get_trace():
-    x = AutoDiffRev(name='x', val=3)
-    assert x.get_trace() == {'d_x': 1, 'val': 3}, "Get trace failed"
-
-
 def test_get_value():
     x = AutoDiffRev(name='x', val=3)
     assert x.get_value() == 3, "Get value failed"
     assert x.val == 3, "Get value property failed"
-
-
-#
-# def test_get_gradient():
-#     x = AutoDiffRev(name='x', val=3)
-#     grad1, varnames = x.get_gradient()
-#     print("GRAD1", grad1)
-#     print("VARNAMES", varnames)
-#     grad2, _ = (8 * x).get_gradient()
-#     grad3, _ = x.gradient
-#
-#     assert np.allclose(grad1, np.array([1.])), "Get gradient failed"
-#     assert np.allclose(grad2, np.array([8.])), "Get gradient failed"
-#     assert np.allclose(grad3, np.array([1.])), "Get gradient property failed"
 
 
 def test_contains():
@@ -401,29 +387,11 @@ def test_shift():
     assert 2 << x == 64, "Shift failed"
 
 
-# def test_getitem():
-#     x = AutoDiffRev(name='x', val=13)
-#     assert x['val'] == 13, "Get item failed"
-#     assert x['d_x'] == 1, "Get item failed"
-
-
-# def test_setitem():
-#     x = AutoDiffRev(name='x', val=13)
-#     x['val'] = 2
-#     assert x['val'] == 2, "Set item failed"
-#     x['d_x'] = 24.7
-#     assert x['d_x'] == 24.7, "Set item failed"
-
-#
-# def test_repr():
-#     x = AutoDiffRev(name='x', val=13)
-#     assert repr(x) == """AutoDiffRev(names_init_vals={\'x\': 13}, trace="{\'val\': 13, \'d_x\': 1}")""", "Repr failed"
-#
-
 def test_neg():
     x = AutoDiffRev(name='x', val=2)
     assert -x == -2, "Neg failed"
-    assert -x.trace['d_x'] == -1, "Neg failed"
+    g, _ = (-x).get_gradient()
+    assert g == [-1], "Neg failed"
 
 
 def test_pos():
