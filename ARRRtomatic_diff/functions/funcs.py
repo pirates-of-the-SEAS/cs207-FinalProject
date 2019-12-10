@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 
-from .. import AutoDiff, AutoDiffRev, AutoDiffVector#, AutoDiffRevVector
+from .. import AutoDiff, AutoDiffRev, AutoDiffVector, AutoDiffRevVector
 
 def __update_unary(x, operation, doperation):
     """Updates an AutoDiff object with a unary operation or simply
