@@ -1027,6 +1027,8 @@ class AutoDiffRev:
     def __init__(self, val, name=None, breadcrumbs=None,
                  root_vars=None, names_init_vals=None):
 
+        self.UID = AutoDiffRev.generate_signature()
+
         # name
         self.name = name
         if names_init_vals is None:
@@ -1055,10 +1057,12 @@ class AutoDiffRev:
         if root_vars is None:
             self.root_vars = {name: set((self,))}
         else:
-            self.root_vars = root_vars 
+            self.root_vars = root_vars
+
+        
 
     def __hash__(self):
-        return hash(self.name)
+        return hash(self.UID)
 
     @staticmethod
     def __merge_names_init_vals(d1, d2):
@@ -1184,8 +1188,11 @@ class AutoDiffRev:
 
         for varname in order:
             s = 0
-            for adr in self.root_vars[varname]:
-                s += adr.__partial(self.breadcrumbs)
+            try:
+                for adr in self.root_vars[varname]:
+                    s += adr.__partial(self.breadcrumbs)
+            except KeyError:
+                pass
 
             result.append(s)
         
@@ -1229,9 +1236,7 @@ class AutoDiffRev:
 
         root_vars = self.get_root_vars()
         other_root_vars = other.get_root_vars()
-
-        print(root_vars)
-        print(other_root_vars)
+        
         updated_root_vars = AutoDiffRev.__merge_root_vars(root_vars,
                                                           other_root_vars)
 
