@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 
-from .. import AutoDiff, AutoDiffRev, AutoDiffVector
+from .. import AutoDiff, AutoDiffRev, AutoDiffVector#, AutoDiffRevVector
 
 def __update_unary(x, operation, doperation):
     """Updates an AutoDiff object with a unary operation or simply
@@ -22,17 +22,54 @@ def __update_unary(x, operation, doperation):
      unary operation
     """
 
-    # attempt to broadcast uperation to each element of iterable if possible
-    # try:
+    #attempt to broadcast uperation to each element of iterable if possible
+
+    if isinstance(x, AutoDiffVector):
+        results = []
+        for ad in x:
+            results.append(__update_unary(ad, operation, doperation))
+
+        return AutoDiffVector(results)
+
+    # if isinstance(x, AutoDiffRevVector):
+
     #     results = []
     #     for ad in x:
     #         results.append(__update_unary(ad, operation, doperation))
 
-    #     return AutoDiffVector(results)
-    # except TypeError:
-    #     pass
+    #     return AutoDiffRevVector(results)
 
-    try:
+
+    if isinstance(x, AutoDiffRev):
+        sig = AutoDiffRev.generate_signature()
+        updated_breadcrumbs = x.breadcrumbs | set([sig])    
+        
+        # keep track of root variables
+        updated_root_vars = x.root_vars.copy()
+
+        updated_names_init_vals = x.get_names_init_vals()
+
+        val = x.get_value()
+
+        updated_val = operation(val)
+
+        if np.isnan(updated_val):
+                raise ValueError
+
+        weight = doperation(val)
+
+        if np.isnan(weight):
+            raise ValueError
+        
+        z = AutoDiffRev(val=updated_val,
+                        breadcrumbs=updated_breadcrumbs,
+                        root_vars=updated_root_vars,
+                        names_init_vals=updated_names_init_vals)
+
+        x.children.append((weight, z, sig))
+        return z
+
+    if isinstance(x, AutoDiff):
         names_init_vals = x.get_names_init_vals()
         named_variables = x.get_named_variables()
         trace = x.get_trace()
@@ -70,10 +107,9 @@ def __update_unary(x, operation, doperation):
                 updated_trace[f'd_{var}'] =  updated_deriv 
             r = AutoDiff(names_init_vals=names_init_vals,
                         trace=updated_trace)
-        return r 
+        return r
 
-    except AttributeError:
-        return operation(x)
+    return operation(x)
 
 
 def _exp(base):

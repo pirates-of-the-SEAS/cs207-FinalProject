@@ -1102,7 +1102,7 @@ class AutoDiffRev:
         return self.get_gradient()
 
     @staticmethod
-    def __generate_signature():
+    def generate_signature():
         num_str = str(random.random())
         return hashlib.md5(num_str.encode()).hexdigest().upper()
 
@@ -1134,7 +1134,7 @@ class AutoDiffRev:
         
         self.__end = False
             
-        return result, order
+        return np.array(result), order
     
 
     def __update_binary_autodiff(self, other,
@@ -1160,8 +1160,8 @@ class AutoDiffRev:
             raise ValueError
 
 
-        sig1 = AutoDiffRev.__generate_signature()
-        sig2 = AutoDiffRev.__generate_signature()
+        sig1 = AutoDiffRev.generate_signature()
+        sig2 = AutoDiffRev.generate_signature()
         
         updated_breadcrumbs = self.breadcrumbs | \
                               other.breadcrumbs| \
@@ -1186,8 +1186,35 @@ class AutoDiffRev:
         return z
         
 
-    def __update_binary_numeric(self, num, update_val, update_deriv):
-        pass
+    def __update_binary_numeric(self, num, update_vals, partial):
+        updated_names_init_vals = self.get_names_init_vals()
+
+        val = self.get_value()
+
+        updated_val = update_vals(val, num)
+
+        # is typically thrown when an imaginary number appears or there's a
+        # division by 0
+        if np.isnan(updated_val):
+            raise ValueError
+
+        sig = AutoDiffRev.generate_signature()
+        
+        updated_breadcrumbs = self.breadcrumbs | set([sig])     
+        
+        # keep track of root variables
+        updated_root_vars = self.root_vars.copy()
+
+        # keep track of paths
+        z = AutoDiffRev(val=updated_val,
+                        breadcrumbs=updated_breadcrumbs,
+                        root_vars=updated_root_vars,
+                        names_init_vals=updated_names_init_vals)
+
+
+        self.children.append((partial, z, sig))
+
+        return z
 
     @staticmethod
     def __add(x, y):
@@ -1207,7 +1234,7 @@ class AutoDiffRev:
 
     @staticmethod
     def __lpow(x, y):
-        return x**y
+        return x**y 
 
     @staticmethod
     def __dlpow(x, y, dx, dy):
@@ -1255,7 +1282,9 @@ class AutoDiffRev:
                                                  1,
                                                  1)
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
+            return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__add,
+                                         1)
 
     def __radd__(self, other):
         return self + other
@@ -1279,7 +1308,9 @@ class AutoDiffRev:
                                                  other.get_value(),
                                                  self.get_value())
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__add, AutoDiff.__dadd)
+            return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__mul,
+                                                other)
 
 
             
@@ -1287,46 +1318,62 @@ class AutoDiffRev:
         return self * other
 
     def __pow__(self, other):
-        try:
-            iter(other)
-            return AutoDiffVector.combine(self, other, lambda x,y:x**y)
-        except:
-            pass
+        # try:
+        #     iter(other)
+        #     return AutoDiffVector.combine(self, other, lambda x,y:x**y)
+        # except:
+        #     pass
 
+        
+        selfval = self.get_value()
+        
         try:
-            return self.__update_binary_autodiff(other, AutoDiff.__lpow, AutoDiff.__dlpow)
+            otherval = other.get_value()
+            return self.__update_binary_autodiff(other,
+                                                 AutoDiffRev.__lpow,
+                                                 otherval*selfval**(otherval-1),
+                                                 selfval**otherval * np.log(selfval)
+                                                 )
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__lpow, AutoDiff.__dlpow)
+            return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__lpow,
+                                                other * selfval**(other-1))
           
     def __rpow__(self, other):
-        try:
-            return self.__update_binary_autodiff(other, AutoDiff.__rpow, AutoDiff.__drpow)
-        except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__rpow, AutoDiff.__drpow)
+        selfval = self.get_value()
+        
+        return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__rpow,
+                                                selfval**other * np.log(selfval))
+                                                
 
     def __truediv__(self, other):
+        selfval = self.get_value()
+        
         try:
-            iter(other)
-            return AutoDiffVector.combine(self, other, lambda x,y:x/y)
-        except:
-            pass
-
-        try:
-            return self.__update_binary_autodiff(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
+            otherval = other.get_value()
+            return self.__update_binary_autodiff(other,
+                                                 AutoDiffRev.__ldiv,
+                                                 1/otherval,
+                                                 -1 * selfval / otherval**2
+                                                 )
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
+            return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__ldiv,
+                                                1/other)
 
     def __rtruediv__(self, other):
-        try:
-            return self.__update_binary_autodiff(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
-        except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
+        selfval = self.get_value()
+        
+        return self.__update_binary_numeric(other,
+                                         AutoDiffRev.__rdiv,
+                                                -1 * other / selfval**2)
 
     def __neg__(self):
-        return -1 * self
+        return self * -1
 
     def __bool__(self):
-        return bool(self.get_trace()['val'])
+        return bool(self.get_value())
 
     # def __repr__(self):
     #     return """AutoDiff(names_init_vals={}, trace={})""".format(
@@ -1334,116 +1381,114 @@ class AutoDiffRev:
     #                             repr(repr(self.trace).strip('"'))
     #                         )
 
-    def __str__(self):
-        return str(self.trace)
 
     def __floordiv__(self, other):
-        return self.get_trace()['val'] // other
+        return self.get_value() // other
 
     def __mod__(self, other):
-        return self.get_trace()['val'] % other
+        return self.get_value() % other
 
     def __lshift__(self, other):
-        return self.get_trace()['val'] << other
+        return self.get_value() << other
 
     def __rshift__(self, other):
-        return self.get_trace()['val'] >> other
+        return self.get_value() >> other
 
     def __and__(self, other):
-        return self.get_trace()['val'] & other
+        return self.get_value() & other
 
     def __xor__(self, other):
-        return self.get_trace()['val'] ^ other
+        return self.get_value() ^ other
 
     def __or__(self, other):
-        return self.get_trace()['val'] | other
+        return self.get_value() | other
 
     def __rfloordiv__(self, other):
-        return other // self.get_trace()['val']
+        return other // self.get_value()
 
     def __rmod__(self, other):
-        return other % self.get_trace()['val'] 
+        return other % self.get_value() 
 
     def __rlshift__(self, other):
-        return other << self.get_trace()['val']
+        return other << self.get_value()
 
     def __rrshift__(self, other):
-        return other >> self.get_trace()['val']
+        return other >> self.get_value()
 
     def __rand__(self, other):
-        return other & self.get_trace()['val'] 
+        return other & self.get_value() 
 
     def __rxor__(self, other):
-        return other ^ self.get_trace()['val']
+        return other ^ self.get_value()
 
     def __ror__(self, other):
-        return other | self.get_trace()['val']
+        return other | self.get_value()
 
     def __pos__(self):
         return self
 
     def __abs__(self):
-        return abs(self.get_trace()['val'])
+        return abs(self.get_value())
 
     def __round__(self):
-        return round(self.get_trace()['val'])
+        return round(self.get_value())
 
     def __floor__(self):
-        return math.floor(self.get_trace()['val'])
+        return math.floor(self.get_value())
 
     def __ceil__(self):
-        return math.ceil(self.get_trace()['val'])
+        return math.ceil(self.get_value())
 
     def __trunc__(self):
-        return math.trunc(self.get_trace()['val'])
+        return math.trunc(self.get_value())
 
     def __invert__(self):
-        return ~self.get_trace()['val']
+        return ~self.get_value()
 
     def __complex__(self):
-        return complex(self.get_trace()['val'])
+        return complex(self.get_value())
 
     def __int__(self):
-        return int(self.get_trace()['val'])
+        return int(self.get_value())
 
     def __float__(self):
-        return float(self.get_trace()['val'])
+        return float(self.get_value())
 
     def __lt__(self, other):
         try:
-            return self.get_trace()['val'] < other.get_trace()['val']
+            return self.get_value() < other.get_value()
         except:
-            return self.get_trace()['val'] < other
+            return self.get_value() < other
 
     def __le__(self, other):
         try:
-            return self.get_trace()['val'] <= other.get_trace()['val']
+            return self.get_value() <= other.get_value()
         except:
-            return self.get_trace()['val'] <= other
+            return self.get_value() <= other
 
     def __eq__(self, other):
         try:
-            return self.get_trace()['val'] == other.get_trace()['val']
+            return self.get_value() == other.get_value()
         except:
-            return self.get_trace()['val'] == other
+            return self.get_value() == other
 
     def __ne__(self, other):
         try:
-            return self.get_trace()['val'] != other.get_trace()['val']
+            return self.get_value() != other.get_value()
         except:
-            return self.get_trace()['val'] != other
+            return self.get_value() != other
 
     def __ge__(self, other):
         try:
-            return self.get_trace()['val'] >= other.get_trace()['val']
+            return self.get_value() >= other.get_value()
         except:
-            return self.get_trace()['val'] >= other
+            return self.get_value() >= other
 
     def __gt__(self, other):
         try:
-            return self.get_trace()['val'] > other.get_trace()['val']
+            return self.get_value() > other.get_value()
         except:
-            return self.get_trace()['val'] > other
+            return self.get_value() > other
 
              
     def diagnose(self):
