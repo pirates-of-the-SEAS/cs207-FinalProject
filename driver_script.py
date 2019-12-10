@@ -30,14 +30,19 @@ from ARRRtomatic_diff.optimization import (do_newtons_method,
 
 
 if __name__ == '__main__':
-    x = AutoDiffRev(name='x', val=1)
-    y = AutoDiffRev(name='y', val=5)
-    z = AutoDiffRev(name='z', val=4)
+    x = AutoDiffRev(name='x', val=5)
+    y = AutoDiffRev(name='y', val=4)
 
-    w = z*(x + y)
+    x_f = AutoDiff(name='x', val=5)
+    y_f = AutoDiff(name='y', val=4)
 
+    a = sin(sin(sin(x_f)))
 
-    print(w.get_gradient())
+    b = sin(sin(sin(x)))
+
+    print(a.get_gradient())
+    print(b.get_gradient())
+    
 
 
 

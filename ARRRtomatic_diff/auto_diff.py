@@ -1102,7 +1102,7 @@ class AutoDiffRev:
         return self.get_gradient()
 
     @staticmethod
-    def __generate_signature():
+    def generate_signature():
         num_str = str(random.random())
         return hashlib.md5(num_str.encode()).hexdigest().upper()
 
@@ -1160,8 +1160,8 @@ class AutoDiffRev:
             raise ValueError
 
 
-        sig1 = AutoDiffRev.__generate_signature()
-        sig2 = AutoDiffRev.__generate_signature()
+        sig1 = AutoDiffRev.generate_signature()
+        sig2 = AutoDiffRev.generate_signature()
         
         updated_breadcrumbs = self.breadcrumbs | \
                               other.breadcrumbs| \
@@ -1207,7 +1207,7 @@ class AutoDiffRev:
 
     @staticmethod
     def __lpow(x, y):
-        return x**y
+        return x**y 
 
     @staticmethod
     def __dlpow(x, y, dx, dy):
@@ -1287,34 +1287,49 @@ class AutoDiffRev:
         return self * other
 
     def __pow__(self, other):
-        try:
-            iter(other)
-            return AutoDiffVector.combine(self, other, lambda x,y:x**y)
-        except:
-            pass
+        # try:
+        #     iter(other)
+        #     return AutoDiffVector.combine(self, other, lambda x,y:x**y)
+        # except:
+        #     pass
+
+        selfval = self.get_value()
+        otherval = other.get_value()
 
         try:
-            return self.__update_binary_autodiff(other, AutoDiff.__lpow, AutoDiff.__dlpow)
+            return self.__update_binary_autodiff(other,
+                                                 AutoDiffRev.__lpow,
+                                                 otherval*selfval**(otherval-1),
+                                                 selfval**otherval * np.log(selfval)
+                                                 )
         except AttributeError:
             return self.__update_binary_numeric(other, AutoDiff.__lpow, AutoDiff.__dlpow)
           
     def __rpow__(self, other):
+        selfval = self.get_value()
+        otherval = other.get_value()
+
         try:
-            return self.__update_binary_autodiff(other, AutoDiff.__rpow, AutoDiff.__drpow)
+            return self.__update_binary_autodiff(other,
+                                                 AutoDiffRev.__lpow,
+                                                 selfval**otherval * np.log(selfval),
+                                                 otherval*selfval**(otherval-1)
+                                                 )
         except AttributeError:
             return self.__update_binary_numeric(other, AutoDiff.__rpow, AutoDiff.__drpow)
 
     def __truediv__(self, other):
-        try:
-            iter(other)
-            return AutoDiffVector.combine(self, other, lambda x,y:x/y)
-        except:
-            pass
+        selfval = self.get_value()
+        otherval = other.get_value()
 
         try:
-            return self.__update_binary_autodiff(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
+            return self.__update_binary_autodiff(other,
+                                                 AutoDiffRev.__ldiv,
+                                                 1/otherval,
+                                                 -1 * selfval / otherval**2
+                                                 )
         except AttributeError:
-            return self.__update_binary_numeric(other, AutoDiff.__ldiv, AutoDiff.__dldiv)
+            return self.__update_binary_numeric(other, AutoDiff.__rpow, AutoDiff.__drpow)
 
     def __rtruediv__(self, other):
         try:
@@ -1323,10 +1338,10 @@ class AutoDiffRev:
             return self.__update_binary_numeric(other, AutoDiff.__rdiv, AutoDiff.__drdiv)
 
     def __neg__(self):
-        return -1 * self
+        return self * -1
 
     def __bool__(self):
-        return bool(self.get_trace()['val'])
+        return bool(self.get_value())
 
     # def __repr__(self):
     #     return """AutoDiff(names_init_vals={}, trace={})""".format(
@@ -1334,116 +1349,114 @@ class AutoDiffRev:
     #                             repr(repr(self.trace).strip('"'))
     #                         )
 
-    def __str__(self):
-        return str(self.trace)
 
     def __floordiv__(self, other):
-        return self.get_trace()['val'] // other
+        return self.get_value() // other
 
     def __mod__(self, other):
-        return self.get_trace()['val'] % other
+        return self.get_value() % other
 
     def __lshift__(self, other):
-        return self.get_trace()['val'] << other
+        return self.get_value() << other
 
     def __rshift__(self, other):
-        return self.get_trace()['val'] >> other
+        return self.get_value() >> other
 
     def __and__(self, other):
-        return self.get_trace()['val'] & other
+        return self.get_value() & other
 
     def __xor__(self, other):
-        return self.get_trace()['val'] ^ other
+        return self.get_value() ^ other
 
     def __or__(self, other):
-        return self.get_trace()['val'] | other
+        return self.get_value() | other
 
     def __rfloordiv__(self, other):
-        return other // self.get_trace()['val']
+        return other // self.get_value()
 
     def __rmod__(self, other):
-        return other % self.get_trace()['val'] 
+        return other % self.get_value() 
 
     def __rlshift__(self, other):
-        return other << self.get_trace()['val']
+        return other << self.get_value()
 
     def __rrshift__(self, other):
-        return other >> self.get_trace()['val']
+        return other >> self.get_value()
 
     def __rand__(self, other):
-        return other & self.get_trace()['val'] 
+        return other & self.get_value() 
 
     def __rxor__(self, other):
-        return other ^ self.get_trace()['val']
+        return other ^ self.get_value()
 
     def __ror__(self, other):
-        return other | self.get_trace()['val']
+        return other | self.get_value()
 
     def __pos__(self):
         return self
 
     def __abs__(self):
-        return abs(self.get_trace()['val'])
+        return abs(self.get_value())
 
     def __round__(self):
-        return round(self.get_trace()['val'])
+        return round(self.get_value())
 
     def __floor__(self):
-        return math.floor(self.get_trace()['val'])
+        return math.floor(self.get_value())
 
     def __ceil__(self):
-        return math.ceil(self.get_trace()['val'])
+        return math.ceil(self.get_value())
 
     def __trunc__(self):
-        return math.trunc(self.get_trace()['val'])
+        return math.trunc(self.get_value())
 
     def __invert__(self):
-        return ~self.get_trace()['val']
+        return ~self.get_value()
 
     def __complex__(self):
-        return complex(self.get_trace()['val'])
+        return complex(self.get_value())
 
     def __int__(self):
-        return int(self.get_trace()['val'])
+        return int(self.get_value())
 
     def __float__(self):
-        return float(self.get_trace()['val'])
+        return float(self.get_value())
 
     def __lt__(self, other):
         try:
-            return self.get_trace()['val'] < other.get_trace()['val']
+            return self.get_value() < other.get_value()
         except:
-            return self.get_trace()['val'] < other
+            return self.get_value() < other
 
     def __le__(self, other):
         try:
-            return self.get_trace()['val'] <= other.get_trace()['val']
+            return self.get_value() <= other.get_value()
         except:
-            return self.get_trace()['val'] <= other
+            return self.get_value() <= other
 
     def __eq__(self, other):
         try:
-            return self.get_trace()['val'] == other.get_trace()['val']
+            return self.get_value() == other.get_value()
         except:
-            return self.get_trace()['val'] == other
+            return self.get_value() == other
 
     def __ne__(self, other):
         try:
-            return self.get_trace()['val'] != other.get_trace()['val']
+            return self.get_value() != other.get_value()
         except:
-            return self.get_trace()['val'] != other
+            return self.get_value() != other
 
     def __ge__(self, other):
         try:
-            return self.get_trace()['val'] >= other.get_trace()['val']
+            return self.get_value() >= other.get_value()
         except:
-            return self.get_trace()['val'] >= other
+            return self.get_value() >= other
 
     def __gt__(self, other):
         try:
-            return self.get_trace()['val'] > other.get_trace()['val']
+            return self.get_value() > other.get_value()
         except:
-            return self.get_trace()['val'] > other
+            return self.get_value() > other
 
              
     def diagnose(self):
