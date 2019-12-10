@@ -215,13 +215,18 @@ class AutoDiff:
 
         """
 
-        g = np.zeros(len(self.names_init_vals))
-
         if order is None:
             order = sorted(self.get_named_variables())
 
+        g = np.zeros(len(order))
+
+
         for i, var in enumerate(order):
-            g[i] = self.trace[f'd_{var}']
+            try:
+                g[i] = self.trace[f'd_{var}']
+            except KeyError:
+                pass
+
 
         return g, order
 
@@ -1048,11 +1053,12 @@ class AutoDiffRev:
             self.breadcrumbs = breadcrumbs
             
         if root_vars is None:
-            self.root_vars = {name: self}
+            self.root_vars = {name: set((self,))}
         else:
             self.root_vars = root_vars 
 
-
+    def __hash__(self):
+        return hash(self.name)
 
     @staticmethod
     def __merge_names_init_vals(d1, d2):
@@ -1081,10 +1087,51 @@ class AutoDiffRev:
         # if they are, return a combined dictionary
         return dict(d1, **d2)
 
+    @staticmethod
+    def __merge_root_vars(d1, d2):
+        """Combines two dictionaries mapping variable names to initial values
+        and raises an exception if an inconsistency is found. 
+            INPUTS
+            =======
+            d1: the first dictionary
+            d2: the second dictionary
+
+            RETURNS
+            ========
+            a combined dictionary if all initial values are consistent. 
+
+        """
+        d1_keys = set(d1.keys())
+        d2_keys = set(d2.keys())
+
+        all_keys = d1_keys | d2_keys
+
+        d3 = {}
+
+        for key in all_keys:
+            try:
+                set1 = d1[key]
+            except:
+                set1 = set([])
+
+            try:
+                set2 = d2[key]
+            except:
+                set2 = set([])
+
+            combined_set = set1 | set2
+
+            d3[key] = combined_set
+       
+        return d3
+
+    def get_root_vars(self):
+        self.root_vars.copy()
+
     def get_names_init_vals(self):
         """Returns the dictionary containing the names and initial values of
         all of the variables used in the AutoDiff object"""
-        return self.names_init_vals
+        return self.names_init_vals.copy()
 
     def get_named_variables(self):
         """returns a set containing all of the named variables used in the AutoDiff object"""
@@ -1138,7 +1185,11 @@ class AutoDiffRev:
         self.__end = True
 
         for varname in order:
-            result.append(self.root_vars[varname].__partial(self.breadcrumbs))
+            s = 0
+            for adr in self.root_vars[varname]:
+                s += adr.__partial(self.breadcrumbs)
+
+            result.append(s)
         
         self.__end = False
             
@@ -1177,9 +1228,10 @@ class AutoDiffRev:
                               set([sig2])     
         
         # keep track of root variables
-        updated_root_vars = {}
-        updated_root_vars.update(self.root_vars)
-        updated_root_vars.update(other.root_vars)
+
+        root_vars = self.get_root_vars()
+        other_root_vars = other.get_root_vars()
+        updated_root_vars = AutoDiffRev.__merge_root_vars(d1, d2)
 
         # keep track of paths
         z = AutoDiffRev(val=updated_val,
@@ -1211,7 +1263,7 @@ class AutoDiffRev:
         updated_breadcrumbs = self.breadcrumbs | set([sig])     
         
         # keep track of root variables
-        updated_root_vars = self.root_vars.copy()
+        updated_root_vars = self.get_root_vars()
 
         # keep track of paths
         z = AutoDiffRev(val=updated_val,
