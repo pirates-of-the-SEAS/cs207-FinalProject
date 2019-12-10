@@ -1,6 +1,8 @@
+import math
+
 import numpy as np
 
-from .. import AutoDiff
+from .. import AutoDiff, AutoDiffRev, AutoDiffVector, AutoDiffRevVector
 
 def __update_unary(x, operation, doperation):
     """Updates an AutoDiff object with a unary operation or simply
@@ -19,7 +21,56 @@ def __update_unary(x, operation, doperation):
     An AutoDiff object whose value and gradient have been updated by the
      unary operation
     """
-    try:
+
+    #attempt to broadcast uperation to each element of iterable if possible
+
+    if isinstance(x, AutoDiffVector):
+        results = []
+        for ad in x:
+            results.append(__update_unary(ad, operation, doperation))
+
+        return AutoDiffVector(results)
+
+    if isinstance(x, AutoDiffRevVector):
+
+        results = []
+        for ad in x:
+            results.append(__update_unary(ad, operation, doperation))
+
+        return AutoDiffRevVector(results)
+
+
+    if isinstance(x, AutoDiffRev):
+        sig = AutoDiffRev.generate_signature()
+        updated_breadcrumbs = x.breadcrumbs | set([sig])    
+        
+        # keep track of root variables
+        updated_root_vars = x.root_vars.copy()
+
+        updated_names_init_vals = x.get_names_init_vals()
+
+        val = x.get_value()
+
+        updated_val = operation(val)
+
+        if np.isnan(updated_val):
+                raise ValueError
+
+        weight = doperation(val)
+
+        if np.isnan(weight):
+            raise ValueError
+        
+        z = AutoDiffRev(val=updated_val,
+                        breadcrumbs=updated_breadcrumbs,
+                        root_vars=updated_root_vars,
+                        names_init_vals=updated_names_init_vals)
+
+        x.children.append((weight, z, sig))
+        return z
+
+    if isinstance(x, AutoDiff):
+        names_init_vals = x.get_names_init_vals()
         named_variables = x.get_named_variables()
         trace = x.get_trace()
 
@@ -29,36 +80,79 @@ def __update_unary(x, operation, doperation):
         updated_trace.update(trace)
 
         updated_val = operation(val)
+
         if np.isnan(updated_val):
                 raise ValueError
 
         updated_trace['val'] = updated_val
         
 
-        for var in named_variables:
-            updated_deriv = doperation(val) * updated_trace[f'd_{var}']
-
+        # differentiate reverse and forward mode calculations
+        if isinstance(x, AutoDiffRev):
+            r = AutoDiffRev(names_init_vals=names_init_vals, trace=updated_trace)
+            r.grad_val = 1.
+            updated_deriv = doperation(val)
             if np.isnan(updated_deriv):
-                raise ValueError
+                    raise ValueError
+            x.interm_vals.append((updated_deriv, r))
+            updated_trace[f'd_{x.name}'] =  x.get_gradient()
+            r = AutoDiffRev(names_init_vals=names_init_vals, trace=updated_trace)
+        else:
+            for var in named_variables:
+                updated_deriv = doperation(val) * updated_trace[f'd_{var}']
 
-            updated_trace[f'd_{var}'] =  updated_deriv 
+                if np.isnan(updated_deriv):
+                    raise ValueError
 
-        return AutoDiff(name=named_variables,
+                updated_trace[f'd_{var}'] =  updated_deriv 
+            r = AutoDiff(names_init_vals=names_init_vals,
                         trace=updated_trace)
-    except:
-        return operation(x)
+        return r
 
-def exp(x):
-    return __update_unary(x, np.exp, np.exp)
+    return operation(x)
 
-def dlog(x):
-    if x <= 0:
-        raise ValueError
 
-    return 1./x
-   
-def log(x):
-    return __update_unary(x, np.log, dlog)
+def _exp(base):
+    def f(x):
+        return base**x
+
+    return f
+
+def dexp(base):
+    def f(x):
+        return base**x * np.log(base)
+
+    return f
+
+def exp(x, base=np.e):
+    return __update_unary(x, _exp(base), dexp(base))
+
+def dlog(base):
+    def f(x):
+        if x <= 0:
+            raise ValueError
+
+        return 1./(np.log(base)*x)
+
+    return f
+
+def _log(base):
+    def f(x):
+        return math.log(x, base)
+
+    return f
+
+def log(x, base=np.e):
+    return __update_unary(x, _log(base), dlog(base))
+
+def _logistic(x):
+    return 1/(1 + np.exp(-x))
+
+def dlogistic(x):
+    return _logistic(x)*(1 - _logistic(x))
+
+def logistic(x):
+    return __update_unary(x, _logistic, dlogistic )
 
 def dsqrt(x):
     if x <= 0:
@@ -68,6 +162,20 @@ def dsqrt(x):
 
 def sqrt(x):
     return __update_unary(x, np.sqrt, dsqrt)
+
+def droot(r):
+    def f(x):
+        return 1./r * x**(1./r - 1)
+
+    return f
+
+def _root(r):
+    def f(x):
+        return x**(1./r)
+    return f
+
+def root(x, r):
+    return __update_unary(x, _root(r), droot(r))
 
 def sin(x):
     return __update_unary(x, np.sin, np.cos)

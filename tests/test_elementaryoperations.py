@@ -96,6 +96,22 @@ def test_divide():
         print("Caught error as expected")
 
 
+def test_composition():
+    x = AutoDiff(name='x', val=2)
+    y = AutoDiff(name='y', val=-5)
+    z = AutoDiff(name='z', val=0)
+    q = AutoDiff(name='b0', val="string")
+    assert ((y + x) * y).trace['val'] == 15, 'Composition failed'
+    assert ((y + x) * y * y).trace['d_x'] == 25, 'Composition failed'
+    assert ((y + x) * y * y).trace['d_y'] == 55, 'Composition failed'
+    assert ((y - x) * y).trace['val'] == 35, 'Composition failed'
+    assert ((y - x) * y * y).trace['d_x'] == -25, 'Composition failed'
+    assert ((y - x) * y * y).trace['d_y'] == 95, 'Composition failed'
+    try:
+        assert ((y - x) * y * y)/z == 0
+    except ZeroDivisionError:
+        print("Caught Zero Division Error")
+
 def test_exponentiation():
     x = AutoDiff(name='x', val=3)
     y = AutoDiff(name='y', val=0)
@@ -308,12 +324,6 @@ def test_trunc():
     assert math.trunc(x) == -4, "Truncate failed"
 
 
-def test_len():
-    x = AutoDiff(name='x', val=133)
-    assert len(x) == 2, "Len failed"
-    assert 2 == len(x), "Len failed"
-
-
 def test_str():
     x = AutoDiff(name='x', val=2)
     assert str(x) == "{'val': 2, 'd_x': 1}", "Str failed"
@@ -350,9 +360,13 @@ def test_get_value():
 
 def test_get_gradient():
     x = AutoDiff(name='x', val=3)
-    assert x.get_gradient() == {'d_x': 1}, "Get gradient failed"
-    assert (8 * x).get_gradient() == {'d_x': 8}, "Get gradient failed"
-    assert x.gradient == {'d_x': 1}, "Get gradient property failed"
+    grad1, varnames = x.get_gradient()
+    grad2, _ = (8 * x).get_gradient()
+    grad3, _ = x.gradient
+
+    assert np.allclose(grad1, np.array([1.])), "Get gradient failed"
+    assert np.allclose(grad2, np.array([8.])), "Get gradient failed"
+    assert np.allclose(grad3, np.array([1.])), "Get gradient property failed"
 
 
 def test_contains():
@@ -368,23 +382,23 @@ def test_shift():
     assert 2 << x == 64, "Shift failed"
 
 
-def test_getitem():
-    x = AutoDiff(name='x', val=13)
-    assert x['val'] == 13, "Get item failed"
-    assert x['d_x'] == 1, "Get item failed"
+# def test_getitem():
+#     x = AutoDiff(name='x', val=13)
+#     assert x['val'] == 13, "Get item failed"
+#     assert x['d_x'] == 1, "Get item failed"
 
 
-def test_setitem():
-    x = AutoDiff(name='x', val=13)
-    x['val'] = 2
-    assert x['val'] == 2, "Set item failed"
-    x['d_x'] = 24.7
-    assert x['d_x'] == 24.7, "Set item failed"
+# def test_setitem():
+#     x = AutoDiff(name='x', val=13)
+#     x['val'] = 2
+#     assert x['val'] == 2, "Set item failed"
+#     x['d_x'] = 24.7
+#     assert x['d_x'] == 24.7, "Set item failed"
 
 
 def test_repr():
     x = AutoDiff(name='x', val=13)
-    assert repr(x) == """AutoDiff(name={\'x\'}, trace="{\'val\': 13, \'d_x\': 1}")""", "Repr failed"
+    assert repr(x) == """AutoDiff(names_init_vals={\'x\': 13}, trace="{\'val\': 13, \'d_x\': 1}")""", "Repr failed"
 
 
 def test_neg():

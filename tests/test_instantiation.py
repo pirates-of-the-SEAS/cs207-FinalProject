@@ -19,28 +19,36 @@ def test_instantiation_zero():
     assert x.trace['d_x'] == 1, 'Zero instantiation failed'
 
 
+def test_instantiation_noname():
+    try:
+        AutoDiff(val=4)
+    except ValueError:
+        print("Caught error as expected")
+
+
 def test_bogus_instantiation():
     try:
-        x = AutoDiff("gobbledgook")
+        AutoDiff("gobbledgook")
     except TypeError:
         print("Caught error as expected")
 
 
 def test_empty_instantiation():
     try:
-        x = AutoDiff()
+        AutoDiff()
     except ValueError:
         print("Caught error as expected")
 
 
 def test_double_instantiation():
     try:
-        x = AutoDiff(name='x', val=3, trace=3)
+        AutoDiff(name='x', val=3, trace=3)
     except ValueError:
         print("Caught error as expected")
 
+
 def test_nameless_instantiation():
     try:
-        x = AutoDiff(val=3)
+        AutoDiff(val=3)
     except ValueError:
         print("Caught error as expected")
