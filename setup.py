@@ -43,7 +43,7 @@ setup(
     # For a discussion on single-sourcing the version across setup.py and the
     # project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.7',  # Required
+    version='1.0.12',  # Required
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
@@ -52,7 +52,7 @@ setup(
 
     # This is an optional longer description of your project that represents
     # the body of text which users will see when they visit PyPI.
-    #
+    #py
     # Often, this is the same as your README, so you can just read it in from
     # that file directly (as we have already done above)
     #
@@ -124,7 +124,7 @@ setup(
 
     # When your source code is in a subdirectory under the project root, e.g.
     # `src/`, it is necessary to specify the `package_dir` argument.
-    package_dir={'': 'ARRRtomatic_diff'},  # Optional
+    # package_dir={'': 'ARRRtomatic_diff'},  # Optional
 
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
@@ -135,7 +135,7 @@ setup(
     #
     #   py_modules=["my_module"],
     #
-    packages=find_packages(where='ARRRtomatic_diff'),  # Required
+    packages=find_packages(),  # Required
 
     # Specify which Python versions you support. In contrast to the
     # 'Programming Language' classifiers above, 'pip install' will check this
@@ -156,8 +156,12 @@ setup(
         # 'mkl_fft==1.0.15',
         # 'mkl_random==1.1.0',
         'pip==19.3.1',
-        'numpy'   # DO NOT SPECIFY THE EXACT VERSIONS HERE IF YOU USED CONDA ENV TO EXPORT (conda export )
+        'numpy',   # DO NOT SPECIFY THE EXACT VERSIONS HERE IF YOU USED CONDA ENV TO EXPORT (conda export )
+        'scipy',
+        'pandas'
     ],  # Optional
+    setup_requires=['pytest-runner'],
+    tests_require = ['pytest'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
