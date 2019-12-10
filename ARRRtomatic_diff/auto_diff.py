@@ -664,7 +664,6 @@ class AutoDiffVector:
     def get_values(self):
         """
         returns a 1D numpy array containing all values of all AutoDiff objects
-
         """
         results = []
 
@@ -677,10 +676,18 @@ class AutoDiffVector:
         return np.array(results)
 
     def get_jacobian(self, order=None):
+        """
+        returns a 2D numpy array where the ith row is the gradient of the ith
+        AutoDiff object where the variables appear in a specified order.
+        """
         num_vars = len(self.named_variables)
+
+        # in the case where there are no named variables e.g
+        # the vector consists of numerics, return a zero column vector 
 
         if num_vars == 0:
             num_vars = 1
+            order = ['x']
         elif order is None:
             order = sorted(self.named_variables)
 
@@ -689,19 +696,12 @@ class AutoDiffVector:
 
         
         for i, ad in enumerate(self.__auto_diff_variables):
-            print(i, ad)
-            try:
-                for j, var in enumerate(order):
-                    try:
-                        J[i, j] = ad.get_trace()[f'd_{var}']
-                    except:
-                        pass
-            except:
-                pass
+            for j, var in enumerate(order):
+                try:
+                    J[i, j] = ad.get_trace()[f'd_{var}']
+                except:
+                    pass
 
-
-        if num_vars == 0:
-            order = ['x']
 
         return J, order
 
@@ -722,7 +722,23 @@ class AutoDiffVector:
 
     @staticmethod
     def combine(first, other, operation):
+        """Combines two objects that are some combination of AutoDiff,
+        AutoDiffVector, or numeric primitive. Performs scalar or vector
+        operations where appropriate. 
+
+            INPUTS
+            =======
+            first: either a numeric primitive, AutoDiff, or AutoDiffVector
+            other: either a numeric primitive, AutoDiff, or AutoDiffVector
+            operation: a binary operation on two numeric primitives
+
+            RETURNS
+            ========
+            An AutoDiffVector containing the result of the scalar or vector operation
+            
+        """
         result = []
+
         # both are iterables of the same length
         try:
             if len(first) != len(other):
@@ -768,6 +784,17 @@ class AutoDiffVector:
         raise ValueError
 
     def apply_to_vals(self, operation):
+        """Broadcasts a unary operation to each element in the
+           AutoDiffVector
+
+            INPUTS
+            =======
+            operation: unary operation
+
+            RETURNS
+            ========
+            An AutoDiffVector containing the result of the broadcasted unary opeartion
+        """
         result = []
 
         try:
@@ -781,6 +808,16 @@ class AutoDiffVector:
 
 
     def dot(self, other):
+        """computes a dot product with another iterable of the same dimension
+
+            INPUTS
+            =======
+            other: another iterable
+
+            RETURNS
+            ========
+            the result of the dot product. A numeric primiitive or AutoDifF
+        """
         if len(self) != len(other):
                 raise Exception("Dimentionality mismatch: {} vs {}".format(
                     len(self), len(other)))
@@ -862,7 +899,10 @@ class AutoDiffVector:
         vec_str = "["
 
         for var in self.__auto_diff_variables:
-            vec_str += str(var.get_trace())
+            try:
+                vec_str += str(var.get_trace())
+            except AttributeError:
+                vec_str += str(var)
             vec_str += ','
 
         vec_str = vec_str[:-1]

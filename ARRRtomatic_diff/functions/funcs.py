@@ -22,6 +22,7 @@ def __update_unary(x, operation, doperation):
      unary operation
     """
 
+    # attempt to broadcast uperation to each element of iterable if possible
     try:
         results = []
         for ad in x:
