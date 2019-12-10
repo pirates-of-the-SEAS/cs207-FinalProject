@@ -1426,10 +1426,16 @@ class AutoDiffRev:
         
         return self.__update_binary_numeric(other,
                                          AutoDiffRev.__rpow,
-                                                selfval**other * np.log(selfval))
+                                                other**selfval * np.log(other))
                                                 
 
     def __truediv__(self, other):
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(self, other, lambda x,y:x/y)
+        except:
+            pass
+
         selfval = self.get_value()
         
         try:
@@ -1445,6 +1451,13 @@ class AutoDiffRev:
                                                 1/other)
 
     def __rtruediv__(self, other):
+        try:
+            iter(other)
+            return AutoDiffRevVector.combine(other, self, lambda x,y:x/y)
+        except:
+            pass
+
+
         selfval = self.get_value()
         
         return self.__update_binary_numeric(other,
@@ -1925,7 +1938,7 @@ class AutoDiffRevVector:
         return AutoDiffRevVector.combine(self, other, lambda x,y: x // y).get_values()
 
     def __mod__(self, other):
-        return AutoDiffRevVector.combine(self, other, lambda x,y: x & y).get_values()
+        return AutoDiffRevVector.combine(self, other, lambda x,y: x % y).get_values()
 
     def __lshift__(self, other):
         return AutoDiffRevVector.combine(self, other, lambda x,y: x << y).get_values()
