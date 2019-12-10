@@ -78,4 +78,25 @@ def test_Diff_RevDiff_lt():
 
     assert x < y
 
+def test_DiffRev_Diff_lt():
+    x = AutoDiff(name='x', val=5)
+    y = AutoDiffRev(name='y', val=2)
+    assert y < x
+
+def test_RevDiff_Diff_add():
+    x = AutoDiff(name='x', val=2)
+    y = AutoDiffRev(name='y', val=-5)
+    try:
+        y+x
+    except TypeError as e:
+        print(e)
+
+def test_RevDiff_Diff_mul():
+    x = AutoDiff(name='x', val=2)
+    y = AutoDiffRev(name='y', val=-5)
+    try:
+        y+x
+    except TypeError as e:
+        print(e)
+
 

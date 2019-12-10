@@ -1139,6 +1139,10 @@ class AutoDiffRev:
     def __hash__(self):
         return hash(self.UID)
 
+    def __check_compatibility(self, other):
+        if isinstance(other, (AutoDiff, AutoDiffVector)):
+            raise TypeError("trying to perform an operation involving AutoDiff object and AutoDiffRev(vector) object")
+
     @staticmethod
     def merge_names_init_vals(d1, d2):
         """Combines two dictionaries mapping variable names to initial values
@@ -1413,6 +1417,7 @@ class AutoDiffRev:
         return (dy*x - y*dx)/x**2
 
     def __add__(self, other):
+        self.__check_compatibility(other)
         try:
             iter(other)
             return AutoDiffRevVector.combine(self, other, lambda x,y:x+y)
@@ -1439,6 +1444,7 @@ class AutoDiffRev:
         return other + -self
 
     def __mul__(self, other):
+        self.__check_compatibility(other)
         try:
             iter(other)
             return AutoDiffRevVector.combine(self, other, lambda x,y:x*y)
@@ -1461,6 +1467,7 @@ class AutoDiffRev:
         return self * other
 
     def __pow__(self, other):
+        self.__check_compatibility(other)
         try:
             iter(other)
             return AutoDiffRevVector.combine(self, other, lambda x,y:x**y)
@@ -1483,6 +1490,7 @@ class AutoDiffRev:
                                                 other * selfval**(other-1))
           
     def __rpow__(self, other):
+        self.__check_compatibility(other)
         try:
             iter(other)
             return AutoDiffRevVector.combine(other, self, lambda x,y:x**y)
@@ -1497,6 +1505,7 @@ class AutoDiffRev:
                                                 
 
     def __truediv__(self, other):
+        self.__check_compatibility(other)
         try:
             iter(other)
             return AutoDiffRevVector.combine(self, other, lambda x,y:x/y)
@@ -1518,6 +1527,7 @@ class AutoDiffRev:
                                                 1/other)
 
     def __rtruediv__(self, other):
+        self.__check_compatibility(other)
         try:
             iter(other)
             return AutoDiffRevVector.combine(other, self, lambda x,y:x/y)
@@ -1545,45 +1555,59 @@ class AutoDiffRev:
 
 
     def __floordiv__(self, other):
+        self.__check_compatibility(other)
         return self.get_value() // other
 
     def __mod__(self, other):
+        self.__check_compatibility(other)
         return self.get_value() % other
 
     def __lshift__(self, other):
+        self.__check_compatibility(other)
         return self.get_value() << other
 
     def __rshift__(self, other):
+        self.__check_compatibility(other)
         return self.get_value() >> other
 
     def __and__(self, other):
+        self.__check_compatibility(other)
         return self.get_value() & other
 
     def __xor__(self, other):
+        self.__check_compatibility(other)
         return self.get_value() ^ other
 
     def __or__(self, other):
+        self.__check_compatibility(other)
         return self.get_value() | other
 
     def __rfloordiv__(self, other):
+        self.__check_compatibility(other)
         return other // self.get_value()
 
     def __rmod__(self, other):
+        self.__check_compatibility(other)
         return other % self.get_value() 
 
     def __rlshift__(self, other):
+        self.__check_compatibility(other)
         return other << self.get_value()
 
     def __rrshift__(self, other):
+        self.__check_compatibility(other)
         return other >> self.get_value()
 
     def __rand__(self, other):
+        self.__check_compatibility(other)
         return other & self.get_value() 
 
     def __rxor__(self, other):
+        self.__check_compatibility(other)
         return other ^ self.get_value()
 
     def __ror__(self, other):
+        self.__check_compatibility(other)
         return other | self.get_value()
 
     def __pos__(self):
@@ -1618,11 +1642,25 @@ class AutoDiffRev:
 
     def __lt__(self, other):
         try:
+            self.__check_compatibility(other)
+        except:
+            # only runs into this if Diff~
+            if isinstance(other, AutoDiffVector):
+                raise TypeError("AutoDiffVector cannot be compared to AutoDiffRev")
+            return self.get_value() < other.get_value()
+        try:
             return self.get_value() < other.get_value()
         except:
             return self.get_value() < other
 
     def __le__(self, other):
+        try:
+            self.__check_compatibility(other)
+        except:
+            # only runs into this if Diff~
+            if isinstance(other, AutoDiffVector):
+                raise TypeError("AutoDiffVector cannot be compared to AutoDiffRev")
+            return self.get_value() <= other.get_value()
         try:
             return self.get_value() <= other.get_value()
         except:
@@ -1630,11 +1668,25 @@ class AutoDiffRev:
 
     def __eq__(self, other):
         try:
+            self.__check_compatibility(other)
+        except:
+            # only runs into this if Diff~
+            if isinstance(other, AutoDiffVector):
+                raise TypeError("AutoDiffVector cannot be compared to AutoDiffRev")
+            return self.get_value() == other.get_value()
+        try:
             return self.get_value() == other.get_value()
         except:
             return self.get_value() == other
 
     def __ne__(self, other):
+        try:
+            self.__check_compatibility(other)
+        except:
+            # only runs into this if Diff~
+            if isinstance(other, AutoDiffVector):
+                raise TypeError("AutoDiffVector cannot be compared to AutoDiffRev")
+            return self.get_value() != other.get_value()
         try:
             return self.get_value() != other.get_value()
         except:
@@ -1642,11 +1694,25 @@ class AutoDiffRev:
 
     def __ge__(self, other):
         try:
+            self.__check_compatibility(other)
+        except:
+            # only runs into this if Diff~
+            if isinstance(other, AutoDiffVector):
+                raise TypeError("AutoDiffVector cannot be compared to AutoDiffRev")
+            return self.get_value() >= other.get_value()
+        try:
             return self.get_value() >= other.get_value()
         except:
             return self.get_value() >= other
 
     def __gt__(self, other):
+        try:
+            self.__check_compatibility(other)
+        except:
+            # only runs into this if Diff~
+            if isinstance(other, AutoDiffVector):
+                raise TypeError("AutoDiffVector cannot be compared to AutoDiffRev")
+            return self.get_value() > other.get_value()
         try:
             return self.get_value() > other.get_value()
         except:
