@@ -155,7 +155,7 @@ setup(
         # 'mkl-service==2.3.0',
         # 'mkl_fft==1.0.15',
         # 'mkl_random==1.1.0',
-        'pip==19.3.1',
+        'pip==21.1',
         'numpy',   # DO NOT SPECIFY THE EXACT VERSIONS HERE IF YOU USED CONDA ENV TO EXPORT (conda export )
         'scipy',
         'pandas'
